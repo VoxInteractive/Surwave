@@ -1,16 +1,16 @@
 [gd_scene load_steps=4 format=3 uid="uid://b6bjohq7ewbe0"]
 
-[ext_resource type="Script" uid="uid://bqur363lsbm3k" path="res://Player/player.gd" id="1_1kbk7"]
-[ext_resource type="Texture2D" uid="uid://5cwvcedtanps" path="res://Player/sprites.png" id="1_cyojo"]
+[ext_resource type="Script" uid="uid://bqur363lsbm3k" path="res://scenes/Player/player.gd" id="1_1kbk7"]
+[ext_resource type="Texture2D" uid="uid://5cwvcedtanps" path="res://scenes/Player/sprites.png" id="1_cyojo"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_cyojo"]
 radius = 6.0
 
 [node name="Player" type="CharacterBody2D" groups=["Players"]]
 collision_layer = 4
-collision_mask = 11
+collision_mask = 9
 script = ExtResource("1_1kbk7")
-movement_speed = 100.0
+movement_speed = 1000.0
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("1_cyojo")

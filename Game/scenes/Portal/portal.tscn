@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://fcwmuj8ibae2"]
 
-[ext_resource type="Texture2D" uid="uid://bnvwsgkmmputt" path="res://Portal/Portal.png" id="1_24q13"]
+[ext_resource type="Texture2D" uid="uid://bnvwsgkmmputt" path="res://scenes/Portal/Portal.png" id="1_24q13"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_0jopo"]
 radius = 26.0

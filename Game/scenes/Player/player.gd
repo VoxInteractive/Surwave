@@ -1,7 +1,7 @@
 extends CharacterBody2D
 
 @export_group("Movement")
-@export_range(1.0, 100.0, 1.0)
+@export_range(1.0, 1000.0, 1.0)
 var movement_speed :float = 20.0
 
 var input_movement_vector :Vector2

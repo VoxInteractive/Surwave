@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bsytlpghr1tdw"
-path="res://.godot/imported/status.png-1c95677283109770eb9f4bb1a8f83526.ctex"
+uid="uid://pwpiyyc44edk"
+path="res://.godot/imported/grass3.png-a84adc2ae904866e2025051c1df0de36.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Player/status.png"
-dest_files=["res://.godot/imported/status.png-1c95677283109770eb9f4bb1a8f83526.ctex"]
+source_file="res://scenes/Stage 01/foliage/grass3.png"
+dest_files=["res://.godot/imported/grass3.png-a84adc2ae904866e2025051c1df0de36.ctex"]
 
 [params]
 
