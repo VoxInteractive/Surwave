@@ -4,7 +4,7 @@ class_name Stage extends Node
 ## The terrain margin in terms of tile count of the Borders tile map layer.
 @export var terrain_margin: int = 3
 ## The number of objects to place. The actual number of total objects placed may be lower due to skip logic
-@export var object_count: int = 10000
+@export var object_count: int = 200
 
 @export_category("Gameplay")
 @export var difficulty_curve: Curve
@@ -15,8 +15,8 @@ var calculated_outer_margin: int
 var landmark_occupied_areas: Array[Rect2]
 
 @onready var terrain: MeshInstance2D = $Terrain
-@onready var borders: TileMapLayer = $Terrain/Borders
 @onready var objects: TileMapLayer = $Terrain/Objects
+@onready var borders: TileMapLayer = $Terrain/Borders
 @onready var landmarks: Node = $Landmarks
 
 
@@ -39,12 +39,12 @@ func _validate_terrain() -> void:
 	assert(terrain.mesh != null, "A terrain mesh must be set for the stage.")
 	assert(terrain.mesh.size.x == terrain.mesh.size.y, "Terrain mesh must be a square.")
 
+	assert(objects != null, "Node at path $Terrain/Objects is missing or not a TileMapLayer.")
+	assert(objects.tile_set != null, "Objects must be a valid TileMapLayer with a tile_set assigned.")
+
 	assert(borders != null, "Node at path $Terrain/Borders is missing or not a TileMapLayer.")
 	assert(borders.tile_set != null, "Borders must be a valid TileMapLayer with a tile_set assigned.")
 	assert(borders.tile_set.tile_size.x == borders.tile_set.tile_size.y, "Border tiles must be square")
-
-	assert(objects != null, "Node at path $Terrain/Objects is missing or not a TileMapLayer.")
-	assert(objects.tile_set != null, "Objects must be a valid TileMapLayer with a tile_set assigned.")
 
 	assert(landmarks != null, "'Landmarks' node is missing or is invalid.")
 
@@ -120,8 +120,20 @@ func _place_objects(outer_bound: float = terrain.mesh.size.x - calculated_outer_
 				break
 		
 		if can_place:
+			var transforms = [
+				0, # No transform
+				TileSetAtlasSource.TRANSFORM_FLIP_H,
+				TileSetAtlasSource.TRANSFORM_FLIP_V,
+				# ROTATE_90
+				TileSetAtlasSource.TRANSFORM_TRANSPOSE | TileSetAtlasSource.TRANSFORM_FLIP_H,
+				# ROTATE_180
+				TileSetAtlasSource.TRANSFORM_FLIP_H | TileSetAtlasSource.TRANSFORM_FLIP_V,
+				# ROTATE_270
+				TileSetAtlasSource.TRANSFORM_TRANSPOSE | TileSetAtlasSource.TRANSFORM_FLIP_V,
+			]
+			var random_transform = transforms.pick_random()
 			var random_tile = available_tiles.pick_random()
-			objects.set_cell(map_coords, random_tile.source_id, random_tile.atlas_coords)
+			objects.set_cell(map_coords, random_tile.source_id, random_tile.atlas_coords, random_transform)
 			placed_count += 1
 
 	print("Stage::_place_objects: placed ", placed_count, " objects out of ", object_count, " maximum possible.")
