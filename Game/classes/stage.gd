@@ -66,24 +66,18 @@ func _mark_landmark_occupied_areas() -> void:
 			var landmark_position: Vector2 = landmark.position - landmark_size / 2
 			landmark_occupied_areas.append(Rect2(landmark_position, landmark_size))
 
-func _place_foliage(inner_boundary: float = 100.0, random_scale_factor: float = 0.5) -> void:
+func _place_foliage(inner_boundary: float = 100.0) -> void:
 	if foliage == null: return
 
 	var half_terrain_size = terrain.mesh.size / 2.0
 	for multimesh_instance in foliage.get_children():
 		if multimesh_instance.multimesh == null or not multimesh_instance is MultiMeshInstance2D: continue
 
-		for i in range(multimesh_instance.multimesh.instance_count):
-			var random_rotation: float = randf_range(0, 2 * PI)
-			var random_scale: Vector2 = Vector2(randf_range(1 - random_scale_factor, 1 + random_scale_factor), randf_range(1 - random_scale_factor, 1 + random_scale_factor))
-			var random_position: Vector2 = Vector2(randf_range(-half_terrain_size.x, half_terrain_size.x), randf_range(-half_terrain_size.y, half_terrain_size.y))
+		for i in multimesh_instance.multimesh.instance_count:
+			var random_position = Vector2(randf_range(-half_terrain_size.x, half_terrain_size.x), randf_range(-half_terrain_size.y, half_terrain_size.y))
 			# Discard points inside the inner square.
-			if abs(random_position.x) < inner_boundary and abs(random_position.y) < inner_boundary:
-				continue
-
-			var basis = Transform2D(random_rotation, Vector2.ZERO).scaled(random_scale)
-			var final_transform = Transform2D(basis.x, basis.y, random_position)
-			multimesh_instance.multimesh.set_instance_transform_2d(i, final_transform)
+			if abs(random_position.x) < inner_boundary and abs(random_position.y) < inner_boundary: continue
+			multimesh_instance.multimesh.set_instance_transform_2d(i, Transform2D(randf_range(0, TAU), random_position))
 
 func _place_objects(inner_boundary: float = 100.0) -> int:
 	if objects == null: return 0
