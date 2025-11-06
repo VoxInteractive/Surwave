@@ -6,8 +6,8 @@
 
 [node name="Game" type="Node"]
 
+[node name="Player" parent="." instance=ExtResource("1_80nbo")]
+
 [node name="Camera" parent="." instance=ExtResource("1_feb5d")]
 
 [node name="Stage01" parent="." instance=ExtResource("2_e2o6t")]
-
-[node name="Player" parent="." instance=ExtResource("1_80nbo")]

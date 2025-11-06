@@ -30,6 +30,7 @@ func _ready() -> void:
 	_place_objects()
 	_initialise_altars()
 	_initialise_portals()
+	_set_camera_limits()
 
 
 func _validate_terrain() -> void:
@@ -151,6 +152,12 @@ func _initialise_altars() -> void:
 func _initialise_portals() -> void:
 	portal_nodes = get_tree().get_nodes_in_group("Portals")
 
+func _set_camera_limits() -> void:
+	var camera = get_tree().get_root().get_node("Game/Camera") as Camera2D
+	if camera:
+		camera.set_limits(terrain.mesh.size)
+	else:
+		push_warning("Stage: Camera node not found, couldn't set limits.")
 
 func _process(delta: float) -> void:
 	pass
