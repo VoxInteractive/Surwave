@@ -11,10 +11,11 @@ class_name Stage extends Node
 
 var altar_nodes: Array[Node]
 var portal_nodes: Array[Node]
-var calculated_outer_margin: int
+var half_outer_boundary: float
 var landmark_occupied_areas: Array[Rect2]
 
 @onready var terrain: MeshInstance2D = $Terrain
+@onready var foliage: Node2D = $Terrain/Foliage
 @onready var objects: TileMapLayer = $Terrain/Objects
 @onready var borders: TileMapLayer = $Terrain/Borders
 @onready var landmarks: Node = $Landmarks
@@ -22,15 +23,12 @@ var landmark_occupied_areas: Array[Rect2]
 
 func _ready() -> void:
 	_validate_terrain()
-
-	calculated_outer_margin = borders.tile_set.tile_size.x * terrain_margin
+	half_outer_boundary = (terrain.mesh.size.x - (borders.tile_set.tile_size.x * terrain_margin)) / 2.0
 
 	_mark_landmark_occupied_areas()
-
+	_place_foliage()
 	_place_objects()
-
 	_initialise_altars()
-
 	_initialise_portals()
 
 
@@ -38,9 +36,6 @@ func _validate_terrain() -> void:
 	assert(terrain != null, "Node at path $Terrain is missing or not a MeshInstance2D.")
 	assert(terrain.mesh != null, "A terrain mesh must be set for the stage.")
 	assert(terrain.mesh.size.x == terrain.mesh.size.y, "Terrain mesh must be a square.")
-
-	assert(objects != null, "Node at path $Terrain/Objects is missing or not a TileMapLayer.")
-	assert(objects.tile_set != null, "Objects must be a valid TileMapLayer with a tile_set assigned.")
 
 	assert(borders != null, "Node at path $Terrain/Borders is missing or not a TileMapLayer.")
 	assert(borders.tile_set != null, "Borders must be a valid TileMapLayer with a tile_set assigned.")
@@ -71,7 +66,27 @@ func _mark_landmark_occupied_areas() -> void:
 			var landmark_position: Vector2 = landmark.position - landmark_size / 2
 			landmark_occupied_areas.append(Rect2(landmark_position, landmark_size))
 
-func _place_objects(outer_bound: float = terrain.mesh.size.x - calculated_outer_margin, inner_bound: float = 20.0) -> void:
+func _place_foliage(inner_boundary: float = 100.0, random_scale_factor: float = 0.5) -> void:
+	if foliage == null: return
+
+	var half_terrain_size = terrain.mesh.size / 2.0
+	for multimesh_instance in foliage.get_children():
+		if multimesh_instance.multimesh == null or not multimesh_instance is MultiMeshInstance2D: continue
+
+		for i in range(multimesh_instance.multimesh.instance_count):
+			var random_rotation: float = randf_range(0, 2 * PI)
+			var random_scale: Vector2 = Vector2(randf_range(1 - random_scale_factor, 1 + random_scale_factor), randf_range(1 - random_scale_factor, 1 + random_scale_factor))
+			var random_position: Vector2 = Vector2(randf_range(-half_terrain_size.x, half_terrain_size.x), randf_range(-half_terrain_size.y, half_terrain_size.y))
+			# Discard points inside the inner square.
+			if abs(random_position.x) < inner_boundary and abs(random_position.y) < inner_boundary:
+				continue
+
+			var basis = Transform2D(random_rotation, Vector2.ZERO).scaled(random_scale)
+			var final_transform = Transform2D(basis.x, basis.y, random_position)
+			multimesh_instance.multimesh.set_instance_transform_2d(i, final_transform)
+
+func _place_objects(inner_boundary: float = 100.0) -> int:
+	if objects == null: return 0
 	var available_tiles = []
 	for i in range(objects.tile_set.get_source_count()):
 		var source_id = objects.tile_set.get_source_id(i)
@@ -82,20 +97,18 @@ func _place_objects(outer_bound: float = terrain.mesh.size.x - calculated_outer_
 				available_tiles.append({"source_id": source_id, "atlas_coords": atlas_coords})
 
 	if available_tiles.is_empty():
-		return
+		return 0
 
 	var placed_count = 0
 	var max_attempts = object_count * 5 # To avoid an infinite loop
 	var attempts = 0
 
-	var half_outer_bound = outer_bound / 2.0
-
 	while placed_count < object_count and attempts < max_attempts:
 		attempts += 1
-		var random_pos = Vector2(randf_range(-half_outer_bound, half_outer_bound), randf_range(-half_outer_bound, half_outer_bound))
+		var random_pos = Vector2(randf_range(-half_outer_boundary, half_outer_boundary), randf_range(-half_outer_boundary, half_outer_boundary))
 
 		# Discard points inside the inner square. The outer square is already handled by the random range.
-		if abs(random_pos.x) < inner_bound and abs(random_pos.y) < inner_bound:
+		if abs(random_pos.x) < inner_boundary and abs(random_pos.y) < inner_boundary:
 			continue
 		
 		var tile_size = objects.tile_set.tile_size.x
@@ -136,7 +149,7 @@ func _place_objects(outer_bound: float = terrain.mesh.size.x - calculated_outer_
 			objects.set_cell(map_coords, random_tile.source_id, random_tile.atlas_coords, random_transform)
 			placed_count += 1
 
-	print("Stage::_place_objects: placed ", placed_count, " objects out of ", object_count, " maximum possible.")
+	return placed_count
 
 func _initialise_altars() -> void:
 	altar_nodes = get_tree().get_nodes_in_group("Altars")
