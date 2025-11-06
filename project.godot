@@ -29,7 +29,7 @@ window/stretch/mode="viewport"
 
 [global_group]
 
-Player="root nodes of Player scenes belong to this group"
+Players="root nodes of Player scenes belong to this group"
 
 [input]
 
@@ -162,8 +162,9 @@ back={
 
 2d_physics/layer_1="Borders"
 2d_physics/layer_2="Objects"
-2d_physics/layer_3="Player"
-2d_physics/layer_4="Portal"
+2d_physics/layer_3="Players"
+2d_physics/layer_4="Portals"
+2d_physics/layer_5="Monsters"
 
 [rendering]
 

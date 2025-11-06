@@ -13,11 +13,13 @@ func _ready() -> void:
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _acquire_target(target_node_group_name: String = "Player") -> void:
+func _acquire_target(target_node_group_name: String = "Players") -> void:
 	player_nodes = get_tree().get_nodes_in_group(target_node_group_name)
 	if player_nodes.size() > 0:
 		player = player_nodes[0] as Node2D
 		target_position = player.global_position
+	else:
+		push_warning("Camera: No players found")
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
