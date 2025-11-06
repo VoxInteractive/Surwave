@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://5cwvcedtanps"
-path="res://.godot/imported/sprites.png-503736d47900e8359f0eca7faf95261d.ctex"
+uid="uid://bnvwsgkmmputt"
+path="res://.godot/imported/Portal.png-fdde3535c45240bbd6ccd860ae9ad772.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://scenes/Player/sprites.png"
-dest_files=["res://.godot/imported/sprites.png-503736d47900e8359f0eca7faf95261d.ctex"]
+source_file="res://Portal/Portal.png"
+dest_files=["res://.godot/imported/Portal.png-fdde3535c45240bbd6ccd860ae9ad772.ctex"]
 
 [params]
 
