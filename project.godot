@@ -27,6 +27,10 @@ window/size/viewport_height=1080
 window/size/mode=3
 window/stretch/mode="viewport"
 
+[global_group]
+
+Player="root nodes of Player scenes belong to this group"
+
 [input]
 
 move_up={
