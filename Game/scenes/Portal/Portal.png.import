@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bpagas30bun5u"
-path="res://.godot/imported/Altar.png-ec9828d419cc8bdc7ebafff545ebc71f.ctex"
+uid="uid://bnvwsgkmmputt"
+path="res://.godot/imported/Portal.png-01205bd938734e3991b8076b0f7ab9d0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Altar/Altar.png"
-dest_files=["res://.godot/imported/Altar.png-ec9828d419cc8bdc7ebafff545ebc71f.ctex"]
+source_file="res://scenes/Portal/Portal.png"
+dest_files=["res://.godot/imported/Portal.png-01205bd938734e3991b8076b0f7ab9d0.ctex"]
 
 [params]
 

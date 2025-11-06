@@ -1,8 +1,8 @@
 [gd_scene load_steps=4 format=3 uid="uid://cwaod45hj5gi"]
 
-[ext_resource type="PackedScene" uid="uid://b6bjohq7ewbe0" path="res://Player/player.tscn" id="1_80nbo"]
-[ext_resource type="PackedScene" uid="uid://bx5j7bdn1x3rt" path="res://Camera/camera.tscn" id="1_feb5d"]
-[ext_resource type="PackedScene" uid="uid://1f0s78v8ooax" path="res://Stage 01/stage_01.tscn" id="2_e2o6t"]
+[ext_resource type="PackedScene" uid="uid://b6bjohq7ewbe0" path="res://scenes/Player/player.tscn" id="1_80nbo"]
+[ext_resource type="PackedScene" uid="uid://bx5j7bdn1x3rt" path="res://scenes/Camera/camera.tscn" id="1_feb5d"]
+[ext_resource type="PackedScene" uid="uid://1f0s78v8ooax" path="res://scenes/Stage 01/stage_01.tscn" id="2_e2o6t"]
 
 [node name="Game" type="Node"]
 

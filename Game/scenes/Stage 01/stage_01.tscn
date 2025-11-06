@@ -1,9 +1,9 @@
 [gd_scene load_steps=13 format=4 uid="uid://1f0s78v8ooax"]
 
-[ext_resource type="Script" uid="uid://b0ekcl6i0i8y0" path="res://Stage 01/stage_01.gd" id="1_eml3u"]
-[ext_resource type="Texture2D" uid="uid://d6c6qr0di0ba" path="res://Stage 01/tiles_outdoors.png" id="1_oji7v"]
-[ext_resource type="PackedScene" uid="uid://fcwmuj8ibae2" path="res://Portal/portal.tscn" id="2_ps4hv"]
-[ext_resource type="PackedScene" uid="uid://bq3luf1jvhoyx" path="res://Altar/altar.tscn" id="3_2lrbc"]
+[ext_resource type="Script" uid="uid://b0ekcl6i0i8y0" path="res://scenes/Stage 01/stage_01.gd" id="1_eml3u"]
+[ext_resource type="Texture2D" uid="uid://d6c6qr0di0ba" path="res://scenes/Stage 01/tiles_outdoors.png" id="1_oji7v"]
+[ext_resource type="PackedScene" uid="uid://fcwmuj8ibae2" path="res://scenes/Portal/portal.tscn" id="2_ps4hv"]
+[ext_resource type="PackedScene" uid="uid://bq3luf1jvhoyx" path="res://scenes/Altar/altar.tscn" id="3_2lrbc"]
 
 [sub_resource type="QuadMesh" id="QuadMesh_ps4hv"]
 size = Vector2(4096, 4096)

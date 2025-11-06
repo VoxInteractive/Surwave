@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dx2oat2julcmh"
-path="res://.godot/imported/tiles_indoors.png-afee0fc742af110877b3eb054cbd6bd6.ctex"
+uid="uid://bpagas30bun5u"
+path="res://.godot/imported/Altar.png-97878d579a30e0c1a6aa5179a9f33e3f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Stage 01/tiles_indoors.png"
-dest_files=["res://.godot/imported/tiles_indoors.png-afee0fc742af110877b3eb054cbd6bd6.ctex"]
+source_file="res://scenes/Altar/Altar.png"
+dest_files=["res://.godot/imported/Altar.png-97878d579a30e0c1a6aa5179a9f33e3f.ctex"]
 
 [params]
 

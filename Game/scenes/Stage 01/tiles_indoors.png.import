@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://5cwvcedtanps"
-path="res://.godot/imported/sprites.png-38d526fa706e14aa9d6c9540327aa5ce.ctex"
+uid="uid://dx2oat2julcmh"
+path="res://.godot/imported/tiles_indoors.png-d79cf96461c38065400c5111a31a5061.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Player/sprites.png"
-dest_files=["res://.godot/imported/sprites.png-38d526fa706e14aa9d6c9540327aa5ce.ctex"]
+source_file="res://scenes/Stage 01/tiles_indoors.png"
+dest_files=["res://.godot/imported/tiles_indoors.png-d79cf96461c38065400c5111a31a5061.ctex"]
 
 [params]
 

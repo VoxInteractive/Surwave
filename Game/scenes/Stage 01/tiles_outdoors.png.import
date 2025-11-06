@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d6c6qr0di0ba"
-path="res://.godot/imported/tiles_outdoors.png-dbc4145bb9e07b84fc7a12a5fbb8fded.ctex"
+path="res://.godot/imported/tiles_outdoors.png-9a524288dfab49f69868d9b2ec8d6777.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Stage 01/tiles_outdoors.png"
-dest_files=["res://.godot/imported/tiles_outdoors.png-dbc4145bb9e07b84fc7a12a5fbb8fded.ctex"]
+source_file="res://scenes/Stage 01/tiles_outdoors.png"
+dest_files=["res://.godot/imported/tiles_outdoors.png-9a524288dfab49f69868d9b2ec8d6777.ctex"]
 
 [params]
 
