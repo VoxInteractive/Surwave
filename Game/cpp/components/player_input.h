@@ -7,8 +7,8 @@
 
 #include <flecs.h>
 
-#include "../../../src/flecs_registry.h"
-#include "../../../src/flecs_singleton_setter_registry.h"
+#include "../../../src/flecs/registry.h"
+#include "../../../src/flecs/singleton_setter_registry.h"
 
 struct PlayerInput
 {
