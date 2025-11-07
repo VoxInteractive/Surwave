@@ -1,4 +1,4 @@
-#include "../../src/flecs/registry.h"
+#include "flecs/registry.h"
 
 #include "systems/scene_node_transform_sync.h"
 

@@ -45,7 +45,7 @@ def find_game_code_files_and_includes(base_dir):
 game_cpp_base_dir = "Game/cpp"
 game_cpp_sources, game_cpp_include_paths = find_game_code_files_and_includes(game_cpp_base_dir)
 
-env.Append(CPPPATH=["flecs/distr/"] + game_cpp_include_paths)
+env.Append(CPPPATH=["godot-cpp/include", "godot-cpp/gen/include", "flecs/distr/", "flecs", "src"] + game_cpp_include_paths)
 flecs_c_source = "flecs/distr/flecs.c"
 
 sources = Glob("src/*.cpp") + Glob("src/flecs/*.cpp") + ["Game/cpp/systems.cpp"]

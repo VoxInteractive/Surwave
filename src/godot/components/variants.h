@@ -18,7 +18,7 @@
 #include <godot_cpp/variant/vector4i.hpp>
 
 #include <flecs.h>
-#include "../../flecs/registry.h"
+#include "flecs/registry.h"
 
 
 inline FlecsRegistry register_godot_type_components([](flecs::world& world)

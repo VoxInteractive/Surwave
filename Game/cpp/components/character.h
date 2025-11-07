@@ -2,8 +2,8 @@
 
 #include <godot_cpp/variant/vector2.hpp>
 
-#include "../../../src/godot/components/variants.h"
-#include "../../../src/flecs/registry.h"
+#include "godot/components/variants.h"
+#include "flecs/registry.h"
 
 struct LocalTransform
 {
