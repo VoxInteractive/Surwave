@@ -172,6 +172,8 @@ sources/0 = SubResource("TileSetAtlasSource_oji7v")
 [node name="Stage01" type="Node"]
 script = ExtResource("1_eml3u")
 
+[node name="FlecsWorld" type="FlecsWorld" parent="."]
+
 [node name="Terrain" type="MeshInstance2D" parent="."]
 z_index = -99
 mesh = SubResource("QuadMesh_ps4hv")
