@@ -1,14 +1,14 @@
 #pragma once
 
-#include <godot_cpp/classes/node.hpp>
-#include <godot_cpp/variant/dictionary.hpp>
-
-#include <flecs/distr/flecs.h>
-#include "singleton_setter_registry.h"
-
 #include <functional>
 #include <string>
 #include <unordered_map>
+
+#include <godot_cpp/classes/node.hpp>
+#include <godot_cpp/variant/dictionary.hpp>
+
+#include <flecs.h>
+#include "singleton_setter_registry.h"
 
 using godot::Dictionary;
 
@@ -27,6 +27,7 @@ public:
     bool run_system(const godot::String& system_name);
 
     void _exit_tree();
+
     ~FlecsWorld();
 
 protected:

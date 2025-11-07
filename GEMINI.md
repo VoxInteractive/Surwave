@@ -7,7 +7,7 @@
 - Use descriptive names for identifiers for variables and similar constructs over short ones.
 - Use explicit type names instead of `auto`.
 - Use single-line blocks when the total line length is less than 120.
-- Add code comments sparingly, only when the code is not self-explanatory.
+- Add code comments only when the code is not self-explanatory.
 - Don't write defensive code (checks etc.) unless really necessary.
 
 # Validation

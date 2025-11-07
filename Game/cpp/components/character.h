@@ -3,7 +3,6 @@
 #include <godot_cpp/variant/vector2.hpp>
 
 #include <flecs.h>
-
 #include "../../../src/flecs/registry.h"
 
 struct LocalTransform

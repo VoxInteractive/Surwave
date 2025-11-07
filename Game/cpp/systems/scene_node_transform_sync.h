@@ -5,8 +5,8 @@
 #include <godot_cpp/classes/node2d.hpp>
 
 #include "../../../src/flecs/registry.h"
-#include "../components/character.h"
 #include "../../../src/godot/components/instantiation.h"
+#include "../components/character.h"
 
 using godot::Node;
 using godot::Node2D;

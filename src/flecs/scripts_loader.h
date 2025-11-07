@@ -1,7 +1,8 @@
 #pragma once
 
-#include <flecs.h>
 #include <string>
+
+#include <flecs.h>
 
 // Class that loads Flecs script files (*.flecs) from a directory (recursively).
 // Higher level directories are processed first.
@@ -12,11 +13,11 @@ public:
     // Default to a Godot resource path. The loader will convert `res://` paths
     // to absolute filesystem paths using ProjectSettings when running inside
     // the engine. This keeps the scripts folder inside the project resources.
-    explicit FlecsScriptsLoader(const std::string &scripts_root = "res://flecs_scripts") : root_path(scripts_root) {}
+    explicit FlecsScriptsLoader(const std::string& scripts_root = "res://flecs_scripts") : root_path(scripts_root) {}
 
     // Load scripts into the provided world. Prints errors via Godot and a
     // short summary when finished.
-    void load(flecs::world &world) const;
+    void load(flecs::world& world) const;
 
 private:
     std::string root_path;

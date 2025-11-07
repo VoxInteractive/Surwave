@@ -1,11 +1,11 @@
 #pragma once
 
-#include <flecs.h>
 #include <godot_cpp/classes/node.hpp>
 #include <godot_cpp/classes/packed_scene.hpp>
 #include <godot_cpp/classes/resource_loader.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
+#include <flecs.h>
 #include "../../flecs/registry.h"
 #include "../components/instantiation.h"
 
@@ -16,7 +16,7 @@ namespace instantiation_system
         world.system<const InstantiationRequest>("Instantiation System")
             .with<PendingInstantiation>()
             .kind(flecs::PreStore)
-            .multi_threaded(false)
+            .multi_threaded(false) // Interaction with Godot's scene system can only safely happen on the main thread
             .each([](flecs::entity entity, const InstantiationRequest& request)
         {
             flecs::world world_handle = entity.world();

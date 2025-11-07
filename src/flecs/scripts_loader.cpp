@@ -1,5 +1,3 @@
-#include "scripts_loader.h"
-
 #include <algorithm>
 #include <filesystem>
 #include <vector>
@@ -7,6 +5,8 @@
 #include <godot_cpp/variant/utility_functions.hpp>
 #include <godot_cpp/classes/project_settings.hpp>
 #include <godot_cpp/classes/file_access.hpp>
+
+#include "scripts_loader.h"
 
 using godot::UtilityFunctions;
 

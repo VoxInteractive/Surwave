@@ -9,7 +9,6 @@
 #include "world.h"
 #include "scripts_loader.h"
 #include "../godot/components/instantiation.h"
-#include "Game/cpp/components.h"
 #include "../utilities.h"
 
 using godot::ClassDB;
