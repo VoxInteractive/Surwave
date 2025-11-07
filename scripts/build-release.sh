@@ -8,5 +8,6 @@ export PATH="${EMSDK_DIR}/node/22.16.0_64bit/bin:${PATH}"
 export PATH="${EMSDK_DIR}/upstream/emscripten:${PATH}"
 
 for platform in web linux windows; do
+    scons --clean platform="${platform}" target=template_release
     scons platform="${platform}" target=template_release
 done
