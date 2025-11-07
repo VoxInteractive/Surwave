@@ -166,6 +166,10 @@ back={
 2d_physics/layer_4="Portals"
 2d_physics/layer_5="Monsters"
 
+[physics]
+
+3d/physics_engine="Jolt Physics"
+
 [rendering]
 
 textures/canvas_textures/default_texture_filter=3

@@ -12,10 +12,10 @@ func _ready() -> void:
 	target_position = Vector2.ZERO
 
 func set_limits(map_size: Vector2):
-	limit_left = - map_size.x / 2
-	limit_right = map_size.x / 2
-	limit_top = - map_size.y / 2
-	limit_bottom = map_size.y / 2
+	limit_left = int(-map_size.x / 2)
+	limit_right = int(map_size.x / 2)
+	limit_top = int(-map_size.y / 2)
+	limit_bottom = int(map_size.y / 2)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _acquire_target(target_node_group_name: String = "Players") -> void:
