@@ -45,11 +45,11 @@ FlecsWorld::FlecsWorld()
     register_with_world(world);
 
     // Register global singleton setters
-    const auto& global = get_global_singleton_setters();
-    for (const auto& pair : global)
+    const auto &global = get_global_singleton_setters();
+    for (const auto &pair : global)
     {
-        singleton_setters.emplace(pair.first, [this, setter = pair.second](const Dictionary& data)
-        { setter(this->world, data); });
+        singleton_setters.emplace(pair.first, [this, setter = pair.second](const Dictionary &data)
+                                  { setter(this->world, data); });
     }
 
     // Set self as the instantiation parent for nodes. The Node Instantiation system will use this.
@@ -81,7 +81,7 @@ void FlecsWorld::progress(double delta)
     world.progress(delta);
 }
 
-const flecs::world* FlecsWorld::get_world() const
+const flecs::world *FlecsWorld::get_world() const
 {
     if (!is_initialised)
     {
@@ -92,7 +92,7 @@ const flecs::world* FlecsWorld::get_world() const
     return &world;
 }
 
-void FlecsWorld::set_singleton_component(const godot::String& component_name, const Dictionary& data)
+void FlecsWorld::set_singleton_component(const godot::String &component_name, const Dictionary &data)
 {
     if (!is_initialised)
     {
@@ -108,7 +108,7 @@ void FlecsWorld::set_singleton_component(const godot::String& component_name, co
     }
 }
 
-void FlecsWorld::register_singleton_setter(const std::string& component_name, std::function<void(const Dictionary&)> setter)
+void FlecsWorld::register_singleton_setter(const std::string &component_name, std::function<void(const Dictionary &)> setter)
 {
     // Allow registering setters even before the world is initialised. They
     // will be used when init_world copies global setters into the instance
@@ -116,7 +116,7 @@ void FlecsWorld::register_singleton_setter(const std::string& component_name, st
     singleton_setters.emplace(component_name, std::move(setter));
 }
 
-bool FlecsWorld::run_system(const godot::String& system_name)
+bool FlecsWorld::run_system(const godot::String &system_name)
 {
     std::string name = system_name.utf8().get_data();
 
@@ -135,6 +135,30 @@ bool FlecsWorld::run_system(const godot::String& system_name)
 
     sys.run();
     return true;
+}
+
+void FlecsWorld::_exit_tree()
+{
+    if (!is_initialised)
+    {
+        return;
+    }
+
+    UtilityFunctions::print(godot::String("FlecsWorld::_exit_tree(): deinitialising FlecsWorld..."));
+
+    is_initialised = false;
+
+    // Clear any Godot pointers stored in singleton components so systems won't try to use them
+    NodeInstantiationParentSingleton instantiation_parent_component;
+    instantiation_parent_component.parent_node = nullptr;
+    world.set<NodeInstantiationParentSingleton>(instantiation_parent_component);
+
+    SceneInstantiationParentSingleton scene_instantiation_parent_component;
+    scene_instantiation_parent_component.parent_node = nullptr;
+    world.set<SceneInstantiationParentSingleton>(scene_instantiation_parent_component);
+
+    // Clear stored setters to drop any references to this node or Godot data
+    singleton_setters.clear();
 }
 
 FlecsWorld::~FlecsWorld() {}

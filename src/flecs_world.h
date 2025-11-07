@@ -26,6 +26,7 @@ public:
     void set_singleton_component(const godot::String &component_name, const Dictionary &data);
     bool run_system(const godot::String &system_name);
 
+    void _exit_tree();
     ~FlecsWorld();
 
 protected:

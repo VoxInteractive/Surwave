@@ -40,7 +40,7 @@ void FlecsScriptsLoader::load(flecs::world &world) const
     fs::path root(resolved_path);
     if (!fs::exists(root, ec))
     {
-        UtilityFunctions::push_error(godot::String("Flecs scripts path does not exist: ") + godot::String(resolved_path.c_str()));
+        UtilityFunctions::push_warning(godot::String("Flecs scripts path does not exist: ") + godot::String(resolved_path.c_str()));
         return;
     }
 
