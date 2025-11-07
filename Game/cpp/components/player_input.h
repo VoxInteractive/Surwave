@@ -1,9 +1,9 @@
 #pragma once
 
-#include <godot_cpp/variant/vector2.hpp>
-#include <godot_cpp/variant/variant.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
 #include <godot_cpp/variant/string.hpp>
+#include <godot_cpp/variant/variant.hpp>
+#include <godot_cpp/variant/vector2.hpp>
 
 #include <flecs.h>
 
@@ -13,80 +13,77 @@
 struct PlayerInput
 {
     // Movement axes: X is horizontal (-1..1), Y is vertical (-1..1)
-    float move_x{ 0.0f };
-    float move_y{ 0.0f };
+    float move_x{0.0f};
+    float move_y{0.0f};
     // Look axes: yaw (x), pitch (y)
-    float look_x{ 0.0f };
-    float look_y{ 0.0f };
+    float look_x{0.0f};
+    float look_y{0.0f};
 
     // Zoom and triggers
-    float zoom_delta{ 0.0f };
-    bool zoom_toggle{ false };
-    bool zoom_reset{ false };
+    float zoom_delta{0.0f};
+    bool zoom_toggle{false};
+    bool zoom_reset{false};
 
     // Analog triggers (0..1)
-    float analog_trigger_left{ 0.0f };
-    float analog_trigger_right{ 0.0f };
+    float analog_trigger_left{0.0f};
+    float analog_trigger_right{0.0f};
 
     // Menu / Back (just-pressed only)
-    bool menu_just_pressed{ false };
-    bool back_just_pressed{ false };
+    bool menu_just_pressed{false};
+    bool back_just_pressed{false};
 
     // Eight generic action buttons: held and just-pressed variants
-    bool action_1_pressed{ false };
-    bool action_1_just_pressed{ false };
-    bool action_2_pressed{ false };
-    bool action_2_just_pressed{ false };
-    bool action_3_pressed{ false };
-    bool action_3_just_pressed{ false };
-    bool action_4_pressed{ false };
-    bool action_4_just_pressed{ false };
-    bool action_5_pressed{ false };
-    bool action_5_just_pressed{ false };
-    bool action_6_pressed{ false };
-    bool action_6_just_pressed{ false };
-    bool action_7_pressed{ false };
-    bool action_7_just_pressed{ false };
-    bool action_8_pressed{ false };
-    bool action_8_just_pressed{ false };
+    bool action_1_pressed{false};
+    bool action_1_just_pressed{false};
+    bool action_2_pressed{false};
+    bool action_2_just_pressed{false};
+    bool action_3_pressed{false};
+    bool action_3_just_pressed{false};
+    bool action_4_pressed{false};
+    bool action_4_just_pressed{false};
+    bool action_5_pressed{false};
+    bool action_5_just_pressed{false};
+    bool action_6_pressed{false};
+    bool action_6_just_pressed{false};
+    bool action_7_pressed{false};
+    bool action_7_just_pressed{false};
+    bool action_8_pressed{false};
+    bool action_8_just_pressed{false};
 };
 
-
-inline FlecsRegistry register_player_input([](flecs::world& world)
-{
-    world.component<PlayerInput>()
-        .member<float>("move_x")
-        .member<float>("move_y")
-        .member<float>("look_x")
-        .member<float>("look_y")
-        .member<float>("zoom_delta")
-        .member<bool>("zoom_toggle")
-        .member<bool>("zoom_reset")
-        .member<float>("analog_trigger_left")
-        .member<float>("analog_trigger_right")
-        .member<bool>("menu_just_pressed")
-        .member<bool>("back_just_pressed")
-        .member<bool>("action_1_pressed")
-        .member<bool>("action_1_just_pressed")
-        .member<bool>("action_2_pressed")
-        .member<bool>("action_2_just_pressed")
-        .member<bool>("action_3_pressed")
-        .member<bool>("action_3_just_pressed")
-        .member<bool>("action_4_pressed")
-        .member<bool>("action_4_just_pressed")
-        .member<bool>("action_5_pressed")
-        .member<bool>("action_5_just_pressed")
-        .member<bool>("action_6_pressed")
-        .member<bool>("action_6_just_pressed")
-        .member<bool>("action_7_pressed")
-        .member<bool>("action_7_just_pressed")
-        .member<bool>("action_8_pressed")
-        .member<bool>("action_8_just_pressed")
-        .add(flecs::Singleton);
-});
+inline FlecsRegistry register_player_input([](flecs::world &world)
+                                           { world.component<PlayerInput>()
+                                                 .member<float>("move_x")
+                                                 .member<float>("move_y")
+                                                 .member<float>("look_x")
+                                                 .member<float>("look_y")
+                                                 .member<float>("zoom_delta")
+                                                 .member<bool>("zoom_toggle")
+                                                 .member<bool>("zoom_reset")
+                                                 .member<float>("analog_trigger_left")
+                                                 .member<float>("analog_trigger_right")
+                                                 .member<bool>("menu_just_pressed")
+                                                 .member<bool>("back_just_pressed")
+                                                 .member<bool>("action_1_pressed")
+                                                 .member<bool>("action_1_just_pressed")
+                                                 .member<bool>("action_2_pressed")
+                                                 .member<bool>("action_2_just_pressed")
+                                                 .member<bool>("action_3_pressed")
+                                                 .member<bool>("action_3_just_pressed")
+                                                 .member<bool>("action_4_pressed")
+                                                 .member<bool>("action_4_just_pressed")
+                                                 .member<bool>("action_5_pressed")
+                                                 .member<bool>("action_5_just_pressed")
+                                                 .member<bool>("action_6_pressed")
+                                                 .member<bool>("action_6_just_pressed")
+                                                 .member<bool>("action_7_pressed")
+                                                 .member<bool>("action_7_just_pressed")
+                                                 .member<bool>("action_8_pressed")
+                                                 .member<bool>("action_8_just_pressed")
+                                                 .add(flecs::Singleton); });
 
 static int s_register_player_input_setter = ([]()
-{
+                                             {
     register_singleton_setter("PlayerInput", [](flecs::world& world, const godot::Dictionary& data)
     {
         PlayerInput input{};

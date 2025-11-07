@@ -2,14 +2,14 @@
 
 #include <flecs.h>
 #include <godot_cpp/classes/node.hpp>
-#include <godot_cpp/classes/node3d.hpp>
+#include <godot_cpp/classes/node2d.hpp>
 
 #include "../../../src/flecs_registry.h"
 #include "../components/character.h"
 #include "../components/scene_instantiation.h"
 
 using godot::Node;
-using godot::Node3D;
+using godot::Node2D;
 
 namespace scene_node_transform_sync
 {
@@ -24,10 +24,10 @@ namespace scene_node_transform_sync
                 return;
             }
 
-            Node3D* node3d = Node::cast_to<Node3D>(scene_node.node);
-            if (node3d != nullptr)
+            Node2D* node2d = Node::cast_to<Node2D>(scene_node.node);
+            if (node2d != nullptr)
             {
-                node3d->set_global_position(transform.position);
+                node2d->set_global_position(transform.position);
             } });
     }
 } // namespace scene_node_transform_sync

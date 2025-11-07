@@ -2,7 +2,6 @@
 #pragma once
 
 #include <godot_cpp/classes/node.hpp>
-#include <godot_cpp/classes/node3d.hpp>
 #include <godot_cpp/classes/packed_scene.hpp>
 #include <godot_cpp/classes/resource_loader.hpp>
 #include <godot_cpp/classes/object.hpp>
@@ -15,14 +14,14 @@
 
 namespace scene_instantiation
 {
-    inline void registry_callback(flecs::world& world)
+    inline void registry_callback(flecs::world &world)
     {
         world.system<const PackedSceneInstance>("Scene Instantiation")
             .with<PendingSceneInstantiation>()
             .kind(flecs::PreStore)
             .multi_threaded(false)
-            .each([](flecs::entity entity, const PackedSceneInstance& instance)
-        {
+            .each([](flecs::entity entity, const PackedSceneInstance &instance)
+                  {
             flecs::world world_handle = entity.world();
             const SceneInstantiationParentSingleton* parent_singleton = world_handle.try_get<const SceneInstantiationParentSingleton>();
             if (parent_singleton == nullptr || parent_singleton->parent_node == nullptr)
@@ -66,19 +65,6 @@ namespace scene_instantiation
             InstantiatedSceneNode instantiated_component;
             instantiated_component.node = instantiated_node;
             entity.set<InstantiatedSceneNode>(instantiated_component);
-
-            if (instance.apply_spawn_position)
-            {
-                godot::Node3D* node3d = godot::Object::cast_to<godot::Node3D>(instantiated_node);
-                if (node3d != nullptr)
-                {
-                    node3d->set_global_position(instance.spawn_position);
-                }
-                else
-                {
-                    godot::UtilityFunctions::push_warning(godot::String("Scene Instantiation: Spawn position provided but instantiated node is not a Node3D"));
-                }
-            }
 
             entity.remove<PendingSceneInstantiation>(); });
     }
