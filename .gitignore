@@ -6,6 +6,7 @@ Game/flecs/bin/
 **/*.dll
 **/*.obj
 **/*.os
+**/*.o
 **/*.pdb
 
 # IDE-generated files

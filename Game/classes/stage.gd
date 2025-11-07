@@ -67,7 +67,7 @@ func _mark_landmark_occupied_areas() -> void:
 			var landmark_position: Vector2 = landmark.position - landmark_size / 2
 			landmark_occupied_areas.append(Rect2(landmark_position, landmark_size))
 
-func _place_foliage(inner_boundary: float = 100.0) -> void:
+func _place_foliage() -> void:
 	if foliage == null: return
 
 	var half_terrain_size = terrain.mesh.size / 2.0
@@ -76,8 +76,6 @@ func _place_foliage(inner_boundary: float = 100.0) -> void:
 
 		for i in multimesh_instance.multimesh.instance_count:
 			var random_position = Vector2(randf_range(-half_terrain_size.x, half_terrain_size.x), randf_range(-half_terrain_size.y, half_terrain_size.y))
-			# Discard points inside the inner square.
-			if abs(random_position.x) < inner_boundary and abs(random_position.y) < inner_boundary: continue
 			multimesh_instance.multimesh.set_instance_transform_2d(i, Transform2D(randf_range(0, TAU), random_position))
 
 func _place_objects(inner_boundary: float = 100.0) -> int:
