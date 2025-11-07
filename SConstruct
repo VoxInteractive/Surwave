@@ -1,6 +1,17 @@
 #!/usr/bin/env python
-import os
-import sys
+import os, sys
+from SCons.Script import ARGUMENTS
+from SCons.Script import Glob
+
+# For reference:
+# - CCFLAGS are compilation flags shared between C and C++
+# - CFLAGS are for C-specific compilation flags
+# - CXXFLAGS are for C++-specific compilation flags
+# - CPPFLAGS are for pre-processor flags
+# - CPPPATH are to tell the pre-processor where to look for header files
+# - CPPDEFINES are for pre-processor defines
+# - LINKFLAGS are for linking flags
+
 
 # This is done because Gemini code assist insists on running scons without passing parameters explicitly.
 # Provide sensible defaults so running `scons` without arguments produces a debug build with symbols enabled.
@@ -11,18 +22,30 @@ if "debug_symbols" not in ARGUMENTS:
     ARGUMENTS["debug_symbols"] = "yes"
 if "optimize" not in ARGUMENTS:
     ARGUMENTS["optimize"] = "debug"
-
 env = SConscript("godot-cpp/SConstruct")
 
-# For reference:
-# - CCFLAGS are compilation flags shared between C and C++
-# - CFLAGS are for C-specific compilation flags
-# - CXXFLAGS are for C++-specific compilation flags
-# - CPPFLAGS are for pre-processor flags
-# - CPPDEFINES are for pre-processor defines
-# - LINKFLAGS are for linking flags
 
-env.Append(CPPPATH=["flecs/distr/"])
+def find_game_code_files_and_includes(base_dir):
+    """
+    Recursively finds all .cpp files and directories containing .h/.hpp files
+    within a given base directory. Paths are returned in a SCons-friendly format.
+    """
+    cpp_files = []
+    include_paths = set() # Use a set to automatically handle unique paths
+
+    for root, dirs, files in os.walk(base_dir):
+        for f in files:
+            if f.endswith(".cpp"):
+                cpp_files.append(os.path.join(root, f).replace("\\", "/"))
+            if f.endswith((".h", ".hpp")):
+                include_paths.add(root.replace("\\", "/"))
+            
+    return cpp_files, sorted(list(include_paths)) # Sort for deterministic order
+
+game_cpp_base_dir = "Game/cpp"
+game_cpp_sources, game_cpp_include_paths = find_game_code_files_and_includes(game_cpp_base_dir)
+
+env.Append(CPPPATH=["flecs/distr/"] + game_cpp_include_paths)
 flecs_c_source = "flecs/distr/flecs.c"
 
 sources = Glob("src/*.cpp") + Glob("src/flecs/*.cpp") + ["Game/cpp/systems.cpp"]
