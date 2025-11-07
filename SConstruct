@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import os, sys
 from SCons.Script import ARGUMENTS
 from SCons.Script import Glob
@@ -42,13 +43,13 @@ def find_game_code_files_and_includes(base_dir):
 
     return cpp_files, sorted(list(include_paths)) # Sort for deterministic order
 
-game_cpp_base_dir = "Game/flecs"
+game_cpp_base_dir = "Game/cpp"
 game_cpp_sources, game_cpp_include_paths = find_game_code_files_and_includes(game_cpp_base_dir)
 
 env.Append(CPPPATH=["godot-cpp/include", "godot-cpp/gen/include", "flecs/distr/", "flecs", "src"] + game_cpp_include_paths)
 flecs_c_source = "flecs/distr/flecs.c"
 
-sources = Glob("src/*.cpp") + Glob("src/flecs/*.cpp") + ["Game/flecs/systems.cpp"]
+sources = Glob("src/*.cpp") + Glob("src/flecs/*.cpp") + ["Game/cpp/systems.cpp"]
 
 # Flecs
 FLECS_COMMON_OPTS = [
@@ -108,7 +109,7 @@ all_objs = env.SharedObject(sources) + [flecs_c_obj]
 
 if env["platform"] == "macos":
     library = env.SharedLibrary(
-        "Game/flecs/bin/libflecs.{}.{}.framework/libflecs.{}.{}".format(
+        "Game/cpp/bin/libflecs.{}.{}.framework/libflecs.{}.{}".format(
             env["platform"], env["target"], env["platform"], env["target"]
         ),
         source=all_objs,
@@ -116,17 +117,17 @@ if env["platform"] == "macos":
 elif env["platform"] == "ios":
     if env["ios_simulator"]:
         library = env.StaticLibrary(
-            "Game/flecs/bin/libflecs.{}.{}.simulator.a".format(env["platform"], env["target"]),
+            "Game/cpp/bin/libflecs.{}.{}.simulator.a".format(env["platform"], env["target"]),
             source=all_objs,
         )
     else:
         library = env.StaticLibrary(
-            "Game/flecs/bin/libflecs.{}.{}.a".format(env["platform"], env["target"]),
+            "Game/cpp/bin/libflecs.{}.{}.a".format(env["platform"], env["target"]),
             source=all_objs,
         )
 else:
     library = env.SharedLibrary(
-        "Game/flecs/bin/libflecs{}{}".format(env["suffix"], env["SHLIBSUFFIX"]),
+        "Game/cpp/bin/libflecs{}{}".format(env["suffix"], env["SHLIBSUFFIX"]),
         source=all_objs,
     )
 

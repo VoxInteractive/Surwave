@@ -1,7 +1,7 @@
 assets/
 
 # Binaries produced by the builds
-Game/flecs/bin/
+Game/cpp/bin/
 .sconsign.dblite
 **/*.dll
 **/*.obj
