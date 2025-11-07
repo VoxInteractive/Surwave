@@ -1,4 +1,4 @@
-#include "flecs_scripts_loader.h"
+#include "scripts_loader.h"
 
 #include <algorithm>
 #include <filesystem>
@@ -10,7 +10,7 @@
 
 using godot::UtilityFunctions;
 
-void FlecsScriptsLoader::load(flecs::world &world) const
+void FlecsScriptsLoader::load(flecs::world& world) const
 {
     namespace fs = std::filesystem;
 
@@ -23,7 +23,7 @@ void FlecsScriptsLoader::load(flecs::world &world) const
     const std::string res_prefix = "res://";
     if (root_path.rfind(res_prefix, 0) == 0)
     {
-        godot::ProjectSettings *ps = godot::ProjectSettings::get_singleton();
+        godot::ProjectSettings* ps = godot::ProjectSettings::get_singleton();
         if (ps)
         {
             godot::String g = ps->globalize_path(godot::String(root_path.c_str()));
@@ -47,14 +47,14 @@ void FlecsScriptsLoader::load(flecs::world &world) const
     // Collect .flecs files (non-recursive entries are filtered by extension).
     std::vector<fs::path> files;
     for (auto it = fs::recursive_directory_iterator(root, fs::directory_options::skip_permission_denied, ec);
-         it != fs::recursive_directory_iterator(); it.increment(ec))
+        it != fs::recursive_directory_iterator(); it.increment(ec))
     {
         if (ec)
         {
             UtilityFunctions::push_error(godot::String("Error iterating flecs scripts directory: ") + godot::String(ec.message().c_str()));
             break;
         }
-        const fs::directory_entry &entry = *it;
+        const fs::directory_entry& entry = *it;
         if (!entry.is_regular_file())
             continue;
         if (entry.path().extension() == ".flecs")
@@ -62,7 +62,7 @@ void FlecsScriptsLoader::load(flecs::world &world) const
     }
 
     int success_count = 0;
-    for (const fs::path &p : files)
+    for (const fs::path& p : files)
     {
         std::string path_str = p.string();
         godot::String godot_path = godot::String(path_str.c_str());

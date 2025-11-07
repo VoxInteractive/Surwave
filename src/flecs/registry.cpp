@@ -1,16 +1,16 @@
 #include <mutex>
 
-#include "flecs_registry.h"
+#include "registry.h"
 
 namespace
 {
-    std::vector<RegistrationCallback> &get_callbacks()
+    std::vector<RegistrationCallback>& get_callbacks()
     {
         static std::vector<RegistrationCallback> callbacks;
         return callbacks;
     }
 
-    std::mutex &get_mutex()
+    std::mutex& get_mutex()
     {
         static std::mutex mtx;
         return mtx;
@@ -23,7 +23,7 @@ FlecsRegistry::FlecsRegistry(RegistrationCallback callback)
     get_callbacks().push_back(callback);
 }
 
-void register_with_world(flecs::world &world)
+void register_with_world(flecs::world& world)
 {
     std::lock_guard<std::mutex> lock(get_mutex());
     for (RegistrationCallback callback : get_callbacks())

@@ -4,9 +4,9 @@
 #include <godot_cpp/classes/node.hpp>
 #include <godot_cpp/classes/node2d.hpp>
 
-#include "../../../src/flecs_registry.h"
+#include "../../../src/flecs/registry.h"
 #include "../components/character.h"
-#include "../components/scene_instantiation.h"
+#include "../../../src/godot/components/instantiation.h"
 
 using godot::Node;
 using godot::Node2D;

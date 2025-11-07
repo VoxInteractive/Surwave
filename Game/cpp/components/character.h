@@ -4,7 +4,7 @@
 
 #include <flecs.h>
 
-#include "../../../src/flecs_registry.h"
+#include "../../../src/flecs/registry.h"
 
 struct LocalTransform
 {

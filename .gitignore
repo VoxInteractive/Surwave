@@ -3,7 +3,9 @@ assets/
 # Binaries produced by the builds
 Game/cpp/bin/libflecs*
 .sconsign.dblite
+**/*.obj
 **/*.os
+**/*.pdb
 
 # IDE-generated files
 **/.idea/

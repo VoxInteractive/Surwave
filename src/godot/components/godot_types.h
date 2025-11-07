@@ -19,7 +19,7 @@
 
 #include <flecs.h>
 
-#include "../../../src/flecs_registry.h"
+#include "../../flecs/registry.h"
 
 
 inline FlecsRegistry register_godot_type_components([](flecs::world& world)

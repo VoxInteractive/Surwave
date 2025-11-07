@@ -74,7 +74,11 @@
         "unordered_set": "cpp"
     },
     "files.exclude": {
+        ".sconsign.dblite": true,
+        "**/*.import": true,
         "**/*.obj": true,
-        "**/*.os": true
+        "**/*.os": true,
+        "**/*.pdb": true,
+        "**/*.uid": true
     }
 }
