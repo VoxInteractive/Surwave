@@ -1,12 +1,7 @@
 class_name Player extends AnimatedObject
 
-@export_group("Movement")
 @export_range(1.0, 1000.0, 1.0)
 var movement_speed: float = 50.0
-
-@export_group("Animation")
-@export_range(0.00, 0.50, 0.01)
-var chattiness: float = 0.02
 
 var input_movement_vector: Vector2
 var is_colliding: bool = false
@@ -29,9 +24,9 @@ enum PlayerState {
 }
 
 const PlayerAnimationFrames: Dictionary[PlayerState, Array] = {
-	PlayerState.IDLE: [0],
-	PlayerState.TALKING: [9],
-	PlayerState.RELOADING: [16, 17, 18, 19, 20],
+	PlayerState.IDLE: [0, 2, 3, 4, 5],
+	PlayerState.TALKING: [9], # unused
+	PlayerState.RELOADING: [16, 17, 18, 19, 20], # unused
 	PlayerState.RUNNING: [24, 25, 26, 27],
 	PlayerState.SHOOTING_UP: [33, 34],
 	PlayerState.SHOOTING_DOWN: [37, 38],
@@ -42,7 +37,7 @@ const PlayerAnimationFrames: Dictionary[PlayerState, Array] = {
 	PlayerState.DEAD: [40, 41, 42, 43, 44, 45, 46]
 }
 const PlayerAnimationModes: Dictionary[PlayerState, Game.AnimationMode] = {
-	PlayerState.IDLE: Game.AnimationMode.ONCE,
+	PlayerState.IDLE: Game.AnimationMode.LOOP,
 	PlayerState.TALKING: Game.AnimationMode.ONCE,
 	PlayerState.RELOADING: Game.AnimationMode.ONCE,
 	PlayerState.RUNNING: Game.AnimationMode.LOOP,
@@ -115,7 +110,4 @@ func _physics_process(delta: float) -> void:
 			else:
 				set_state(PlayerState.SHOOTING_RIGHT)
 		else:
-			if randf() < chattiness:
-				set_state(PlayerState.TALKING)
-			else:
-				set_state(PlayerState.IDLE)
+			set_state(PlayerState.IDLE)
