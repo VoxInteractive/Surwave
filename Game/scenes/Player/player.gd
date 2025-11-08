@@ -1,7 +1,10 @@
 class_name Player extends AnimatedObject
 
 @export_range(1.0, 1000.0, 1.0)
-var movement_speed: float = 50.0
+var movement_speed: float = 60.0
+var adjusted_movement_speed := movement_speed
+@export_range(0.0, 1.0, 0.01)
+var movement_speed_penalty_when_shooting: float = 0.4
 
 var input_movement_vector: Vector2
 var is_colliding: bool = false
@@ -67,17 +70,18 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	position_at_frame_start = character_body.global_position
 
+	var is_shooting = Input.is_action_pressed("shoot_weapon")
+	adjusted_movement_speed = movement_speed * (1 - movement_speed_penalty_when_shooting) if is_shooting else movement_speed
+	var aim_direction = (get_global_mouse_position() - character_body.global_position).normalized()
+	var is_aiming_up = abs(aim_direction.y) > abs(aim_direction.x) and aim_direction.y < 0
+	var is_aiming_down = abs(aim_direction.y) > abs(aim_direction.x) and aim_direction.y > 0
+
 	input_movement_vector = Input.get_vector("move_left", "move_right", "move_up", "move_down")
-	character_body.velocity = input_movement_vector * movement_speed
+	character_body.velocity = input_movement_vector * adjusted_movement_speed
 	is_colliding = character_body.move_and_slide()
 
 	movement_in_frame = character_body.global_position - position_at_frame_start
 	has_moved_this_frame = movement_in_frame.length() > 0.01
-
-	var is_shooting = Input.is_action_pressed("shoot_weapon")
-	var aim_direction = (get_global_mouse_position() - character_body.global_position).normalized()
-	var is_aiming_up = abs(aim_direction.y) > abs(aim_direction.x) and aim_direction.y < 0
-	var is_aiming_down = abs(aim_direction.y) > abs(aim_direction.x) and aim_direction.y > 0
 
 	if is_shooting:
 		if aim_direction.x > 0:
