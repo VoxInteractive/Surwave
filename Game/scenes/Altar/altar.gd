@@ -1,4 +1,4 @@
-extends Node2D
+class_name Altar extends AnimatedObject
 
 enum AltarState {
 	AVAILABLE,
@@ -10,12 +10,11 @@ const AltarAnimationFrames: Dictionary[AltarState, Array] = {
 	AltarState.AVAILABLE: [0, 1, 2, 3, 4, 5],
 	AltarState.SPENT: [9, 8, 7, 6]
 }
-
 const AltarAnimationModes: Dictionary[AltarState, Game.AnimationMode] = {
 	AltarState.AVAILABLE: Game.AnimationMode.LOOP,
 	AltarState.SPENT: Game.AnimationMode.ONCE
 }
-var animation_interval: float = 0.2
+var animation_interval: float = 0.25
 var _animation_frames: Array = AltarAnimationFrames[AltarState.AVAILABLE]
 var _animation_timer: float = 0.0
 var _animation_current_frame: int = 0 # index of the current frame within the particular ...AnimationFrames array

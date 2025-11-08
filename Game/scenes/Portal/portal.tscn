@@ -1,12 +1,14 @@
-[gd_scene load_steps=4 format=3 uid="uid://fcwmuj8ibae2"]
+[gd_scene load_steps=5 format=3 uid="uid://fcwmuj8ibae2"]
 
 [ext_resource type="Texture2D" uid="uid://bnvwsgkmmputt" path="res://scenes/Portal/Portal.png" id="1_24q13"]
+[ext_resource type="Script" uid="uid://bhkrr1nxoaspf" path="res://scenes/Portal/portal.gd" id="1_pbb2h"]
 [ext_resource type="PackedScene" uid="uid://dyry120p4w7bq" path="res://scenes/Monster MultiMesh/monster_multi_mesh.tscn" id="2_0jopo"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_0jopo"]
 radius = 26.0
 
 [node name="Portal" type="Node2D" groups=["Portals"]]
+script = ExtResource("1_pbb2h")
 
 [node name="StaticBody2D" type="StaticBody2D" parent="."]
 collision_layer = 8
