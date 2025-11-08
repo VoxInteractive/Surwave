@@ -88,7 +88,7 @@ for opt in (FLECS_OPTS + FLECS_COMMON_OPTS):
 env.Append(CPPDEFINES=cppdefines_list)
 
 # Always compile flecs.c as C code, and fix winsock header redefinition on Windows
-if env["platform"] == "windows":
+if env.get("is_msvc", False):
     env.Append(CXXFLAGS=["/std:c++17"])
     env.Append(LIBS=["Ws2_32"])
     flecs_c_obj = env.SharedObject(
