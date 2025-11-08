@@ -15,12 +15,12 @@ const AltarAnimationModes: Dictionary[AltarState, Game.AnimationMode] = {
 }
 
 
-func _get_animation_frames(state: AltarState) -> Array:
-	return AltarAnimationFrames[state]
+func _get_animation_frames(p_state: AltarState) -> Array:
+	return AltarAnimationFrames[p_state]
 
 
-func _get_animation_mode(state: AltarState):
-	return AltarAnimationModes[state]
+func _get_animation_mode(p_state: AltarState):
+	return AltarAnimationModes[p_state]
 
 
 func _ready() -> void:

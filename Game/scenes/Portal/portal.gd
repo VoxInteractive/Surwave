@@ -18,12 +18,12 @@ const PortalAnimationModes: Dictionary[PortalState, Game.AnimationMode] = {
 }
 
 
-func _get_animation_frames(state: PortalState) -> Array:
-	return PortalAnimationFrames[state]
+func _get_animation_frames(p_state: PortalState) -> Array:
+	return PortalAnimationFrames[p_state]
 
 
-func _get_animation_mode(state: PortalState):
-	return PortalAnimationModes[state]
+func _get_animation_mode(p_state: PortalState):
+	return PortalAnimationModes[p_state]
 
 
 func _ready() -> void:
