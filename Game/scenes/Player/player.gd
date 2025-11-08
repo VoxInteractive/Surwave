@@ -20,7 +20,11 @@ enum PlayerState {
 	RELOADING,
 	RUNNING,
 	SHOOTING_UP,
+	SHOOTING_DOWN,
+	RUNNING_AND_SHOOTING_UP,
+	RUNNING_AND_SHOOTING_DOWN,
 	SHOOTING_RIGHT,
+	RUNNING_AND_SHOOTING_RIGHT,
 	DEAD
 }
 
@@ -30,7 +34,11 @@ const PlayerAnimationFrames: Dictionary[PlayerState, Array] = {
 	PlayerState.RELOADING: [16, 17, 18, 19, 20],
 	PlayerState.RUNNING: [24, 25, 26, 27],
 	PlayerState.SHOOTING_UP: [33, 34],
+	PlayerState.SHOOTING_DOWN: [37, 38],
+	PlayerState.RUNNING_AND_SHOOTING_UP: [49, 50],
+	PlayerState.RUNNING_AND_SHOOTING_DOWN: [52, 53],
 	PlayerState.SHOOTING_RIGHT: [32, 35],
+	PlayerState.RUNNING_AND_SHOOTING_RIGHT: [48, 51],
 	PlayerState.DEAD: [40, 41, 42, 43, 44, 45, 46]
 }
 const PlayerAnimationModes: Dictionary[PlayerState, Game.AnimationMode] = {
@@ -39,7 +47,11 @@ const PlayerAnimationModes: Dictionary[PlayerState, Game.AnimationMode] = {
 	PlayerState.RELOADING: Game.AnimationMode.ONCE,
 	PlayerState.RUNNING: Game.AnimationMode.LOOP,
 	PlayerState.SHOOTING_UP: Game.AnimationMode.LOOP,
+	PlayerState.SHOOTING_DOWN: Game.AnimationMode.LOOP,
+	PlayerState.RUNNING_AND_SHOOTING_UP: Game.AnimationMode.LOOP,
+	PlayerState.RUNNING_AND_SHOOTING_DOWN: Game.AnimationMode.LOOP,
 	PlayerState.SHOOTING_RIGHT: Game.AnimationMode.LOOP,
+	PlayerState.RUNNING_AND_SHOOTING_RIGHT: Game.AnimationMode.LOOP,
 	PlayerState.DEAD: Game.AnimationMode.ONCE
 }
 
@@ -67,17 +79,40 @@ func _physics_process(delta: float) -> void:
 	movement_in_frame = character_body.global_position - position_at_frame_start
 	has_moved_this_frame = movement_in_frame.length() > 0.01
 
+	var is_shooting = Input.is_action_pressed("shoot_weapon")
+	var aim_direction = get_global_mouse_position() - character_body.global_position
+	# Check if the mouse is in the upper or lower diagonal quadrants
+	var is_aiming_up = abs(aim_direction.y) > abs(aim_direction.x) and aim_direction.y < 0
+	var is_aiming_down = abs(aim_direction.y) > abs(aim_direction.x) and aim_direction.y > 0
+
+
 	if has_moved_this_frame:
 		if movement_in_frame.x > 0:
 			_sprite.flip_h = false
 		elif movement_in_frame.x < 0:
 			_sprite.flip_h = true
 
-		if not is_colliding:
-			set_state(PlayerState.RUNNING)
+		if is_shooting:
+			if is_aiming_up:
+				set_state(PlayerState.RUNNING_AND_SHOOTING_UP)
+			elif is_aiming_down:
+				set_state(PlayerState.RUNNING_AND_SHOOTING_DOWN)
+			else: # shooting right/left
+				set_state(PlayerState.RUNNING_AND_SHOOTING_RIGHT)
+		else:
+			if not is_colliding:
+				set_state(PlayerState.RUNNING)
 
 	else:
-		if randf() < chattiness:
-			set_state(PlayerState.TALKING)
+		if is_shooting:
+			if is_aiming_up:
+				set_state(PlayerState.SHOOTING_UP)
+			elif is_aiming_down:
+				set_state(PlayerState.SHOOTING_DOWN)
+			else: # shooting right/left
+				set_state(PlayerState.SHOOTING_RIGHT)
 		else:
-			set_state(PlayerState.IDLE)
+			if randf() < chattiness:
+				set_state(PlayerState.TALKING)
+			else:
+				set_state(PlayerState.IDLE)

@@ -18,7 +18,7 @@ collision_mask = 11
 texture = ExtResource("1_cyojo")
 offset = Vector2(0, -16)
 hframes = 8
-vframes = 6
+vframes = 7
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D"]
 position = Vector2(0, -6)
