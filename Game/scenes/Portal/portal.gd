@@ -8,7 +8,7 @@ enum PortalState {
 var PortalAnimationFrames := {
 	PortalState.ACTIVE: [0, 1, 2, 3],
 	PortalState.DESTROYED: [9, 8, 7, 6, 5, 4]
-} if randf() < 0.5 else {
+} if randf() > 0.5 else {
 	PortalState.ACTIVE: [10, 11, 12, 13],
 	PortalState.DESTROYED: [19, 18, 17, 16, 15, 14]
 }

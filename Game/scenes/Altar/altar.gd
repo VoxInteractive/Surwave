@@ -28,7 +28,7 @@ func _ready() -> void:
 
 
 func _on_area_2d_body_entered(body: Node2D) -> void:
-	if body.is_in_group("Players") and _current_state == AltarState.AVAILABLE:
+	if body.is_in_group("Players") and state == AltarState.AVAILABLE:
 		# TODO: Implement upgrade logic
 		print("Player upgraded!")
 		set_state(AltarState.SPENT)

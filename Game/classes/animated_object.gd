@@ -1,24 +1,24 @@
 @abstract class_name AnimatedObject extends Node2D
 
-var _current_state = -1
+var state = -1
 var animation_interval: float = 0.25
 var _animation_frames: Array
 var _animation_mode
 var _animation_timer: float = 0.0
 var _animation_current_frame: int = 0
 
-@onready var sprite: Sprite2D = $StaticBody2D/Sprite2D
+@export var sprite: Sprite2D
 
 func _process(delta: float) -> void:
 	_animate(delta)
 
 
-@abstract func _get_animation_frames(state) -> Array
-@abstract func _get_animation_mode(state)
+@abstract func _get_animation_frames(p_state) -> Array
+@abstract func _get_animation_mode(p_state)
 
 func set_state(new_state) -> void:
-	if _current_state == new_state: return
-	_current_state = new_state
+	if state == new_state: return
+	state = new_state
 	_animation_frames = _get_animation_frames(new_state)
 	_animation_mode = _get_animation_mode(new_state)
 	_animation_current_frame = 0

@@ -7,8 +7,9 @@
 [sub_resource type="CircleShape2D" id="CircleShape2D_0jopo"]
 radius = 26.0
 
-[node name="Portal" type="Node2D" groups=["Portals"]]
+[node name="Portal" type="Node2D" node_paths=PackedStringArray("sprite") groups=["Portals"]]
 script = ExtResource("1_pbb2h")
+sprite = NodePath("StaticBody2D/Sprite2D")
 
 [node name="StaticBody2D" type="StaticBody2D" parent="."]
 collision_layer = 8
