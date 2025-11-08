@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://bq3luf1jvhoyx"]
+[gd_scene load_steps=5 format=3 uid="uid://bq3luf1jvhoyx"]
 
 [ext_resource type="Texture2D" uid="uid://bpagas30bun5u" path="res://scenes/Altar/Altar.png" id="1_0khly"]
+[ext_resource type="Script" uid="uid://bx35bdxacsgdk" path="res://scenes/Altar/altar.gd" id="1_muwh6"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_muwh6"]
 radius = 9.0
@@ -8,7 +9,9 @@ radius = 9.0
 [sub_resource type="CircleShape2D" id="CircleShape2D_0khly"]
 radius = 20.0
 
-[node name="Altar" type="Node2D" groups=["Altars"]]
+[node name="Altar" type="Node2D" node_paths=PackedStringArray("sprite") groups=["Altars"]]
+script = ExtResource("1_muwh6")
+sprite = NodePath("StaticBody2D/Sprite2D")
 
 [node name="StaticBody2D" type="StaticBody2D" parent="."]
 collision_layer = 2
@@ -25,7 +28,9 @@ shape = SubResource("CircleShape2D_muwh6")
 [node name="Area2D" type="Area2D" parent="StaticBody2D"]
 position = Vector2(0, 15)
 collision_layer = 2
-collision_mask = 0
+collision_mask = 4
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D/Area2D"]
 shape = SubResource("CircleShape2D_0khly")
+
+[connection signal="body_entered" from="StaticBody2D/Area2D" to="." method="_on_area_2d_body_entered"]
