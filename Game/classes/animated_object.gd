@@ -1,6 +1,6 @@
 @abstract class_name AnimatedObject extends Node2D
 
-var state = -1
+var state: int = -1
 var animation_interval: float = 0.25
 var _animation_frames: Array
 var _animation_mode
@@ -14,7 +14,7 @@ func _process(delta: float) -> void:
 
 
 @abstract func _get_animation_frames(p_state) -> Array
-@abstract func _get_animation_mode(p_state)
+@abstract func _get_animation_mode(p_state) -> Array
 
 func set_state(new_state) -> void:
 	if state == new_state: return

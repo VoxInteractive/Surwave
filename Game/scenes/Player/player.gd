@@ -6,7 +6,7 @@ var movement_speed: float = 50.0
 
 @export_group("Animation")
 @export_range(0.00, 0.50, 0.01)
-var chattiness: float = 0.10
+var chattiness: float = 0.02
 
 var input_movement_vector: Vector2
 var is_colliding: bool = false
@@ -30,7 +30,7 @@ enum PlayerState {
 
 const PlayerAnimationFrames: Dictionary[PlayerState, Array] = {
 	PlayerState.IDLE: [0],
-	PlayerState.TALKING: [8, 9],
+	PlayerState.TALKING: [9],
 	PlayerState.RELOADING: [16, 17, 18, 19, 20],
 	PlayerState.RUNNING: [24, 25, 26, 27],
 	PlayerState.SHOOTING_UP: [33, 34],
@@ -80,36 +80,39 @@ func _physics_process(delta: float) -> void:
 	has_moved_this_frame = movement_in_frame.length() > 0.01
 
 	var is_shooting = Input.is_action_pressed("shoot_weapon")
-	var aim_direction = get_global_mouse_position() - character_body.global_position
-	# Check if the mouse is in the upper or lower diagonal quadrants
+	var aim_direction = (get_global_mouse_position() - character_body.global_position).normalized()
 	var is_aiming_up = abs(aim_direction.y) > abs(aim_direction.x) and aim_direction.y < 0
 	var is_aiming_down = abs(aim_direction.y) > abs(aim_direction.x) and aim_direction.y > 0
 
-
-	if has_moved_this_frame:
+	if is_shooting:
+		if aim_direction.x > 0:
+			_sprite.flip_h = false
+		elif aim_direction.x < 0:
+			_sprite.flip_h = true
+	elif has_moved_this_frame:
 		if movement_in_frame.x > 0:
 			_sprite.flip_h = false
 		elif movement_in_frame.x < 0:
 			_sprite.flip_h = true
 
+	if has_moved_this_frame:
 		if is_shooting:
 			if is_aiming_up:
 				set_state(PlayerState.RUNNING_AND_SHOOTING_UP)
 			elif is_aiming_down:
 				set_state(PlayerState.RUNNING_AND_SHOOTING_DOWN)
-			else: # shooting right/left
+			else:
 				set_state(PlayerState.RUNNING_AND_SHOOTING_RIGHT)
 		else:
 			if not is_colliding:
 				set_state(PlayerState.RUNNING)
-
 	else:
 		if is_shooting:
 			if is_aiming_up:
 				set_state(PlayerState.SHOOTING_UP)
 			elif is_aiming_down:
 				set_state(PlayerState.SHOOTING_DOWN)
-			else: # shooting right/left
+			else:
 				set_state(PlayerState.SHOOTING_RIGHT)
 		else:
 			if randf() < chattiness:
