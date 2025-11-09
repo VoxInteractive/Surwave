@@ -1,5 +1,6 @@
 #include <thread>
 
+#include <godot_cpp/classes/audio_stream_player.hpp>
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/core/defs.hpp>
@@ -21,9 +22,14 @@
 #include <godot_cpp/variant/vector4i.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
+#include "components.h"
+#include "entity_renderer.h"
 #include "scripts_loader.h"
 #include "utilities.h"
 #include "world.h"
+
+using godot::AudioStreamPlayer;
+using godot::MultiMeshInstance3D;
 
 using godot::ClassDB;
 using godot::D_METHOD;
@@ -32,14 +38,17 @@ using godot::UtilityFunctions;
 
 FlecsWorld::FlecsWorld()
 {
-    if (is_initialised)
+    // Constructor is lightweight. Main initialization happens in _ready().
+}
+
+void FlecsWorld::_ready()
+{
+    if (Engine::get_singleton()->is_editor_hint())
     {
-        UtilityFunctions::push_warning(godot::String("FlecsWorld's constructor was called when it was already initialised"));
         return;
     }
 
-    // Don't initialise if we're running in the editor
-    if (Engine::get_singleton()->is_editor_hint())
+    if (is_initialised)
     {
         return;
     }
@@ -48,23 +57,33 @@ FlecsWorld::FlecsWorld()
 #if defined(DEBUG_ENABLED) || defined(TOOLS_ENABLED)
     world.set<flecs::Rest>({});
     world.import <flecs::stats>();
-    flecs::log::set_level(1);
+    flecs::log::set_level(0); // 0 = default, 1 = info
 #endif
 
     // Set the number of threads Flecs should use based on CPU thread count
     unsigned int num_threads = ::project::Utilities::get_thread_count();
     world.set_threads(static_cast<int>(num_threads));
 
+    // Register components
     register_components_for_godot_variants();
+    register_custom_components();
 
     // Load Flecs script files that live in the project's flecs_scripts folder.
     // Use a Godot resource path so the loader can resolve it via ProjectSettings.
     FlecsScriptsLoader loader;
     loader.load(world);
 
+    // Process the renderer mappings from the editor
+    process_renderer_mappings();
+
     is_initialised = true;
 }
 
+void FlecsWorld::_notification(int p_what)
+{
+    if (p_what == NOTIFICATION_READY)
+        _ready();
+}
 
 void FlecsWorld::register_components_for_godot_variants()
 {
@@ -140,6 +159,51 @@ void FlecsWorld::register_components_for_godot_variants()
         .member<godot::Vector4>("columns", 4);
 }
 
+void FlecsWorld::register_custom_components()
+{
+    world.component<GodotRenderer>("GodotRenderer")
+        .member<const char*>("name");
+
+    world.component<VisualRenderer>("VisualRenderer")
+        .member<godot::MultiMeshInstance3D*>("renderer_node");
+}
+
+void FlecsWorld::process_renderer_mappings()
+{
+    // 1. Build a map of logical names to Godot node pointers from the inspector
+    std::unordered_map<std::string, godot::Node*> renderer_nodes;
+    for (int i = 0; i < entity_renderers.size(); ++i)
+    {
+        godot::Ref<EntityRenderer> mapping = entity_renderers[i];
+        if (mapping.is_valid() && !mapping->get_renderer_name().is_empty() && !mapping->get_renderer_node_path().is_empty())
+        {
+            godot::Node* node = get_node_or_null(mapping->get_renderer_node_path());
+            if (node)
+            {
+                renderer_nodes[mapping->get_renderer_name().utf8().get_data()] = node;
+            }
+        }
+    }
+
+    // 2. Query for prefabs with GodotRenderer and set the final VisualRenderer component
+    world.each([&](flecs::entity e, const GodotRenderer& gr) {
+        auto it = renderer_nodes.find(gr.name);
+        if (it != renderer_nodes.end())
+        {
+            godot::Node* node = it->second;
+
+            // Check the type of the node and set the appropriate component
+            if (auto* visual_node = godot::Object::cast_to<MultiMeshInstance3D>(node))
+            {
+                e.set<VisualRenderer>({ visual_node });
+            }
+            // NOTE: An AudioStreamPlayer check could be added here for an AudioRenderer component
+        }
+        else {
+            UtilityFunctions::push_warning("Flecs: Renderer name '", gr.name.c_str(), "' used in script but not mapped in FlecsWorld inspector.");
+        }
+    });
+}
 
 const flecs::world* FlecsWorld::get_world() const
 {
@@ -175,6 +239,16 @@ void FlecsWorld::progress(double delta)
     }
 
     world.progress(delta);
+}
+
+void FlecsWorld::set_entity_renderers(const godot::Array& p_renderers)
+{
+    entity_renderers = p_renderers;
+}
+
+godot::Array FlecsWorld::get_entity_renderers() const
+{
+    return entity_renderers;
 }
 
 
@@ -218,4 +292,8 @@ void FlecsWorld::_bind_methods()
     ClassDB::bind_method(D_METHOD("progress", "delta"), &FlecsWorld::progress);
     ClassDB::bind_method(D_METHOD("set_singleton_component", "component_name", "data"), &FlecsWorld::set_singleton_component);
     ClassDB::bind_method(D_METHOD("run_system", "system_name"), &FlecsWorld::run_system);
+    ClassDB::bind_method(D_METHOD("set_entity_renderers", "renderers"), &FlecsWorld::set_entity_renderers);
+    ClassDB::bind_method(D_METHOD("get_entity_renderers"), &FlecsWorld::get_entity_renderers);
+
+    ADD_PROPERTY(godot::PropertyInfo(godot::Variant::ARRAY, "entity_renderers", godot::PROPERTY_HINT_ARRAY_TYPE, vformat("%s/%s:%s", godot::Variant::OBJECT, godot::PROPERTY_HINT_RESOURCE_TYPE, "EntityRenderer")), "set_entity_renderers", "get_entity_renderers");
 }
