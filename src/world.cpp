@@ -5,16 +5,18 @@
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
+#include "world.h"
 #include "registry.h"
 #include "scripts_loader.h"
 #include "utilities.h"
-#include "world.h"
 #include "components/instantiation.h"
 
 using godot::ClassDB;
 using godot::D_METHOD;
 using godot::Engine;
+using godot::PropertyInfo;
 using godot::UtilityFunctions;
+using godot::Variant;
 
 FlecsWorld::FlecsWorld()
 {
