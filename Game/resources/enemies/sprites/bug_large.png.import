@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://k1lp2djhyejq"
-path="res://.godot/imported/bug_humanoid.png-ca133ecd4a401435f114d0782209d662.ctex"
+uid="uid://byh6t5w501hyy"
+path="res://.godot/imported/bug_large.png-7ada46087c29939a86bb6b9ca9fd1036.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://scenes/Monster MultiMesh/sprites/bug_humanoid.png"
-dest_files=["res://.godot/imported/bug_humanoid.png-ca133ecd4a401435f114d0782209d662.ctex"]
+source_file="res://resources/enemies/sprites/bug_large.png"
+dest_files=["res://.godot/imported/bug_large.png-7ada46087c29939a86bb6b9ca9fd1036.ctex"]
 
 [params]
 

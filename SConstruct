@@ -13,7 +13,6 @@ from SCons.Script import Glob
 # - CPPDEFINES are for pre-processor defines
 # - LINKFLAGS are for linking flags
 
-
 # This is done because Gemini code assist insists on running scons without passing parameters explicitly.
 # Provide sensible defaults so running `scons` without arguments produces a debug build with symbols enabled.
 # Only set these when the caller did not explicitly specify them on the command line (via ARGUMENTS or -Q).
@@ -25,8 +24,7 @@ if "optimize" not in ARGUMENTS:
     ARGUMENTS["optimize"] = "debug"
 env = SConscript("godot-cpp/SConstruct")
 
-
-def find_game_code_files_and_includes(base_dir):
+def find_source_files(base_dir):
     """
     Recursively finds all .cpp files and directories containing .h/.hpp files
     within a given base directory. Paths are returned in a SCons-friendly format.
@@ -43,13 +41,11 @@ def find_game_code_files_and_includes(base_dir):
 
     return cpp_files, sorted(list(include_paths)) # Sort for deterministic order
 
-game_cpp_base_dir = "Game/cpp"
-game_cpp_sources, game_cpp_include_paths = find_game_code_files_and_includes(game_cpp_base_dir)
+sources, include_paths = find_source_files("src")
+game_cpp_sources, game_cpp_include_paths = find_source_files("Game/cpp")
+env.Append(CPPPATH=["godot-cpp/include", "godot-cpp/gen/include", "flecs/distr/"] + include_paths + game_cpp_include_paths)
 
-env.Append(CPPPATH=["godot-cpp/include", "godot-cpp/gen/include", "flecs/distr/", "flecs", "src"] + game_cpp_include_paths)
 flecs_c_source = "flecs/distr/flecs.c"
-
-sources = Glob("src/*.cpp") + Glob("src/flecs/*.cpp") + ["Game/cpp/systems.cpp"]
 
 # Flecs
 FLECS_COMMON_OPTS = [

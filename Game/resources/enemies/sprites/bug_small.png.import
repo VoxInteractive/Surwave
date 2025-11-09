@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cy02off0cvsko"
-path="res://.godot/imported/mech.png-4320b5e3b5084c03c4c452f8592da972.ctex"
+uid="uid://bseiyeokxqgc2"
+path="res://.godot/imported/bug_small.png-d521ef068f9db2d7bdab03a292c5c562.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://scenes/Monster MultiMesh/sprites/mech.png"
-dest_files=["res://.godot/imported/mech.png-4320b5e3b5084c03c4c452f8592da972.ctex"]
+source_file="res://resources/enemies/sprites/bug_small.png"
+dest_files=["res://.godot/imported/bug_small.png-d521ef068f9db2d7bdab03a292c5c562.ctex"]
 
 [params]
 
