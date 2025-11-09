@@ -8,7 +8,6 @@
 #include <godot_cpp/variant/dictionary.hpp>
 
 #include <flecs.h>
-#include "singleton_setter_registry.h"
 
 using godot::Dictionary;
 
@@ -18,8 +17,6 @@ class FlecsWorld : public godot::Node
 
 public:
     FlecsWorld();
-
-    void register_singleton_setter(const std::string& component_name, std::function<void(const Dictionary&)> setter);
 
     // GDScript-visible methods that we'll bind
     void progress(double delta); // To be called every frame from GDScript attached to the FlecsWorld node. Make sure ecs_ftime_t matches the type of delta.
@@ -36,6 +33,6 @@ protected:
 
 private:
     flecs::world world;
-    std::unordered_map<std::string, std::function<void(const Dictionary&)>> singleton_setters;
     bool is_initialised = false;
+    void register_components_for_godot_variants();
 };

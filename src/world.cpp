@@ -3,13 +3,27 @@
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/core/defs.hpp>
+#include <godot_cpp/variant/aabb.hpp>
+#include <godot_cpp/variant/basis.hpp>
+#include <godot_cpp/variant/color.hpp>
+#include <godot_cpp/variant/plane.hpp>
+#include <godot_cpp/variant/projection.hpp>
+#include <godot_cpp/variant/quaternion.hpp>
+#include <godot_cpp/variant/rect2.hpp>
+#include <godot_cpp/variant/rect2i.hpp>
+#include <godot_cpp/variant/transform2d.hpp>
+#include <godot_cpp/variant/transform3d.hpp>
+#include <godot_cpp/variant/vector2.hpp>
+#include <godot_cpp/variant/vector2i.hpp>
+#include <godot_cpp/variant/vector3.hpp>
+#include <godot_cpp/variant/vector3i.hpp>
+#include <godot_cpp/variant/vector4.hpp>
+#include <godot_cpp/variant/vector4i.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-#include "registry.h"
 #include "scripts_loader.h"
 #include "utilities.h"
 #include "world.h"
-#include "components/instantiation.h"
 
 using godot::ClassDB;
 using godot::D_METHOD;
@@ -24,7 +38,7 @@ FlecsWorld::FlecsWorld()
         return;
     }
 
-    // Don't initialise if we're running in the editor (not playing)
+    // Don't initialise if we're running in the editor
     if (Engine::get_singleton()->is_editor_hint())
     {
         return;
@@ -41,21 +55,7 @@ FlecsWorld::FlecsWorld()
     unsigned int num_threads = ::project::Utilities::get_thread_count();
     world.set_threads(static_cast<int>(num_threads));
 
-    // Register all Flecs components and systems
-    register_with_world(world);
-
-    // Register global singleton setters
-    const auto& global = get_global_singleton_setters();
-    for (const auto& pair : global)
-    {
-        singleton_setters.emplace(pair.first, [this, setter = pair.second](const Dictionary& data)
-        { setter(this->world, data); });
-    }
-
-    // Set self as the instantiation parent for nodes and scenes.
-    InstantiationParentSingleton instantiation_parent_component;
-    instantiation_parent_component.parent_node = this;
-    world.set<InstantiationParentSingleton>(instantiation_parent_component);
+    register_components_for_godot_variants();
 
     // Load Flecs script files that live in the project's flecs_scripts folder.
     // Use a Godot resource path so the loader can resolve it via ProjectSettings.
@@ -65,16 +65,81 @@ FlecsWorld::FlecsWorld()
     is_initialised = true;
 }
 
-void FlecsWorld::progress(double delta)
-{
-    if (!is_initialised)
-    {
-        UtilityFunctions::push_warning(godot::String("FlecsWorld::progress was called before world was initialised"));
-        return;
-    }
 
-    world.progress(delta);
+void FlecsWorld::register_components_for_godot_variants()
+{
+    world.component<godot::Color>("Color") // 16 bytes
+        .member<float>("r")
+        .member<float>("g")
+        .member<float>("b")
+        .member<float>("a");
+
+    world.component<godot::Vector2>("Vector2") // 8 bytes
+        .member<float>("x")
+        .member<float>("y");
+
+    world.component<godot::Vector2i>("Vector2i") // 8 bytes
+        .member<int32_t>("x")
+        .member<int32_t>("y");
+
+    world.component<godot::Vector3>("Vector3") // 12 bytes
+        .member<float>("x")
+        .member<float>("y")
+        .member<float>("z");
+
+    world.component<godot::Vector3i>("Vector3i") // 12 bytes
+        .member<int32_t>("x")
+        .member<int32_t>("y")
+        .member<int32_t>("z");
+
+    world.component<godot::Vector4>("Vector4") // 16 bytes
+        .member<float>("x")
+        .member<float>("y")
+        .member<float>("z")
+        .member<float>("w");
+
+    world.component<godot::Vector4i>("Vector4i") // 16 bytes
+        .member<int32_t>("x")
+        .member<int32_t>("y")
+        .member<int32_t>("z")
+        .member<int32_t>("w");
+
+    world.component<godot::Rect2>("Rect2") // 16 bytes
+        .member<godot::Vector2>("position")
+        .member<godot::Vector2>("size");
+
+    world.component<godot::Rect2i>("Rect2i") // 16 bytes
+        .member<godot::Vector2i>("position")
+        .member<godot::Vector2i>("size");
+
+    world.component<godot::Plane>("Plane") // 16 bytes
+        .member<godot::Vector3>("normal")
+        .member<float>("d");
+
+    world.component<godot::Quaternion>("Quaternion") // 16 bytes
+        .member<float>("x")
+        .member<float>("y")
+        .member<float>("z")
+        .member<float>("w");
+
+    world.component<godot::Basis>("Basis") // 36 bytes - acceptable
+        .member<godot::Vector3>("rows", 3);
+
+    world.component<godot::Transform2D>("Transform2D") // 24 bytes
+        .member<godot::Vector2>("columns", 3);
+
+    world.component<godot::Transform3D>("Transform3D") // 48 bytes - borderline large, but acceptable for transform components
+        .member<godot::Basis>("basis")
+        .member<godot::Vector3>("origin");
+
+    world.component<godot::AABB>("AABB") // 24 bytes
+        .member<godot::Vector3>("position")
+        .member<godot::Vector3>("size");
+
+    world.component<godot::Projection>("Projection") // 64 bytes - large, use sparingly
+        .member<godot::Vector4>("columns", 4);
 }
+
 
 const flecs::world* FlecsWorld::get_world() const
 {
@@ -87,6 +152,7 @@ const flecs::world* FlecsWorld::get_world() const
     return &world;
 }
 
+
 void FlecsWorld::set_singleton_component(const godot::String& component_name, const Dictionary& data)
 {
     if (!is_initialised)
@@ -96,20 +162,21 @@ void FlecsWorld::set_singleton_component(const godot::String& component_name, co
     }
 
     std::string name = component_name.utf8().get_data();
-    auto singleton_setter = singleton_setters.find(name);
-    if (singleton_setter != singleton_setters.end())
-    {
-        singleton_setter->second(data);
-    }
+    // TODO: Implement actual data assignment
 }
 
-void FlecsWorld::register_singleton_setter(const std::string& component_name, std::function<void(const Dictionary&)> setter)
+
+void FlecsWorld::progress(double delta)
 {
-    // Allow registering setters even before the world is initialised. They
-    // will be used when init_world copies global setters into the instance
-    // map. Storing here ensures late registrations are still respected.
-    singleton_setters.emplace(component_name, std::move(setter));
+    if (!is_initialised)
+    {
+        UtilityFunctions::push_warning(godot::String("FlecsWorld::progress was called before world was initialised"));
+        return;
+    }
+
+    world.progress(delta);
 }
+
 
 bool FlecsWorld::run_system(const godot::String& system_name)
 {
@@ -142,14 +209,6 @@ void FlecsWorld::_exit_tree()
     UtilityFunctions::print(godot::String("FlecsWorld::_exit_tree(): deinitialising FlecsWorld..."));
 
     is_initialised = false;
-
-    // Clear any Godot pointers stored in singleton components so systems won't try to use them
-    InstantiationParentSingleton instantiation_parent_component;
-    instantiation_parent_component.parent_node = nullptr;
-    world.set<InstantiationParentSingleton>(instantiation_parent_component);
-
-    // Clear stored setters to drop any references to this node or Godot data
-    singleton_setters.clear();
 }
 
 FlecsWorld::~FlecsWorld() {}
