@@ -4,7 +4,6 @@
 
 #include "gdextension_init.h"
 #include "world.h"
-#include "entity_renderer.h"
 
 using godot::MODULE_INITIALIZATION_LEVEL_SCENE;
 using godot::ModuleInitializationLevel;
@@ -17,7 +16,6 @@ void initialize_flecs_module(ModuleInitializationLevel p_level)
     }
 
     GDREGISTER_RUNTIME_CLASS(FlecsWorld);
-    GDREGISTER_CLASS(EntityRenderer);
 }
 
 void uninitialize_flecs_module(ModuleInitializationLevel p_level)
