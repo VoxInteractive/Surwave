@@ -2,8 +2,8 @@
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/godot.hpp>
 
-#include "register_types.h"
 #include "world.h"
+#include "register_types.h"
 
 using godot::MODULE_INITIALIZATION_LEVEL_SCENE;
 using godot::ModuleInitializationLevel;
@@ -28,7 +28,7 @@ void uninitialize_flecs_module(ModuleInitializationLevel p_level)
 
 extern "C"
 {
-    GDExtensionBool GDE_EXPORT flecs_library_init(GDExtensionInterfaceGetProcAddress p_get_proc_address, const GDExtensionClassLibraryPtr p_library, GDExtensionInitialization* r_initialization)
+    GDExtensionBool GDE_EXPORT flecs_library_init(GDExtensionInterfaceGetProcAddress p_get_proc_address, const GDExtensionClassLibraryPtr p_library, GDExtensionInitialization *r_initialization)
     {
         godot::GDExtensionBinding::InitObject init_obj(p_get_proc_address, p_library, r_initialization);
 
