@@ -2,7 +2,7 @@
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/godot.hpp>
 
-#include "flecs/world.h"
+#include "world.h"
 #include "register_types.h"
 
 using godot::MODULE_INITIALIZATION_LEVEL_SCENE;

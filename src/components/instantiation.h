@@ -4,7 +4,7 @@
 #include <godot_cpp/variant/string.hpp>
 
 #include <flecs.h>
-#include "flecs/registry.h"
+#include "../registry.h"
 
 // A singleton component to hold the parent node for all instantiations.
 struct InstantiationParentSingleton

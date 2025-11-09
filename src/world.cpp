@@ -6,10 +6,10 @@
 #include <godot_cpp/variant/utility_functions.hpp>
 
 #include "registry.h"
-#include "world.h"
 #include "scripts_loader.h"
-#include "../godot/components/instantiation.h"
-#include "../utilities.h"
+#include "utilities.h"
+#include "world.h"
+#include "components/instantiation.h"
 
 using godot::ClassDB;
 using godot::D_METHOD;
