@@ -59,7 +59,7 @@ FlecsWorld::FlecsWorld()
 
     // Load Flecs script files that live in the project's flecs_scripts folder.
     // Use a Godot resource path so the loader can resolve it via ProjectSettings.
-    FlecsScriptsLoader loader("res://flecs_scripts");
+    FlecsScriptsLoader loader;
     loader.load(world);
 
     is_initialised = true;
