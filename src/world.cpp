@@ -146,7 +146,7 @@ void FlecsWorld::register_components_for_godot_variants()
         .member<godot::Vector4>("columns", 4);
 }
 
-void FlecsWorld::_setup_entity_renderers()
+void FlecsWorld::setup_entity_renderers()
 {
     EntityRenderers renderers;
     int renderer_count = 0;
@@ -211,7 +211,7 @@ void FlecsWorld::_notification(const int p_what)
 {
     if (p_what == NOTIFICATION_READY)
     {
-        _setup_entity_renderers();
+        setup_entity_renderers();
     }
 }
 
@@ -276,8 +276,6 @@ void FlecsWorld::_exit_tree()
     {
         return;
     }
-
-    UtilityFunctions::print(godot::String("FlecsWorld::_exit_tree(): deinitialising FlecsWorld..."));
 
     is_initialised = false;
 }
