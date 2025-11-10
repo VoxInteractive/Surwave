@@ -151,6 +151,7 @@ void FlecsWorld::register_components_for_godot_variants()
         .member<godot::Vector4>("columns", 4);
 }
 
+
 void FlecsWorld::setup_entity_renderers()
 {
     EntityRenderers renderers;
@@ -285,7 +286,9 @@ void FlecsWorld::_exit_tree()
     is_initialised = false;
 }
 
+
 FlecsWorld::~FlecsWorld() {}
+
 
 void FlecsWorld::_bind_methods()
 {
