@@ -29,7 +29,6 @@
 
 #include "world.h"
 #include "utilities.h"
-#include "godot_components.h"
 #include "scripts_loader.h"
 #include "flecs_registry.h"
 
