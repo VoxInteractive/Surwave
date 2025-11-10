@@ -1,9 +1,10 @@
-[gd_scene load_steps=25 format=4 uid="uid://1f0s78v8ooax"]
+[gd_scene load_steps=26 format=4 uid="uid://1f0s78v8ooax"]
 
 [ext_resource type="Script" uid="uid://b0ekcl6i0i8y0" path="res://scenes/Stage 01/stage_01.gd" id="1_eml3u"]
 [ext_resource type="Texture2D" uid="uid://d6c6qr0di0ba" path="res://scenes/Stage 01/tiles_outdoors.png" id="1_oji7v"]
 [ext_resource type="Texture2D" uid="uid://u0ein3bhqfwq" path="res://scenes/Stage 01/foliage/grass1.png" id="2_3tqr6"]
 [ext_resource type="PackedScene" uid="uid://fcwmuj8ibae2" path="res://scenes/Portal/portal.tscn" id="2_ps4hv"]
+[ext_resource type="Script" uid="uid://b33fufhty65cb" path="res://scenes/Stage 01/world.gd" id="2_u0n13"]
 [ext_resource type="PackedScene" uid="uid://bq3luf1jvhoyx" path="res://scenes/Altar/altar.tscn" id="3_2lrbc"]
 [ext_resource type="Texture2D" uid="uid://byjknt5h78oqt" path="res://scenes/Stage 01/foliage/grass2.png" id="3_u0n13"]
 [ext_resource type="Texture2D" uid="uid://pwpiyyc44edk" path="res://scenes/Stage 01/foliage/grass3.png" id="4_gms3k"]
@@ -172,7 +173,8 @@ sources/0 = SubResource("TileSetAtlasSource_oji7v")
 [node name="Stage01" type="Node"]
 script = ExtResource("1_eml3u")
 
-[node name="FlecsWorld" type="FlecsWorld" parent="."]
+[node name="World" type="FlecsWorld" parent="."]
+script = ExtResource("2_u0n13")
 
 [node name="Terrain" type="MeshInstance2D" parent="."]
 z_index = -99

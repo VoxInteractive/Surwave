@@ -46,10 +46,10 @@ FlecsWorld::FlecsWorld()
 
     // Enable Flecs REST, statistics and extra logging verbosity in debug builds
 #if defined(DEBUG_ENABLED)
+    UtilityFunctions::print(godot::String("Debug build. Enabling Flecs Explorer and verbose logging ..."));
     world.set<flecs::Rest>({});
     world.import <flecs::stats>();
     flecs::log::set_level(1);
-    UtilityFunctions::print(godot::String("Flecs Explorer and verbose logging enabled"));
 #endif
 
     // Set the number of threads Flecs should use based on CPU thread count
@@ -140,7 +140,7 @@ void FlecsWorld::register_components_for_godot_variants()
         .member<godot::Vector4>("columns", 4);
 }
 
-const flecs::world *FlecsWorld::get_world() const
+const flecs::world* FlecsWorld::get_world() const
 {
     if (!is_initialised)
     {
@@ -151,7 +151,7 @@ const flecs::world *FlecsWorld::get_world() const
     return &world;
 }
 
-void FlecsWorld::set_singleton_component(const godot::String &component_name, const Dictionary &data)
+void FlecsWorld::set_singleton_component(const godot::String& component_name, const Dictionary& data)
 {
     if (!is_initialised)
     {
@@ -174,7 +174,7 @@ void FlecsWorld::progress(double delta)
     world.progress(static_cast<ecs_ftime_t>(delta));
 }
 
-bool FlecsWorld::run_system(const godot::String &system_name)
+bool FlecsWorld::run_system(const godot::String& system_name)
 {
     std::string name = system_name.utf8().get_data();
 

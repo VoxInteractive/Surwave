@@ -23,7 +23,7 @@ public:
     void set_singleton_component(const godot::String& component_name, const Dictionary& data);
     bool run_system(const godot::String& system_name); // For triggering on-demand (kind: 0) Flecs systems from GDScript
 
-    void _exit_tree();
+    void _exit_tree() override;
 
     ~FlecsWorld();
 
