@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=4 uid="uid://1f0s78v8ooax"]
+[gd_scene load_steps=30 format=4 uid="uid://1f0s78v8ooax"]
 
 [ext_resource type="Script" uid="uid://b0ekcl6i0i8y0" path="res://scenes/Stage 01/stage_01.gd" id="1_eml3u"]
 [ext_resource type="Texture2D" uid="uid://d6c6qr0di0ba" path="res://scenes/Stage 01/tiles_outdoors.png" id="1_oji7v"]
@@ -8,7 +8,6 @@
 [ext_resource type="PackedScene" uid="uid://bq3luf1jvhoyx" path="res://scenes/Altar/altar.tscn" id="3_2lrbc"]
 [ext_resource type="Texture2D" uid="uid://byjknt5h78oqt" path="res://scenes/Stage 01/foliage/grass2.png" id="3_u0n13"]
 [ext_resource type="Texture2D" uid="uid://pwpiyyc44edk" path="res://scenes/Stage 01/foliage/grass3.png" id="4_gms3k"]
-[ext_resource type="Script" uid="uid://tf1c8sq7x6ux" path="res://resources/enemies/BugSmall/multimesh_test.gd" id="4_qgwcv"]
 [ext_resource type="Texture2D" uid="uid://4vkky8xmxasg" path="res://scenes/Stage 01/foliage/grass4.png" id="5_qgwcv"]
 
 [sub_resource type="QuadMesh" id="QuadMesh_u0n13"]
@@ -202,7 +201,6 @@ script = ExtResource("2_u0n13")
 [node name="BugSmall" type="MultiMeshInstance2D" parent="World"]
 multimesh = SubResource("MultiMesh_gms3k")
 texture = SubResource("GradientTexture2D_qgwcv")
-script = ExtResource("4_qgwcv")
 metadata/prefabs_rendered = ["BugSmall"]
 
 [node name="Terrain" type="MeshInstance2D" parent="."]

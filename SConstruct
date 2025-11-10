@@ -105,7 +105,7 @@ else:
     )
 
 
-all_objs = env.SharedObject(sources) + [flecs_c_obj]
+all_objs = env.SharedObject(sources + game_cpp_sources) + [flecs_c_obj]
 
 if env["platform"] == "macos":
     library = env.SharedLibrary(
