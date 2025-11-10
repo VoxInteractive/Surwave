@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cy02off0cvsko"
-path="res://.godot/imported/mech.png-7c45c72c2d7b72e732923c0e0f796f44.ctex"
+path="res://.godot/imported/Mech.png-ab6947a07dd13db6105bab7bb773ec32.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://resources/enemies/mech/mech.png"
-dest_files=["res://.godot/imported/mech.png-7c45c72c2d7b72e732923c0e0f796f44.ctex"]
+source_file="res://resources/enemies/Mech/Mech.png"
+dest_files=["res://.godot/imported/Mech.png-ab6947a07dd13db6105bab7bb773ec32.ctex"]
 
 [params]
 

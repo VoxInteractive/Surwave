@@ -1,0 +1,4 @@
+prefab BugSmall : Enemy {
+	HitPoints: {value: 40}
+	MovementSpeed: {value: 30}
+}

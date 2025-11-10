@@ -1,7 +1,0 @@
-prefab BugSmall {
-  MaxSpeed: {value: 70}
- 
-  mandibles {
-    Position: {x: -5, y: 0}
-  }
-}

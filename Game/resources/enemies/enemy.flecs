@@ -1,8 +1,17 @@
-struct MaxSpeed {
-  value = f32
+struct HitPoints {
+	value = f32
+}
+
+struct MovementSpeed {
+	value = f32
 }
 
 struct Position {
-  x = f32
-  y = f32
+	x = f32
+	y = f32
+}
+
+prefab Enemy {
+	HitPoints: {value: 100}
+	MovementSpeed: {value: 10}
 }

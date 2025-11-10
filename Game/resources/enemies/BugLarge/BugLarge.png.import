@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://byh6t5w501hyy"
-path="res://.godot/imported/bug_large.png-66ccd6236a2c2297e2b9e024547c9bf4.ctex"
+path="res://.godot/imported/BugLarge.png-d649dd7fda41e3f1822be18001a2a644.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://resources/enemies/bug_large/bug_large.png"
-dest_files=["res://.godot/imported/bug_large.png-66ccd6236a2c2297e2b9e024547c9bf4.ctex"]
+source_file="res://resources/enemies/BugLarge/BugLarge.png"
+dest_files=["res://.godot/imported/BugLarge.png-d649dd7fda41e3f1822be18001a2a644.ctex"]
 
 [params]
 

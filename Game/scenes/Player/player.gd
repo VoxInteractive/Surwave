@@ -89,9 +89,9 @@ func _physics_process(delta: float) -> void:
 		elif aim_direction.x < 0:
 			_sprite.flip_h = true
 	elif has_moved_this_frame:
-		if movement_in_frame.x > 0:
+		if Input.is_action_pressed("move_right") and movement_in_frame.x > 0:
 			_sprite.flip_h = false
-		elif movement_in_frame.x < 0:
+		elif Input.is_action_pressed("move_left") and movement_in_frame.x < 0:
 			_sprite.flip_h = true
 
 	if has_moved_this_frame:
