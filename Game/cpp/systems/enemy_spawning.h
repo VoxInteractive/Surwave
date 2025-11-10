@@ -1,35 +1,30 @@
 #include <random>
 #include <string>
 
-#include <flecs.h>
-#include "../../../src/flecs_registry.h"
-
 #include <godot_cpp/variant/vector2.hpp>
 #include <godot_cpp/variant/vector3.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
+
+#include <flecs.h>
+#include "flecs_registry.h"
 
 using godot::Vector2;
 using godot::Vector3;
 using godot::UtilityFunctions;
 
-void register_spawn_bugs_system(flecs::world& world);
-static FlecsRegistry _spawn_bugs_registry(register_spawn_bugs_system);
 
 // Spawn 256 instances of the BugSmall prefab in a 1000x1000 area centred on origin
-void register_spawn_bugs_system(flecs::world& world)
+inline void enemy_spawning(flecs::world& world)
 {
-    // Register an on-demand named entity so the project can call FlecsWorld::run_system("SpawnBugs")
-    world.entity("SpawnBugs");
-
     // Register a C++ system that runs on demand. We'll implement the spawn logic in this system.
-    world.system<>("SpawnBugs_Cpp")
+    world.system<>("Enemy Spawning")
         .kind(0)
         .each([&](flecs::entity /*e*/) {
         // Lookup prefab
         flecs::entity prefab = world.lookup("BugSmall");
         if (!prefab.is_valid())
         {
-            UtilityFunctions::push_warning("SpawnBugs: prefab 'BugSmall' not found in Flecs world");
+            UtilityFunctions::push_warning("Enemy Spawning: prefab 'BugSmall' not found in Flecs world");
             return;
         }
 
@@ -76,6 +71,6 @@ void register_spawn_bugs_system(flecs::world& world)
             }
         }
 
-        UtilityFunctions::print("SpawnBugs: spawned 256 instances of BugSmall");
+        UtilityFunctions::print("Enemy Spawning: spawned 256 instances of BugSmall");
     });
 }

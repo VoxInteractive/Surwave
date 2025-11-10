@@ -16,8 +16,8 @@
 #include <godot_cpp/variant/utility_functions.hpp>
 
 #include <flecs.h>
-#include "../../../src/world.h"
-#include "../../../src/flecs_registry.h"
+#include "world.h"
+#include "flecs_registry.h"
 
 using godot::RenderingServer;
 using godot::PackedFloat32Array;
@@ -26,17 +26,11 @@ using godot::Transform3D;
 using godot::Color;
 using godot::UtilityFunctions;
 
-void register_multimesh_update_system(flecs::world& world);
-static FlecsRegistry _multimesh_update_registry(register_multimesh_update_system);
 
-// This system will be registered under the name "MultimeshUpdate" and should be
-// invoked each frame (or on-demand) to upload transforms for prefabs whose
-// multimesh RID was registered in the EntityRenderers singleton.
-
-void register_multimesh_update_system(flecs::world& world)
+inline void multimesh_update(flecs::world& world)
 {
     // System registered as OnUpdate by default; user can also call it by name.
-    world.system<>("MultimeshUpdate")
+    world.system<>("Multimesh Update")
         .kind(flecs::OnStore)
         .each([&](flecs::entity /*e*/) {
         // Read EntityRenderers singleton
@@ -90,6 +84,8 @@ void register_multimesh_update_system(flecs::world& world)
             // Iterate all entities and check if they are instances of prefab
             world.each([&](const flecs::entity& e) {
                 if (!e.has(flecs::IsA, prefab)) return; // not an instance
+                // ^^ This is terrible. Will be replaced by a more efficient query
+                // https://discord.com/channels/633826290415435777/1090412095893422101/1437432540263616603
 
                 // Prefer Transform2D if present
                 if (e.has<Transform2D>())
