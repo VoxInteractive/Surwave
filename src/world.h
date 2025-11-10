@@ -44,5 +44,6 @@ protected:
 private:
     flecs::world world;
     bool is_initialised = false;
+    void register_components_for_godot_variants();
     void setup_entity_renderers();
 };
