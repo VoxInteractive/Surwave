@@ -1,5 +1,3 @@
-using flecs.meta
-
 prefab BugSmall {
   MaxSpeed: {value: 70}
  

@@ -45,10 +45,11 @@ FlecsWorld::FlecsWorld()
     }
 
     // Enable Flecs REST, statistics and extra logging verbosity in debug builds
-#if defined(DEBUG_ENABLED) || defined(TOOLS_ENABLED)
+#if defined(DEBUG_ENABLED)
     world.set<flecs::Rest>({});
     world.import <flecs::stats>();
     flecs::log::set_level(1);
+    UtilityFunctions::print(godot::String("Flecs Explorer and verbose logging enabled"));
 #endif
 
     // Set the number of threads Flecs should use based on CPU thread count
