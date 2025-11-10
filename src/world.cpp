@@ -66,7 +66,6 @@ FlecsWorld::FlecsWorld()
     is_initialised = true;
 }
 
-
 void FlecsWorld::register_components_for_godot_variants()
 {
     world.component<godot::Color>("Color") // 16 bytes
@@ -141,8 +140,7 @@ void FlecsWorld::register_components_for_godot_variants()
         .member<godot::Vector4>("columns", 4);
 }
 
-
-const flecs::world* FlecsWorld::get_world() const
+const flecs::world *FlecsWorld::get_world() const
 {
     if (!is_initialised)
     {
@@ -153,8 +151,7 @@ const flecs::world* FlecsWorld::get_world() const
     return &world;
 }
 
-
-void FlecsWorld::set_singleton_component(const godot::String& component_name, const Dictionary& data)
+void FlecsWorld::set_singleton_component(const godot::String &component_name, const Dictionary &data)
 {
     if (!is_initialised)
     {
@@ -166,7 +163,6 @@ void FlecsWorld::set_singleton_component(const godot::String& component_name, co
     // TODO: Implement actual data assignment
 }
 
-
 void FlecsWorld::progress(double delta)
 {
     if (!is_initialised)
@@ -175,11 +171,10 @@ void FlecsWorld::progress(double delta)
         return;
     }
 
-    world.progress(delta);
+    world.progress(static_cast<ecs_ftime_t>(delta));
 }
 
-
-bool FlecsWorld::run_system(const godot::String& system_name)
+bool FlecsWorld::run_system(const godot::String &system_name)
 {
     std::string name = system_name.utf8().get_data();
 

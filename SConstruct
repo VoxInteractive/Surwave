@@ -51,7 +51,7 @@ flecs_c_source = "flecs/distr/flecs.c"
 FLECS_COMMON_OPTS = [
     "FLECS_NDEBUG",
     "FLECS_CPP_NO_AUTO_REGISTRATION",
-    "ecs_ftime_t=double",
+    # "ecs_ftime_t=double",
 ]
 
 FLECS_DEVELOPMENT_OPTS = []
