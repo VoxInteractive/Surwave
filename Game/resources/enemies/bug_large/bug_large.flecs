@@ -1,0 +1,13 @@
+using flecs.meta
+
+prefab BugLarge {
+  MaxSpeed: {value: 100}
+ 
+  mandibles {
+    Position: {x: -10, y: 0}
+  }
+}
+
+a_large_bug : BugLarge {
+  Position: {x: 10, y: 20}
+}

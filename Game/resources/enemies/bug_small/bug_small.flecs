@@ -1,22 +1,9 @@
 using flecs.meta
- 
-struct MaxSpeed {
-  value = f32
-}
- 
-struct Position {
-  x = f32
-  y = f32
-}
- 
+
 prefab BugSmall {
-  MaxSpeed: {value: 100}
+  MaxSpeed: {value: 70}
  
   mandibles {
-    Position: {x: -10, y: 0}
+    Position: {x: -5, y: 0}
   }
-}
- 
-my_spaceship : BugSmall {
-  Position: {x: 10, y: 20}
 }

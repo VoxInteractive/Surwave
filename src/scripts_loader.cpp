@@ -17,9 +17,8 @@ void FlecsScriptsLoader::load(flecs::world& world) const
     std::error_code ec;
     std::string resolved_path = root_path;
 
-    // If a resource path was provided (res://) prefer to globalize it so the
-    // filesystem iterator can operate on a real path. ProjectSettings may not
-    // be available in all contexts, but in the engine it will be.
+    // If a resource path was provided (res://) prefer to globalize it so the filesystem iterator can operate on a real path.
+    // ProjectSettings may not be available in all contexts, but in the engine it will be.
     const std::string res_prefix = "res://";
     if (root_path.rfind(res_prefix, 0) == 0)
     {
@@ -61,11 +60,22 @@ void FlecsScriptsLoader::load(flecs::world& world) const
             files.emplace_back(entry.path());
     }
 
-    int success_count = 0;
+    // Sort files by directory depth, then alphabetically. This ensures that scripts in parent directories
+    // (which often define common components) are loaded before scripts in subdirectories.
+    std::sort(files.begin(), files.end(), [](const fs::path& a, const fs::path& b) {
+        size_t a_depth = std::distance(a.begin(), a.end());
+        size_t b_depth = std::distance(b.begin(), b.end());
+        if (a_depth != b_depth) {
+            return a_depth < b_depth;
+        }
+        return a < b;
+    });
+
+    std::vector<std::string> loaded_scripts;
     for (const fs::path& p : files)
     {
         std::string path_str = p.string();
-        godot::String godot_path = godot::String(path_str.c_str());
+        godot::String godot_path(path_str.c_str());
         godot::String file_contents = godot::FileAccess::get_file_as_string(godot_path);
         std::string script_str = file_contents.utf8().get_data();
         // Normalize CRLF to LF to prevent parsing issues with flecs scripts.
@@ -78,17 +88,31 @@ void FlecsScriptsLoader::load(flecs::world& world) const
             continue;
         }
 
-        // Run the script from the in-memory string. Passing nullptr as name.
-        int result = world.script_run(nullptr, script_str.c_str());
+        // Run the script from the in-memory string. Pass the absolute path for better error reporting.
+        int result = world.script_run(path_str.c_str(), script_str.c_str());
         if (result != 0)
         {
             UtilityFunctions::push_error(godot::String("Error running flecs script: ") + godot::String(path_str.c_str()));
         }
         else
         {
-            ++success_count;
+            fs::path relative_path = fs::relative(p, root);
+            loaded_scripts.push_back(relative_path.string());
         }
     }
 
-    UtilityFunctions::print(godot::String("Flecs scripts loaded: ") + godot::String::num_int64(success_count));
+    if (!loaded_scripts.empty())
+    {
+        godot::String output = godot::String::num_int64(loaded_scripts.size()) + " Flecs scripts loaded: ";
+        for (size_t i = 0; i < loaded_scripts.size(); ++i) {
+            output += loaded_scripts[i].c_str();
+            if (i < loaded_scripts.size() - 1) {
+                output += ", ";
+            }
+            else {
+                output += ".";
+            }
+        }
+        UtilityFunctions::print(output);
+    }
 }

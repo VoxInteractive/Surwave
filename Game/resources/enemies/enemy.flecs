@@ -1,0 +1,10 @@
+using flecs.meta
+
+struct MaxSpeed {
+  value = f32
+}
+
+struct Position {
+  x = f32
+  y = f32
+}
