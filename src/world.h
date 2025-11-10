@@ -17,7 +17,7 @@ using godot::RID;
 
 struct EntityRenderers
 {
-    std::map<std::string, RID> prefab_to_multimesh;
+    std::map<std::string, std::map<std::string, RID>> renderers_by_type;
 };
 
 class FlecsWorld : public Node

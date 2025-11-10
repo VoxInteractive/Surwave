@@ -149,10 +149,16 @@ void FlecsWorld::register_components_for_godot_variants()
 void FlecsWorld::_setup_entity_renderers()
 {
     EntityRenderers renderers;
+    int renderer_count = 0;
 
     for (int i = 0; i < get_child_count(); ++i) {
         godot::Node* child = get_child(i);
         godot::RID multimesh_rid;
+
+        if (!child->has_meta("prefabs_rendered"))
+        {
+            continue;
+        }
 
         if (auto mmi2d = godot::Object::cast_to<godot::MultiMeshInstance2D>(child))
         {
@@ -164,17 +170,14 @@ void FlecsWorld::_setup_entity_renderers()
         }
         else
         {
-            continue;
-        }
-
-        if (!child->has_meta("prefabs_rendered"))
-        {
+            UtilityFunctions::push_warning(child->get_class() + godot::String(" nodes are not supported as entity renderers."));
             continue;
         }
 
         godot::Array prefabs = child->get_meta("prefabs_rendered");
         if (prefabs.is_empty())
         {
+            UtilityFunctions::push_warning(godot::String("Child node '") + child->get_name() + "' has 'prefabs_rendered' metadata, but it is empty.");
             continue;
         }
 
@@ -182,16 +185,24 @@ void FlecsWorld::_setup_entity_renderers()
         {
             godot::String prefab_name = prefabs[j];
             std::string prefab_name_str = prefab_name.utf8().get_data();
-            renderers.prefab_to_multimesh[prefab_name_str] = multimesh_rid;
+
+            if (!world.lookup(prefab_name_str.c_str()).is_valid())
+            {
+                UtilityFunctions::push_warning(godot::String("Prefab '") + prefab_name + "' referenced in node '" + child->get_name() + "' does not exist in the Flecs world.");
+                continue;
+            }
+
+            renderers.renderers_by_type["multimesh"][prefab_name_str] = multimesh_rid;
+            renderer_count++;
         }
     }
 
-    if (!renderers.prefab_to_multimesh.empty())
+    if (renderer_count > 0)
     {
         world.component<EntityRenderers>();
         world.set<EntityRenderers>(renderers);
         UtilityFunctions::print(godot::String("Found and registered ") +
-            godot::String::num_int64(renderers.prefab_to_multimesh.size()) +
+            godot::String::num_int64(renderer_count) +
             " prefab renderers.");
     }
 }
