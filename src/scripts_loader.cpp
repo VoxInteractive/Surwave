@@ -68,6 +68,9 @@ void FlecsScriptsLoader::load(flecs::world& world) const
         godot::String godot_path = godot::String(path_str.c_str());
         godot::String file_contents = godot::FileAccess::get_file_as_string(godot_path);
         std::string script_str = file_contents.utf8().get_data();
+        // Normalize CRLF to LF to prevent parsing issues with flecs scripts.
+        // https://discord.com/channels/633826290415435777/1437044505185615882/1437229465183715500
+        script_str.erase(std::remove(script_str.begin(), script_str.end(), '\r'), script_str.end());
 
         if (script_str.empty())
         {
