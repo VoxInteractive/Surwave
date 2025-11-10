@@ -1,17 +1,26 @@
 #pragma once
 
 #include <functional>
+#include <map>
 #include <string>
 #include <unordered_map>
 
+#include <godot_cpp/classes/multi_mesh_instance2d.hpp>
 #include <godot_cpp/classes/node.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
 
 #include <flecs.h>
 
 using godot::Dictionary;
+using godot::Node;
+using godot::RID;
 
-class FlecsWorld : public godot::Node
+struct EntityRenderers
+{
+    std::map<std::string, RID> prefab_to_multimesh;
+};
+
+class FlecsWorld : public Node
 {
     GDCLASS(FlecsWorld, Node)
 
@@ -29,10 +38,12 @@ public:
 
 protected:
     const flecs::world* get_world() const;
+    void _notification(const int p_what);
     static void _bind_methods();
 
 private:
     flecs::world world;
     bool is_initialised = false;
     void register_components_for_godot_variants();
+    void _setup_entity_renderers();
 };

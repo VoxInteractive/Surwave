@@ -1,6 +1,10 @@
 #include <thread>
 
 #include <godot_cpp/classes/engine.hpp>
+#include <godot_cpp/classes/multi_mesh.hpp>
+#include <godot_cpp/classes/multi_mesh_instance2d.hpp>
+#include <godot_cpp/classes/multi_mesh_instance3d.hpp>
+#include <godot_cpp/classes/rendering_server.hpp>
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/variant/aabb.hpp>
@@ -19,6 +23,8 @@
 #include <godot_cpp/variant/vector3i.hpp>
 #include <godot_cpp/variant/vector4.hpp>
 #include <godot_cpp/variant/vector4i.hpp>
+#include <godot_cpp/variant/string_name.hpp>
+#include <godot_cpp/variant/array.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
 #include "scripts_loader.h"
@@ -138,6 +144,63 @@ void FlecsWorld::register_components_for_godot_variants()
 
     world.component<godot::Projection>("Projection") // 64 bytes - large, use sparingly
         .member<godot::Vector4>("columns", 4);
+}
+
+void FlecsWorld::_setup_entity_renderers()
+{
+    EntityRenderers renderers;
+
+    for (int i = 0; i < get_child_count(); ++i) {
+        godot::Node* child = get_child(i);
+        godot::RID multimesh_rid;
+
+        if (auto mmi2d = godot::Object::cast_to<godot::MultiMeshInstance2D>(child))
+        {
+            multimesh_rid = mmi2d->get_multimesh()->get_rid();
+        }
+        else if (auto mmi3d = godot::Object::cast_to<godot::MultiMeshInstance3D>(child))
+        {
+            multimesh_rid = mmi3d->get_multimesh()->get_rid();
+        }
+        else
+        {
+            continue;
+        }
+
+        if (!child->has_meta("prefabs_rendered"))
+        {
+            continue;
+        }
+
+        godot::Array prefabs = child->get_meta("prefabs_rendered");
+        if (prefabs.is_empty())
+        {
+            continue;
+        }
+
+        for (int j = 0; j < prefabs.size(); ++j)
+        {
+            godot::String prefab_name = prefabs[j];
+            std::string prefab_name_str = prefab_name.utf8().get_data();
+            renderers.prefab_to_multimesh[prefab_name_str] = multimesh_rid;
+        }
+    }
+
+    if (!renderers.prefab_to_multimesh.empty())
+    {
+        world.set<EntityRenderers>(renderers);
+        UtilityFunctions::print(godot::String("Found and registered ") +
+            godot::String::num_int64(renderers.prefab_to_multimesh.size()) +
+            " prefab renderers.");
+    }
+}
+
+void FlecsWorld::_notification(const int p_what)
+{
+    if (p_what == NOTIFICATION_READY)
+    {
+        _setup_entity_renderers();
+    }
 }
 
 const flecs::world* FlecsWorld::get_world() const
