@@ -188,6 +188,7 @@ void FlecsWorld::_setup_entity_renderers()
 
     if (!renderers.prefab_to_multimesh.empty())
     {
+        world.component<EntityRenderers>();
         world.set<EntityRenderers>(renderers);
         UtilityFunctions::print(godot::String("Found and registered ") +
             godot::String::num_int64(renderers.prefab_to_multimesh.size()) +
