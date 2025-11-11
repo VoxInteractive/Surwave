@@ -88,9 +88,10 @@ if env["platform"] == "windows":
     if env.get("is_msvc", False):
         env.Append(CXXFLAGS=["/std:c++17"])
         env.Append(LIBS=["Ws2_32"])
-    else:
+    else: # mingw32
         env.Append(CXXFLAGS=["-std=c++17"])
         env.Append(LIBS=["ws2_32", "dbghelp"])
+
     flecs_c_obj = env.SharedObject(
         target="flecs_c_obj",
         source=[flecs_c_source],
