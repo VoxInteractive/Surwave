@@ -103,18 +103,18 @@ namespace
 inline FlecsRegistry register_entity_rendering_multimesh_system([](flecs::world& world)
 {
     // System registered as OnUpdate by default; user can also call it by name.
-    world.system<>("Entity Rendering (Multimesh)")
-        .kind(0) // was: flecs::OnStore
-        .each([&](flecs::entity /*e*/) {
+    world.system<>("Entity Rendering (MultiMesh)")
+        .kind(flecs::OnStore)
+        .run([&](flecs::iter& it) {
 
         const EntityRenderers* entity_renderers = nullptr;
-        if (world.has<EntityRenderers>())
+        if (it.world().has<EntityRenderers>())
         {
-            entity_renderers = &world.get<EntityRenderers>();
+            entity_renderers = &it.world().get<EntityRenderers>();
         }
         if (!entity_renderers)
         {
-            UtilityFunctions::push_warning("Entity Rendering (Multimesh): EntityRenderers singleton component not found");
+            UtilityFunctions::push_warning("Entity Rendering (MultiMesh): EntityRenderers singleton component not found");
             return;
         }
 
@@ -122,14 +122,14 @@ inline FlecsRegistry register_entity_rendering_multimesh_system([](flecs::world&
             entity_renderers->renderers_by_type.find(RendererType::MultiMesh);
         if (multimesh_renderers_iterator == entity_renderers->renderers_by_type.end())
         {
-            UtilityFunctions::push_warning("Entity Rendering (Multimesh): No multimesh renderers found in EntityRenderers");
+            UtilityFunctions::push_warning("Entity Rendering (MultiMesh): No multimesh renderers found in EntityRenderers");
             return;
         }
 
         RenderingServer* rendering_server = RenderingServer::get_singleton();
         if (!rendering_server)
         {
-            UtilityFunctions::push_error("Entity Rendering (Multimesh): RenderingServer singleton not available");
+            UtilityFunctions::push_error("Entity Rendering (MultiMesh): RenderingServer singleton not available");
             return;
         }
 
@@ -140,10 +140,10 @@ inline FlecsRegistry register_entity_rendering_multimesh_system([](flecs::world&
             const MultiMeshRenderer& renderer = prefab_renderer_pair.second;
 
             // Query Flecs for entities that are instances of this prefab.
-            flecs::entity prefab = world.lookup(prefab_name.c_str());
+            flecs::entity prefab = it.world().lookup(prefab_name.c_str());
             if (!prefab.is_valid())
             {
-                UtilityFunctions::push_warning("Entity Rendering (Multimesh): Prefab entity not found: " + godot::String(prefab_name.c_str()));
+                UtilityFunctions::push_warning("Entity Rendering (MultiMesh): Prefab entity not found: " + godot::String(prefab_name.c_str()));
                 continue;
             }
 
@@ -153,7 +153,7 @@ inline FlecsRegistry register_entity_rendering_multimesh_system([](flecs::world&
             std::vector<Color> instance_custom_data; // Stored as Color for convenience
 
             flecs::query<const Transform2D*, const Transform3D*, const Color*> prefab_instance_query =
-                world.query_builder<const Transform2D*, const Transform3D*, const Color*>()
+                it.world().query_builder<const Transform2D*, const Transform3D*, const Color*>()
                 .with(flecs::IsA, prefab)
                 .build();
             // https://discordapp.com/channels/633826290415435777/1090412095893422101/1437600527738470513

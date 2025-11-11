@@ -11,8 +11,6 @@ func _ready() -> void:
 			Transform2D(0, Vector2(50, 50))
 		]
 	})
-	
-	run_system("Entity Rendering (Multimesh)")
 
 func _process(delta: float) -> void:
 	progress(delta)
