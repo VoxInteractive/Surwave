@@ -29,6 +29,19 @@ using godot::UtilityFunctions;
 
 // Buffer format: https://docs.godotengine.org/en/stable/classes/class_renderingserver.html#class-renderingserver-method-multimesh-set-buffer
 
+// Tell the standard library how to generate a hash for godot::RID objects
+namespace std
+{
+    template <>
+    struct hash<godot::RID>
+    {
+        std::size_t operator()(const godot::RID& r) const
+        {
+            return std::hash<int64_t>()(r.get_id());
+        }
+    };
+}
+
 namespace
 {
     void write_color_to_buffer(PackedFloat32Array& buffer, int& cursor, const Color& color)
@@ -47,26 +60,29 @@ namespace
         const std::vector<Color>& instance_colors,
         const std::vector<Color>& instance_custom_data)
     {
-        size_t instance_count = transforms.size();
-        if (instance_count == 0)
-        {
-            return;
-        }
+        static std::unordered_map<godot::RID, PackedFloat32Array> buffer_cache;
+
+        size_t instance_count = std::min(transforms.size(), static_cast<size_t>(renderer.instance_count));
 
         int floats_per_instance = 0;
-        if constexpr (std::is_same_v<TransformType, Transform2D>)
+        if (renderer.transform_format == godot::MultiMesh::TRANSFORM_2D)
         {
             floats_per_instance = 8;
         }
-        else if constexpr (std::is_same_v<TransformType, Transform3D>)
+        else // TRANSFORM_3D
         {
             floats_per_instance = 12;
         }
 
         floats_per_instance += (renderer.use_colors ? 4 : 0) + (renderer.use_custom_data ? 4 : 0);
 
-        PackedFloat32Array buffer;
-        buffer.resize(static_cast<int>(instance_count * floats_per_instance));
+        PackedFloat32Array& buffer = buffer_cache[renderer.rid];
+        int required_size = static_cast<int>(renderer.instance_count * floats_per_instance);
+        if (buffer.size() != required_size)
+        {
+            UtilityFunctions::push_warning("Entity Rendering (MultiMesh): Resizing MultiMesh buffer");
+            buffer.resize(required_size);
+        }
 
         int buffer_cursor = 0;
         for (size_t i = 0; i < instance_count; ++i)
@@ -75,8 +91,8 @@ namespace
 
             if constexpr (std::is_same_v<TransformType, Transform2D>)
             {
-                buffer.set(buffer_cursor++, t.columns[0].x); buffer.set(buffer_cursor++, t.columns[1].x); buffer.set(buffer_cursor++, 0.0f); buffer.set(buffer_cursor++, t.columns[2].x);
-                buffer.set(buffer_cursor++, t.columns[0].y); buffer.set(buffer_cursor++, t.columns[1].y); buffer.set(buffer_cursor++, 0.0f); buffer.set(buffer_cursor++, t.columns[2].y);
+                buffer.set(buffer_cursor++, t.columns[0].x); buffer.set(buffer_cursor++, t.columns[1].x); buffer.set(buffer_cursor++, 0.0f); buffer.set(buffer_cursor++, t.columns[2].x); // x row
+                buffer.set(buffer_cursor++, t.columns[0].y); buffer.set(buffer_cursor++, t.columns[1].y); buffer.set(buffer_cursor++, 0.0f); buffer.set(buffer_cursor++, t.columns[2].y); // y row
             }
             else if constexpr (std::is_same_v<TransformType, Transform3D>)
             {
