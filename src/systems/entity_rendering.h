@@ -42,8 +42,10 @@ namespace std
     };
 }
 
-namespace
-{
+extern std::unordered_map<godot::RID, PackedFloat32Array> g_multimesh_buffer_cache;
+
+namespace {
+
     void write_color_to_buffer(PackedFloat32Array& buffer, int& cursor, const Color& color)
     {
         buffer.set(cursor++, color.r);
@@ -60,8 +62,6 @@ namespace
         const std::vector<Color>& instance_colors,
         const std::vector<Color>& instance_custom_data)
     {
-        static std::unordered_map<godot::RID, PackedFloat32Array> buffer_cache;
-
         size_t instance_count = std::min(transforms.size(), static_cast<size_t>(renderer.instance_count));
 
         int floats_per_instance = 0;
@@ -76,11 +76,14 @@ namespace
 
         floats_per_instance += (renderer.use_colors ? 4 : 0) + (renderer.use_custom_data ? 4 : 0);
 
-        PackedFloat32Array& buffer = buffer_cache[renderer.rid];
+        PackedFloat32Array& buffer = g_multimesh_buffer_cache[renderer.rid];
         int required_size = static_cast<int>(renderer.instance_count * floats_per_instance);
         if (buffer.size() != required_size)
         {
-            UtilityFunctions::push_warning("Entity Rendering (MultiMesh): Resizing MultiMesh buffer");
+            UtilityFunctions::push_warning(
+                godot::String("Entity Rendering (MultiMesh): Resizing MultiMesh buffer from ") +
+                godot::String::num_int64(buffer.size()) + godot::String(" to ") +
+                godot::String::num_int64(required_size));
             buffer.resize(required_size);
         }
 

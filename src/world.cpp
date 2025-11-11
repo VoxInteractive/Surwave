@@ -14,6 +14,9 @@
 #include "flecs_registry.h"
 #include "scripts_loader.h"
 
+// Define the global buffer cache that is declared in entity_rendering.h
+std::unordered_map<godot::RID, godot::PackedFloat32Array> g_multimesh_buffer_cache;
+
 using godot::ClassDB;
 using godot::D_METHOD;
 using godot::Engine;
@@ -72,19 +75,34 @@ void FlecsWorld::setup_entity_renderers()
         }
 
         if (auto mmi2d = godot::Object::cast_to<godot::MultiMeshInstance2D>(child)) {
-            multimesh = mmi2d->get_multimesh().ptr();
+            godot::Ref<godot::MultiMesh> mm = mmi2d->get_multimesh();
+            if (mm.is_valid()) {
+                multimesh = mm.ptr();
+            }
         }
         else if (auto mmi3d = godot::Object::cast_to<godot::MultiMeshInstance3D>(child)) {
-            multimesh = mmi3d->get_multimesh().ptr();
+            godot::Ref<godot::MultiMesh> mm = mmi3d->get_multimesh();
+            if (mm.is_valid()) {
+                multimesh = mm.ptr();
+            }
         }
 
         if (multimesh)
         {
             multimesh_rid = multimesh->get_rid();
+
+            // Pre-populate the buffer cache to avoid the initial resizing
+            g_multimesh_buffer_cache[multimesh_rid] = multimesh->get_buffer();
         }
         else
         {
-            UtilityFunctions::push_warning(child->get_class() + godot::String(" nodes are not supported as entity renderers."));
+            if (godot::Object::cast_to<godot::MultiMeshInstance2D>(child) || godot::Object::cast_to<godot::MultiMeshInstance3D>(child))
+            {
+                UtilityFunctions::push_warning(child->get_class() + godot::String(" node has no MultiMesh resource assigned."));
+            }
+            else {
+                UtilityFunctions::push_warning(child->get_class() + godot::String(" nodes are not supported as entity renderers."));
+            }
             continue;
         }
 
