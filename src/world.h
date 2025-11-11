@@ -1,24 +1,17 @@
 #pragma once
 
-#include <functional>
-#include <map>
-#include <string>
-#include <unordered_map>
-
-#include <godot_cpp/classes/multi_mesh_instance2d.hpp>
 #include <godot_cpp/classes/node.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
 
 #include <flecs.h>
 
+#include "components/godot_variants.h"
+#include "components/entity_renderers.h"
+
+#include "systems/prefab_instantiation.h"
+
 using godot::Dictionary;
 using godot::Node;
-using godot::RID;
-
-struct EntityRenderers
-{
-    std::map<std::string, std::map<std::string, RID>> renderers_by_type;
-};
 
 class FlecsWorld : public Node
 {
@@ -44,6 +37,5 @@ protected:
 private:
     flecs::world world;
     bool is_initialised = false;
-    void register_components_for_godot_variants();
     void setup_entity_renderers();
 };
