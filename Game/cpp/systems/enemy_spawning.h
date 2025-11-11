@@ -1,6 +1,7 @@
 #include <string>
 
 #include <godot_cpp/variant/vector2.hpp>
+#include <godot_cpp/variant/dictionary.hpp>
 #include <godot_cpp/variant/vector3.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
@@ -17,8 +18,19 @@ inline void enemy_spawning(flecs::world& world)
 {
     // Register a C++ system that runs on demand. We'll implement the spawn logic in this system.
     world.system<>("Enemy Spawning")
-        .kind(flecs::OnLoad)
-        .run([&](flecs::iter& it) {
+        .kind(0) // On-demand
+        .run([&](flecs::iter& it)
+    {
+        int count = 0;
+        if (it.param())
+        {
+            const godot::Dictionary* data = static_cast<const godot::Dictionary*>(it.param());
+            if (data->has("count"))
+            {
+                count = (*data)["count"];
+            }
+        }
+
         // Lookup prefab
         flecs::entity prefab = world.lookup("BugSmall");
         if (!prefab.is_valid())
@@ -26,8 +38,6 @@ inline void enemy_spawning(flecs::world& world)
             UtilityFunctions::push_warning("Enemy Spawning: prefab 'BugSmall' not found in Flecs world");
             return;
         }
-
-        const int count = 256;
         for (int i = 0; i < count; ++i)
         {
             // Instantiate prefab using Flecs is_a shorthand
@@ -44,6 +54,6 @@ inline void enemy_spawning(flecs::world& world)
             }
         }
 
-        UtilityFunctions::print("Enemy Spawning: spawned 256 instances of BugSmall");
+        UtilityFunctions::print(godot::String("Enemy Spawning: spawned ") + godot::String::num_int64(count) + " instances of BugSmall");
     });
 }

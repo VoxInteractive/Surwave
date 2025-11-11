@@ -254,7 +254,7 @@ void FlecsWorld::progress(double delta)
     world.progress(static_cast<ecs_ftime_t>(delta));
 }
 
-bool FlecsWorld::run_system(const godot::String& system_name)
+bool FlecsWorld::run_system(const godot::String& system_name, const godot::Dictionary& parameters)
 {
     std::string name = system_name.utf8().get_data();
 
@@ -271,7 +271,14 @@ bool FlecsWorld::run_system(const godot::String& system_name)
         return false;
     }
 
-    sys.run();
+    if (parameters.is_empty())
+    {
+        sys.run();
+    }
+    else
+    {
+        sys.run(0.0f, (void*)&parameters);
+    }
     return true;
 }
 
@@ -293,5 +300,5 @@ void FlecsWorld::_bind_methods()
 {
     ClassDB::bind_method(D_METHOD("progress", "delta"), &FlecsWorld::progress);
     ClassDB::bind_method(D_METHOD("set_singleton_component", "component_name", "data"), &FlecsWorld::set_singleton_component);
-    ClassDB::bind_method(D_METHOD("run_system", "system_name"), &FlecsWorld::run_system);
+    ClassDB::bind_method(D_METHOD("run_system", "system_name", "data"), &FlecsWorld::run_system, DEFVAL(godot::Dictionary()));
 }
