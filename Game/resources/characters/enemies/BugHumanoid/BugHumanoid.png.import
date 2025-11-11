@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bseiyeokxqgc2"
-path="res://.godot/imported/BugSmall.png-dc8921b71e8d64803bdddbd1d781fa75.ctex"
+uid="uid://k1lp2djhyejq"
+path="res://.godot/imported/BugHumanoid.png-df2443133dc7d5f9b8b8b4ed1c1f0b7d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://resources/enemies/BugSmall/BugSmall.png"
-dest_files=["res://.godot/imported/BugSmall.png-dc8921b71e8d64803bdddbd1d781fa75.ctex"]
+source_file="res://resources/characters/enemies/BugHumanoid/BugHumanoid.png"
+dest_files=["res://.godot/imported/BugHumanoid.png-df2443133dc7d5f9b8b8b4ed1c1f0b7d.ctex"]
 
 [params]
 

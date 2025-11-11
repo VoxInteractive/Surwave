@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cy02off0cvsko"
-path="res://.godot/imported/Mech.png-ab6947a07dd13db6105bab7bb773ec32.ctex"
+uid="uid://byh6t5w501hyy"
+path="res://.godot/imported/BugLarge.png-d878ce433996e02f655c376586660a0b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://resources/enemies/Mech/Mech.png"
-dest_files=["res://.godot/imported/Mech.png-ab6947a07dd13db6105bab7bb773ec32.ctex"]
+source_file="res://resources/characters/enemies/BugLarge/BugLarge.png"
+dest_files=["res://.godot/imported/BugLarge.png-d878ce433996e02f655c376586660a0b.ctex"]
 
 [params]
 

@@ -1,0 +1,12 @@
+struct HitPoints {
+	value = f32
+}
+
+struct MovementSpeed {
+	value = f32
+}
+
+prefab Enemy : Character2D {
+	HitPoints: { value: 100 }
+	MovementSpeed: { value: 10 }
+}

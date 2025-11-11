@@ -5,6 +5,7 @@
 #include <godot_cpp/variant/utility_functions.hpp>
 #include <godot_cpp/variant/variant.hpp>
 
+#include "../components/transform.h"
 #include "flecs_registry.h"
 
 using godot::Dictionary;
@@ -105,23 +106,33 @@ inline FlecsRegistry register_prefab_instantiation_system([](flecs::world& world
             has_transforms = true;
         }
 
-        for (int i = 0; i < count; ++i)
+        for (int instance_idx = 0; instance_idx < count; ++instance_idx)
         {
             flecs::entity instance = world.entity().is_a(prefab);
             if (has_transforms) {
-                int t_idx = 0;
-                if (transforms_array.size() > 0) t_idx = i % transforms_array.size();
                 if (transforms_are_2d) {
-                    godot::Transform2D t = transforms_array[t_idx];
-                    instance.set<godot::Transform2D>(t);
+                    godot::Transform2D transform = transforms_array[instance_idx];
+                    godot::Vector2 position = transform.get_origin();
+                    godot::real_t rotation = transform.get_rotation();
+                    godot::Vector2 scale = transform.get_scale();
+
+                    instance.set<Position2D>({ position.x, position.y });
+                    instance.set<Rotation2D>({ rotation });
+                    instance.set<Scale2D>({ scale.x, scale.y });
                 }
                 else {
-                    godot::Transform3D t = transforms_array[t_idx];
-                    instance.set<godot::Transform3D>(t);
+                    godot::Transform3D transform = transforms_array[instance_idx];
+                    godot::Vector3 position = transform.get_origin();
+                    godot::Vector3 rotation = transform.get_basis().get_euler();
+                    godot::Vector3 scale = transform.get_basis().get_scale();
+
+                    instance.set<Position3D>({ position.x, position.y, position.z });
+                    instance.set<Rotation3D>({ rotation.x, rotation.y, rotation.z });
+                    instance.set<Scale3D>({ scale.x, scale.y, scale.z });
                 }
             }
         }
 
-        UtilityFunctions::print(godot::String("Prefab Instantiation: spawned ") + godot::String::num_int64(count) + " instances of '" + prefab_name + "'");
+        // UtilityFunctions::print(godot::String("Prefab Instantiation: spawned ") + godot::String::num_int64(count) + " instances of '" + prefab_name + "'");
     });
 });

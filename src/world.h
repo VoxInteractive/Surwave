@@ -7,6 +7,7 @@
 
 #include "components/godot_variants.h"
 #include "components/entity_rendering.h"
+#include "components/transform.h"
 
 #include "systems/prefab_instantiation.h"
 #include "systems/entity_rendering.h"
