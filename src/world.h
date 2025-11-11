@@ -6,7 +6,7 @@
 #include <flecs.h>
 
 #include "components/godot_variants.h"
-#include "components/entity_renderers.h"
+#include "components/entity_rendering.h"
 
 #include "systems/prefab_instantiation.h"
 

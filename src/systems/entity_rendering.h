@@ -19,19 +19,20 @@
 #include "world.h"
 #include "flecs_registry.h"
 
-using godot::RenderingServer;
+using godot::Color;
 using godot::PackedFloat32Array;
+using godot::RenderingServer;
 using godot::Transform2D;
 using godot::Transform3D;
-using godot::Color;
 using godot::UtilityFunctions;
 
+// Buffer format: https://docs.godotengine.org/en/stable/classes/class_renderingserver.html#class-renderingserver-method-multimesh-set-buffer
 
-inline void multimesh_update(flecs::world& world)
+inline FlecsRegistry register_entity_rendering_system([](flecs::world& world)
 {
     // System registered as OnUpdate by default; user can also call it by name.
     world.system<>("Multimesh Update")
-        .kind(flecs::OnStore)
+        .kind(0) // was: flecs::OnStore
         .each([&](flecs::entity /*e*/) {
         // Read EntityRenderers singleton
         const EntityRenderers* renderers = nullptr;
@@ -46,7 +47,7 @@ inline void multimesh_update(flecs::world& world)
         }
 
         // Find the multimesh renderers mapping
-        auto it = renderers->renderers_by_type.find("multimesh");
+        auto it = renderers->renderers_by_type.find(RendererType::MultiMesh);
         if (it == renderers->renderers_by_type.end())
         {
             return;
@@ -63,7 +64,7 @@ inline void multimesh_update(flecs::world& world)
         for (const auto& kv : it->second)
         {
             const std::string& prefab_name = kv.first;
-            const godot::RID& multimesh_rid = kv.second;
+            const MultiMeshRenderer& renderer = kv.second;
 
             // Query Flecs for entities that are instances of this prefab.
             flecs::entity prefab = world.lookup(prefab_name.c_str());
@@ -114,9 +115,9 @@ inline void multimesh_update(flecs::world& world)
             {
                 size_t instances = transforms2d.size();
                 // Determine per-instance floats: base 8, +4 if color, +4 if custom
-                bool has_color = !colors.empty();
-                bool has_custom = !customs.empty();
-                int floats_per = 8 + (has_color ? 4 : 0) + (has_custom ? 4 : 0);
+                int floats_per = 8 +
+                    (renderer.use_colors ? 4 : 0) +
+                    (renderer.use_custom_data ? 4 : 0);
 
                 PackedFloat32Array buffer;
                 buffer.resize(static_cast<int>(instances * floats_per));
@@ -142,7 +143,7 @@ inline void multimesh_update(flecs::world& world)
                     buffer[idx++] = 0.0f; // padding
                     buffer[idx++] = origin.y;
 
-                    if (has_color)
+                    if (renderer.use_colors && !colors.empty())
                     {
                         const Color& c = colors[i % colors.size()];
                         buffer[idx++] = c.r;
@@ -151,7 +152,7 @@ inline void multimesh_update(flecs::world& world)
                         buffer[idx++] = c.a;
                     }
 
-                    if (has_custom)
+                    if (renderer.use_custom_data && !customs.empty())
                     {
                         const Color& c = customs[i % customs.size()];
                         buffer[idx++] = c.r;
@@ -161,14 +162,14 @@ inline void multimesh_update(flecs::world& world)
                     }
                 }
 
-                rs->multimesh_set_buffer(multimesh_rid, buffer);
+                rs->multimesh_set_buffer(renderer.rid, buffer);
             }
             else if (!transforms3d.empty())
             {
                 size_t instances = transforms3d.size();
-                bool has_color = !colors.empty();
-                bool has_custom = !customs.empty();
-                int floats_per = 12 + (has_color ? 4 : 0) + (has_custom ? 4 : 0);
+                int floats_per = 12 +
+                    (renderer.use_colors ? 4 : 0) +
+                    (renderer.use_custom_data ? 4 : 0);
 
                 PackedFloat32Array buffer;
                 buffer.resize(static_cast<int>(instances * floats_per));
@@ -200,7 +201,7 @@ inline void multimesh_update(flecs::world& world)
                     buffer[idx++] = b[2].z;
                     buffer[idx++] = o.z;
 
-                    if (has_color)
+                    if (renderer.use_colors && !colors.empty())
                     {
                         const Color& c = colors[i % colors.size()];
                         buffer[idx++] = c.r;
@@ -209,7 +210,7 @@ inline void multimesh_update(flecs::world& world)
                         buffer[idx++] = c.a;
                     }
 
-                    if (has_custom)
+                    if (renderer.use_custom_data && !customs.empty())
                     {
                         const Color& c = customs[i % customs.size()];
                         buffer[idx++] = c.r;
@@ -219,8 +220,8 @@ inline void multimesh_update(flecs::world& world)
                     }
                 }
 
-                rs->multimesh_set_buffer(multimesh_rid, buffer);
+                rs->multimesh_set_buffer(renderer.rid, buffer);
             }
         }
     });
-}
+});
