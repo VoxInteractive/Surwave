@@ -93,4 +93,3 @@ inline FlecsRegistry register_godot_variant_components([](flecs::world& world)
     world.component<godot::Projection>("Projection") // 64 bytes - large, use sparingly
         .member<godot::Vector4>("columns", 4);
 });
-
