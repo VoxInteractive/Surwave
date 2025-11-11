@@ -9,6 +9,7 @@
 #include "components/entity_rendering.h"
 
 #include "systems/prefab_instantiation.h"
+#include "systems/entity_rendering.h"
 
 using godot::Dictionary;
 using godot::Node;
