@@ -2,7 +2,7 @@ extends MultiMeshInstance2D
 
 @onready var terrain: MeshInstance2D = $"../../Terrain"
 
-var elapsed_time :float = 0
+var elapsed_time: float = 0
 
 func _ready() -> void:
 	# Set a custom AABB for the MultiMesh. Setting this manually prevents costly runtime AABB recalculations.

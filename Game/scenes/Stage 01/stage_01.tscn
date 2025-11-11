@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=4 uid="uid://1f0s78v8ooax"]
+[gd_scene load_steps=30 format=4 uid="uid://1f0s78v8ooax"]
 
 [ext_resource type="Script" uid="uid://b0ekcl6i0i8y0" path="res://scenes/Stage 01/stage_01.gd" id="1_eml3u"]
 [ext_resource type="Texture2D" uid="uid://d6c6qr0di0ba" path="res://scenes/Stage 01/tiles_outdoors.png" id="1_oji7v"]
@@ -8,7 +8,6 @@
 [ext_resource type="PackedScene" uid="uid://bq3luf1jvhoyx" path="res://scenes/Altar/altar.tscn" id="3_2lrbc"]
 [ext_resource type="Texture2D" uid="uid://byjknt5h78oqt" path="res://scenes/Stage 01/foliage/grass2.png" id="3_u0n13"]
 [ext_resource type="Texture2D" uid="uid://pwpiyyc44edk" path="res://scenes/Stage 01/foliage/grass3.png" id="4_gms3k"]
-[ext_resource type="Script" uid="uid://tf1c8sq7x6ux" path="res://resources/enemies/BugSmall/multimesh_test.gd" id="4_qgwcv"]
 [ext_resource type="Texture2D" uid="uid://4vkky8xmxasg" path="res://scenes/Stage 01/foliage/grass4.png" id="5_qgwcv"]
 
 [sub_resource type="QuadMesh" id="QuadMesh_u0n13"]
@@ -17,6 +16,7 @@ size = Vector2(48, -48)
 [sub_resource type="MultiMesh" id="MultiMesh_gms3k"]
 use_colors = true
 use_custom_data = true
+custom_aabb = AABB(-2048, -2048, 0, 4096, 4096, 0)
 instance_count = 65536
 visible_instance_count = 256
 mesh = SubResource("QuadMesh_u0n13")
@@ -193,17 +193,6 @@ terrain_set_0/terrain_0/name = "borders"
 terrain_set_0/terrain_0/color = Color(0.5, 0.34375, 0.25, 1)
 sources/0 = SubResource("TileSetAtlasSource_oji7v")
 
-[sub_resource type="QuadMesh" id="QuadMesh_qgwcv"]
-
-[sub_resource type="MultiMesh" id="MultiMesh_1m5sl"]
-use_colors = true
-use_custom_data = true
-instance_count = 10
-mesh = SubResource("QuadMesh_qgwcv")
-buffer = PackedFloat32Array(0, 5.9999995, 0.08399999, 0.095999986, 0.116, 1, 0, 0.09836065, 214, 1.6464844, -0.05621338, 2.2578125, 0.00012779236, 1.4179688, -0.003730774, 1.4414063, 0.116, 1, 0.0077279117, 0.06796554, 1.1458983, 2.4732878, 0.08399999, 0.095999986, -0.0006599426, 1.4814453, 0, 1.875, 0.0001244545, 1.2412109, 0.00088500977, 1.2871094, 2.4732895, 1.1458974, 0.08399999, 0.095999986, 0.116, 1, 0.065086566, 0.018785203, -0.05618286, 2.2578125, 216, 1.6464844, 0.00012779236, 1.4179688, -0.003730774, 1.4414063, 0.116, 1, 0.10910256, 0.0048141167, 6, 0, 0.08399999, 0.095999986, -0.0006599426, 1.4814453, 0, 1.875, -0.111816406, 1.5322266, 0, 0, 32, 0, 0.08399999, 0.095999986, 0.116, 1, 0.84210527, 0, 3380, 3.0136719, 216, 1.6464844, 0.00012779236, 1.4179688, -0.003730774, 1.4414063, 0.116, 1, 0.89089745, 0.0048141167, 35.526714, 1.1458988, 0.08399999, 0.095999986, -0.0006599426, 1.4814453, 0, 1.875, 103.875, 1.8583984, -957, 1.1494141, 36.854103, 2.473288, 0.08399999, 0.095999986, 0.116, 1, 0.9698448, 0.040545706, -58.34375, 3.0429688, -0.056243896, 2.2578125, 0.00012779236, 1.4179688, -0.003730774, 1.4414063, 0.116, 1, 0.99227214, 0.067965545, 38, 6.000001, 0.08399999, 0.095999986, -0.0006599426, 1.4814453, 0, 1.875, 0, 1.875, 10896, 1.4462891, 38, 55, 0.08399999, 0.095999986, 0.116, 1, 1, 0.90163934, -58.3125, 3.0429688, 3380, 3.1933594, 0.00012779236, 1.4179688, -0.003730774, 1.4414063, 0.116, 1, 0.992272, 0.9320345, 36.854103, 58.52671, 0.08399999, 0.095999986, -0.0006599426, 1.4814453, 0, 1.875, 7.75, 1.8671875, -0.0066375732, 1.8642578)
-
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_sv3iu"]
-
 [node name="Stage01" type="Node"]
 script = ExtResource("1_eml3u")
 
@@ -270,8 +259,3 @@ position = Vector2(0, 1952)
 
 [node name="PortalW" parent="Landmarks" instance=ExtResource("2_ps4hv")]
 position = Vector2(-1952, 0)
-
-[node name="MultiMeshInstance2D" type="MultiMeshInstance2D" parent="."]
-multimesh = SubResource("MultiMesh_1m5sl")
-texture = SubResource("PlaceholderTexture2D_sv3iu")
-script = ExtResource("4_qgwcv")
