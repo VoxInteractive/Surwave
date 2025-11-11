@@ -18,6 +18,7 @@
 #include <flecs.h>
 #include "world.h"
 #include "flecs_registry.h"
+#include "../components/entity_rendering.h"
 
 using godot::Color;
 using godot::PackedFloat32Array;
@@ -27,6 +28,77 @@ using godot::Transform3D;
 using godot::UtilityFunctions;
 
 // Buffer format: https://docs.godotengine.org/en/stable/classes/class_renderingserver.html#class-renderingserver-method-multimesh-set-buffer
+
+namespace
+{
+    void write_color_to_buffer(PackedFloat32Array& buffer, int& cursor, const Color& color)
+    {
+        buffer.set(cursor++, color.r);
+        buffer.set(cursor++, color.g);
+        buffer.set(cursor++, color.b);
+        buffer.set(cursor++, color.a);
+    }
+
+    template <typename TransformType>
+    void update_multimesh_buffer(
+        RenderingServer* rendering_server,
+        const MultiMeshRenderer& renderer,
+        const std::vector<TransformType>& transforms,
+        const std::vector<Color>& instance_colors,
+        const std::vector<Color>& instance_custom_data)
+    {
+        size_t instance_count = transforms.size();
+        if (instance_count == 0)
+        {
+            return;
+        }
+
+        int floats_per_instance = 0;
+        if constexpr (std::is_same_v<TransformType, Transform2D>)
+        {
+            floats_per_instance = 8;
+        }
+        else if constexpr (std::is_same_v<TransformType, Transform3D>)
+        {
+            floats_per_instance = 12;
+        }
+
+        floats_per_instance += (renderer.use_colors ? 4 : 0) + (renderer.use_custom_data ? 4 : 0);
+
+        PackedFloat32Array buffer;
+        buffer.resize(static_cast<int>(instance_count * floats_per_instance));
+
+        int buffer_cursor = 0;
+        for (size_t i = 0; i < instance_count; ++i)
+        {
+            const TransformType& t = transforms[i];
+
+            if constexpr (std::is_same_v<TransformType, Transform2D>)
+            {
+                buffer.set(buffer_cursor++, t.columns[0].x); buffer.set(buffer_cursor++, t.columns[1].x); buffer.set(buffer_cursor++, 0.0f); buffer.set(buffer_cursor++, t.columns[2].x);
+                buffer.set(buffer_cursor++, t.columns[0].y); buffer.set(buffer_cursor++, t.columns[1].y); buffer.set(buffer_cursor++, 0.0f); buffer.set(buffer_cursor++, t.columns[2].y);
+            }
+            else if constexpr (std::is_same_v<TransformType, Transform3D>)
+            {
+                buffer.set(buffer_cursor++, t.basis.rows[0][0]); buffer.set(buffer_cursor++, t.basis.rows[0][1]); buffer.set(buffer_cursor++, t.basis.rows[0][2]); buffer.set(buffer_cursor++, t.origin.x);
+                buffer.set(buffer_cursor++, t.basis.rows[1][0]); buffer.set(buffer_cursor++, t.basis.rows[1][1]); buffer.set(buffer_cursor++, t.basis.rows[1][2]); buffer.set(buffer_cursor++, t.origin.y);
+                buffer.set(buffer_cursor++, t.basis.rows[2][0]); buffer.set(buffer_cursor++, t.basis.rows[2][1]); buffer.set(buffer_cursor++, t.basis.rows[2][2]); buffer.set(buffer_cursor++, t.origin.z);
+            }
+
+            if (renderer.use_colors && !instance_colors.empty())
+            {
+                write_color_to_buffer(buffer, buffer_cursor, instance_colors[i % instance_colors.size()]);
+            }
+
+            if (renderer.use_custom_data && !instance_custom_data.empty())
+            {
+                write_color_to_buffer(buffer, buffer_cursor, instance_custom_data[i % instance_custom_data.size()]);
+            }
+        }
+
+        rendering_server->multimesh_set_buffer(renderer.rid, buffer);
+    }
+}
 
 inline FlecsRegistry register_entity_rendering_multimesh_system([](flecs::world& world)
 {
@@ -107,109 +179,13 @@ inline FlecsRegistry register_entity_rendering_multimesh_system([](flecs::world&
                 }
             });
 
-            // If we have 2D transforms, use the 2D layout, otherwise 3D layout
             if (!transforms2d.empty())
             {
-                size_t instance_count = transforms2d.size();
-                // Determine per-instance floats: base 8, +4 if color, +4 if custom
-                int floats_per_instance = 8 +
-                    (renderer.use_colors ? 4 : 0) +
-                    (renderer.use_custom_data ? 4 : 0);
-
-                PackedFloat32Array buffer;
-                buffer.resize(static_cast<int>(instance_count * floats_per_instance));
-
-                int buffer_cursor = 0;
-                for (size_t instance_idx = 0; instance_idx < instance_count; ++instance_idx)
-                {
-                    const Transform2D& t = transforms2d[instance_idx];
-                    godot::Vector2 x = t[0];
-                    godot::Vector2 y = t[1];
-                    godot::Vector2 origin = t[2];
-
-                    buffer[buffer_cursor++] = x.x;
-                    buffer[buffer_cursor++] = y.x;
-                    buffer[buffer_cursor++] = 0.0f; // padding
-                    buffer[buffer_cursor++] = origin.x;
-
-                    buffer[buffer_cursor++] = x.y;
-                    buffer[buffer_cursor++] = y.y;
-                    buffer[buffer_cursor++] = 0.0f; // padding
-                    buffer[buffer_cursor++] = origin.y;
-
-                    if (renderer.use_colors && !instance_colors.empty())
-                    {
-                        const Color& c = instance_colors[instance_idx % instance_colors.size()];
-                        buffer[buffer_cursor++] = c.r;
-                        buffer[buffer_cursor++] = c.g;
-                        buffer[buffer_cursor++] = c.b;
-                        buffer[buffer_cursor++] = c.a;
-                    }
-
-                    if (renderer.use_custom_data && !instance_custom_data.empty())
-                    {
-                        const Color& c = instance_custom_data[instance_idx % instance_custom_data.size()];
-                        buffer[buffer_cursor++] = c.r;
-                        buffer[buffer_cursor++] = c.g;
-                        buffer[buffer_cursor++] = c.b;
-                        buffer[buffer_cursor++] = c.a;
-                    }
-                }
-
-                rendering_server->multimesh_set_buffer(renderer.rid, buffer);
+                update_multimesh_buffer<Transform2D>(rendering_server, renderer, transforms2d, instance_colors, instance_custom_data);
             }
             else if (!transforms3d.empty())
             {
-                size_t instance_count = transforms3d.size();
-                int floats_per_instance = 12 +
-                    (renderer.use_colors ? 4 : 0) +
-                    (renderer.use_custom_data ? 4 : 0);
-
-                PackedFloat32Array buffer;
-                buffer.resize(static_cast<int>(instance_count * floats_per_instance));
-
-                int buffer_cursor = 0;
-                for (size_t i = 0; i < instance_count; ++i)
-                {
-                    const Transform3D& t = transforms3d[i];
-                    const godot::Basis& b = t.basis;
-                    const godot::Vector3& o = t.origin;
-
-                    buffer[buffer_cursor++] = b[0].x;
-                    buffer[buffer_cursor++] = b[1].x;
-                    buffer[buffer_cursor++] = b[2].x;
-                    buffer[buffer_cursor++] = o.x;
-
-                    buffer[buffer_cursor++] = b[0].y;
-                    buffer[buffer_cursor++] = b[1].y;
-                    buffer[buffer_cursor++] = b[2].y;
-                    buffer[buffer_cursor++] = o.y;
-
-                    buffer[buffer_cursor++] = b[0].z;
-                    buffer[buffer_cursor++] = b[1].z;
-                    buffer[buffer_cursor++] = b[2].z;
-                    buffer[buffer_cursor++] = o.z;
-
-                    if (renderer.use_colors && !instance_colors.empty())
-                    {
-                        const Color& c = instance_colors[i % instance_colors.size()];
-                        buffer[buffer_cursor++] = c.r;
-                        buffer[buffer_cursor++] = c.g;
-                        buffer[buffer_cursor++] = c.b;
-                        buffer[buffer_cursor++] = c.a;
-                    }
-
-                    if (renderer.use_custom_data && !instance_custom_data.empty())
-                    {
-                        const Color& c = instance_custom_data[i % instance_custom_data.size()];
-                        buffer[buffer_cursor++] = c.r;
-                        buffer[buffer_cursor++] = c.g;
-                        buffer[buffer_cursor++] = c.b;
-                        buffer[buffer_cursor++] = c.a;
-                    }
-                }
-
-                rendering_server->multimesh_set_buffer(renderer.rid, buffer);
+                update_multimesh_buffer<Transform3D>(rendering_server, renderer, transforms3d, instance_colors, instance_custom_data);
             }
         }
     });
