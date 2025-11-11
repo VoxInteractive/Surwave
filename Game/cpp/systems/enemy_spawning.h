@@ -1,4 +1,3 @@
-#include <random>
 #include <string>
 
 #include <godot_cpp/variant/vector2.hpp>
@@ -18,8 +17,8 @@ inline void enemy_spawning(flecs::world& world)
 {
     // Register a C++ system that runs on demand. We'll implement the spawn logic in this system.
     world.system<>("Enemy Spawning")
-        .kind(0)
-        .each([&](flecs::entity /*e*/) {
+        .kind(flecs::OnLoad)
+        .run([&](flecs::iter& it) {
         // Lookup prefab
         flecs::entity prefab = world.lookup("BugSmall");
         if (!prefab.is_valid())
@@ -27,11 +26,6 @@ inline void enemy_spawning(flecs::world& world)
             UtilityFunctions::push_warning("Enemy Spawning: prefab 'BugSmall' not found in Flecs world");
             return;
         }
-
-        // Random generator for positions in [-500, 500]
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_real_distribution<float> dist(-500.0f, 500.0f);
 
         const int count = 256;
         for (int i = 0; i < count; ++i)
@@ -45,7 +39,7 @@ inline void enemy_spawning(flecs::world& world)
                 // build a simple transform: no rotation (identity), translation from random pos
                 t[0] = Vector2(1, 0);
                 t[1] = Vector2(0, 1);
-                t[2] = Vector2(dist(gen), dist(gen));
+                t[2] = Vector2(UtilityFunctions::randf_range(-500.0f, 500.0f), UtilityFunctions::randf_range(-500.0f, 500.0f));
                 instance.set<godot::Transform2D>(t);
             }
         }
