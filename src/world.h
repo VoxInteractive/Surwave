@@ -10,6 +10,7 @@
 #include "components/transform.h"
 
 #include "systems/prefab_instantiation.h"
+#include "systems/transform_update.h"
 #include "systems/entity_rendering.h"
 
 using godot::Dictionary;

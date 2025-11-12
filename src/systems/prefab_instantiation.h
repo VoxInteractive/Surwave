@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 
 #include <godot_cpp/variant/array.hpp>
@@ -17,6 +19,12 @@ inline FlecsRegistry register_prefab_instantiation_system([](flecs::world& world
 {
     world.system<>("Prefab Instantiation")
         .kind(0) // On-demand
+        .write<Position2D>()
+        .write<Rotation2D>()
+        .write<Scale2D>()
+        .write<Position3D>()
+        .write<Rotation3D>()
+        .write<Scale3D>()
         .run([&](flecs::iter& it)
     {
         const Dictionary* parameters = static_cast<const Dictionary*>(it.param());
