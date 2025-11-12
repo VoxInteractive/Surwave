@@ -28,6 +28,21 @@ using godot::Transform3D;
 using godot::UtilityFunctions;
 
 // Buffer format: https://docs.godotengine.org/en/stable/classes/class_renderingserver.html#class-renderingserver-method-multimesh-set-buffer
+// The per - instance data size and expected data order is :
+// 2D :
+//     - Position : 8 floats(8 floats for Transform2D)
+//     - Position + Vertex color : 12 floats(8 floats for Transform2D, 4 floats for Color)
+//     - Position + Custom data : 12 floats(8 floats for Transform2D, 4 floats of custom data)
+//     - Position + Vertex color + Custom data : 16 floats(8 floats for Transform2D, 4 floats for Color, 4 floats of custom data)
+// 3D :
+//     - Position : 12 floats(12 floats for Transform3D)
+//     - Position + Vertex color : 16 floats(12 floats for Transform3D, 4 floats for Color)
+//     - Position + Custom data : 16 floats(12 floats for Transform3D, 4 floats of custom data)
+//     - Position + Vertex color + Custom data : 20 floats(12 floats for Transform3D, 4 floats for Color, 4 floats of custom data)
+// 
+// Instance transforms are in row - major order.Specifically:
+// For Transform2D the float - order is : (x.x, y.x, padding_float, origin.x, x.y, y.y, padding_float, origin.y).
+// For Transform3D the float - order is : (basis.x.x, basis.y.x, basis.z.x, origin.x, basis.x.y, basis.y.y, basis.z.y, origin.y, basis.x.z, basis.y.z, basis.z.z, origin.z).
 
 // Tell the standard library how to generate a hash for godot::RID objects
 namespace std
