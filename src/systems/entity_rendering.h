@@ -149,45 +149,51 @@ void collect_instances_and_update(
     std::vector<Color> instance_colors;
     std::vector<Color> instance_custom_data;
 
+    // To ensure queries are cached, we must give them a unique name. The query
+    // structure depends on the transform type, and whether colors and custom data
+    // are used. We generate a name that reflects this unique structure.
+    std::string query_name = "PrefabInstanceQuery_";
+    if constexpr (std::is_same_v<TransformType, Transform2D>) {
+        query_name += "2D";
+    }
+    else {
+        query_name += "3D";
+    }
+
     auto qb = world.query_builder<const TransformType>();
     if (renderer.use_colors)
     {
         qb.with<const RenderingColor>();
+        query_name += "_WithColor";
     }
     if (renderer.use_custom_data)
     {
         qb.with<const RenderingCustomData>();
+        query_name += "_WithCustomData";
     }
-    qb.with(flecs::IsA, prefab); // Will only match the entities that are instances of the given prefab
-    auto prefab_instance_query = qb.build();
+    qb.with(flecs::IsA, "$prefab"); // Use a variable for the prefab.
+    auto prefab_instance_query = qb.build(query_name.c_str());
 
-    prefab_instance_query.run([&](flecs::iter& it) {
-        while (it.next()) {
-            auto transforms_field = it.field<const TransformType>(0);
+    prefab_instance_query.iter(it.world()).set_var("prefab", prefab).each([&](flecs::iter& it, size_t i, const TransformType& t) {
+        transforms.push_back(t);
 
-            int term_index = 1; // Start after TransformType
-            bool has_color = false;
-            if (renderer.use_colors) {
-                has_color = it.is_set(term_index);
-                term_index++;
-            }
+        int term_index = 1; // Start after TransformType
+        bool has_color = false;
+        if (renderer.use_colors) {
+            has_color = it.is_set(term_index);
+            term_index++;
+        }
 
-            bool has_custom_data = false;
-            if (renderer.use_custom_data) {
-                has_custom_data = it.is_set(term_index);
-            }
+        bool has_custom_data = false;
+        if (renderer.use_custom_data) {
+            has_custom_data = it.is_set(term_index);
+        }
 
-            for (auto i : it) {
-                transforms.push_back(transforms_field[i]);
-                if (has_color) {
-                    auto rendering_color = it.field<const RenderingColor>(1);
-                    instance_colors.push_back(rendering_color[i].value);
-                }
-                if (has_custom_data) {
-                    auto rendering_custom_data = it.field<const RenderingCustomData>(renderer.use_colors ? 2 : 1);
-                    instance_custom_data.push_back(rendering_custom_data[i].value);
-                }
-            }
+        if (has_color) {
+            instance_colors.push_back(it.field<const RenderingColor>(1)[i].value);
+        }
+        if (has_custom_data) {
+            instance_custom_data.push_back(it.field<const RenderingCustomData>(renderer.use_colors ? 2 : 1)[i].value);
         }
     });
 
