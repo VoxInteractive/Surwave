@@ -146,9 +146,22 @@ void update_renderer_for_prefab(
     RenderingServer* rendering_server,
     const MultiMeshRenderer& renderer)
 {
+    // Get the total number of entities that will be rendered by this query.
+    // This allows us to pre-allocate memory for the vectors, avoiding reallocations.
+    size_t total_instances = renderer.query.count();
+
     std::vector<TransformType> transforms;
+    transforms.reserve(total_instances);
+
     std::vector<Color> instance_colors;
+    if (renderer.use_colors) {
+        instance_colors.reserve(total_instances);
+    }
+
     std::vector<Color> instance_custom_data;
+    if (renderer.use_custom_data) {
+        instance_custom_data.reserve(total_instances);
+    }
 
     renderer.query.run([&](flecs::iter& it) {
         while (it.next()) {
