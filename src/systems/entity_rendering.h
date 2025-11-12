@@ -161,30 +161,32 @@ void collect_instances_and_update(
     qb.with(flecs::IsA, prefab); // Will only match the entities that are instances of the given prefab
     auto prefab_instance_query = qb.build();
 
-    prefab_instance_query.iter([&](flecs::iter& it, const TransformType* transform) {
-        const RenderingColor* rendering_color = nullptr;
-        const RenderingCustomData* rendering_custom_data = nullptr;
+    prefab_instance_query.run([&](flecs::iter& it) {
+        while (it.next()) {
+            auto transforms_field = it.field<const TransformType>(0);
 
-        int term_index = 2; // Start after TransformType
-        if (renderer.use_colors) {
-            if (it.is_set(term_index)) {
-                rendering_color = it.field<const RenderingColor>(term_index);
+            int term_index = 1; // Start after TransformType
+            bool has_color = false;
+            if (renderer.use_colors) {
+                has_color = it.is_set(term_index);
+                term_index++;
             }
-            term_index++;
-        }
-        if (renderer.use_custom_data) {
-            if (it.is_set(term_index)) {
-                rendering_custom_data = it.field<const RenderingCustomData>(term_index);
-            }
-        }
 
-        for (auto i : it) {
-            transforms.push_back(transform[i]);
-            if (rendering_color) {
-                instance_colors.push_back(rendering_color[i].value);
+            bool has_custom_data = false;
+            if (renderer.use_custom_data) {
+                has_custom_data = it.is_set(term_index);
             }
-            if (rendering_custom_data) {
-                instance_custom_data.push_back(rendering_custom_data[i].value);
+
+            for (auto i : it) {
+                transforms.push_back(transforms_field[i]);
+                if (has_color) {
+                    auto rendering_color = it.field<const RenderingColor>(1);
+                    instance_colors.push_back(rendering_color[i].value);
+                }
+                if (has_custom_data) {
+                    auto rendering_custom_data = it.field<const RenderingCustomData>(renderer.use_colors ? 2 : 1);
+                    instance_custom_data.push_back(rendering_custom_data[i].value);
+                }
             }
         }
     });
