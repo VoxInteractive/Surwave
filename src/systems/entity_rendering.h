@@ -1,5 +1,3 @@
-#pragma once
-
 #include <vector>
 #include <string>
 #include <algorithm>
@@ -123,15 +121,17 @@ namespace {
 
 inline FlecsRegistry register_entity_rendering_multimesh_system([](flecs::world& world)
 {
-    world.system<const EntityRenderers, const godot::Transform2D, const godot::Transform3D, const godot::Color>("Entity Rendering (MultiMesh)")
+    // System registered as OnUpdate by default; user can also call it by name.
+    world.system<>("Entity Rendering (MultiMesh)")
         .kind(flecs::OnStore)
-        .term_at(1).optional()  // Not all rendered entities will be 2D
-        .term_at(2).optional()  // Not all rendered entities will be 3D
-        .term_at(3).optional()  // Not all rendered entities will have a color override
         .run([&](flecs::iter& it) {
-        // When using .run(), component pointers must be retrieved from the iterator.
-        auto entity_renderers = it.field<const EntityRenderers>(0);
-        if (!it.is_set(0))
+
+        const EntityRenderers* entity_renderers = nullptr;
+        if (it.world().has<EntityRenderers>())
+        {
+            entity_renderers = &it.world().get<EntityRenderers>();
+        }
+        if (!entity_renderers)
         {
             UtilityFunctions::push_warning("Entity Rendering (MultiMesh): EntityRenderers singleton component not found");
             return;
@@ -166,10 +166,6 @@ inline FlecsRegistry register_entity_rendering_multimesh_system([](flecs::world&
                 continue;
             }
 
-            // https://discordapp.com/channels/633826290415435777/1090412095893422101/1437600527738470513
-            //
-            // TODO: Have two separate queries for 2D and 3D to avoid checking both each time
-
             std::vector<Transform2D> transforms2d;
             std::vector<Transform3D> transforms3d;
             std::vector<Color> instance_colors;
@@ -179,6 +175,7 @@ inline FlecsRegistry register_entity_rendering_multimesh_system([](flecs::world&
                 it.world().query_builder<const Transform2D*, const Transform3D*, const Color*>()
                 .with(flecs::IsA, prefab)
                 .build();
+            // https://discordapp.com/channels/633826290415435777/1090412095893422101/1437600527738470513
             prefab_instance_query.each([&](flecs::entity entity, const Transform2D* transform2d, const Transform3D* transform3d, const Color* color) {
                 if (transform2d)
                 {
