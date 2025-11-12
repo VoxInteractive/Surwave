@@ -23,11 +23,17 @@ struct MultiMeshRenderer
 };
 
 struct RenderingColor {
-    godot::Color value;
+    float r;
+    float g;
+    float b;
+    float a;
 };
 
 struct RenderingCustomData {
-    godot::Color value;
+    float r;
+    float g;
+    float b;
+    float a;
 };
 
 struct EntityRenderers

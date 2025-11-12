@@ -179,11 +179,13 @@ void collect_instances_and_update(
         // These flags can be directly derived from renderer.use_colors and renderer.use_custom_data
         // because qb.with makes these terms mandatory.
         if (renderer.use_colors) {
-            instance_colors.push_back(it.field<const RenderingColor>(1)[instance_idx].value);
+            const RenderingColor instance_color = it.field<const RenderingColor>(1)[instance_idx];
+            instance_colors.push_back(Color(instance_color.r, instance_color.g, instance_color.b, instance_color.a));
         }
         if (renderer.use_custom_data) {
             // If colors are used, custom data is term 2, otherwise term 1.
-            instance_custom_data.push_back(it.field<const RenderingCustomData>(renderer.use_colors ? 2 : 1)[instance_idx].value);
+            const RenderingCustomData instance_custom_datum = it.field<const RenderingCustomData>(renderer.use_colors ? 2 : 1)[instance_idx];
+            instance_custom_data.push_back(Color(instance_custom_datum.r, instance_custom_datum.g, instance_custom_datum.b, instance_custom_datum.a));
         }
     });
 
