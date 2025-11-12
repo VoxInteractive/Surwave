@@ -167,13 +167,11 @@ inline FlecsRegistry register_entity_rendering_multimesh_system([](flecs::world&
             return;
         }
 
-        // Collect entities that are instances of each prefab
         for (const std::pair<const std::string, MultiMeshRenderer>& prefab_renderer_pair : multimesh_renderers_iterator->second)
         {
             const std::string& prefab_name = prefab_renderer_pair.first;
             const MultiMeshRenderer& renderer = prefab_renderer_pair.second;
 
-            // Query Flecs for entities that are instances of this prefab.
             flecs::entity prefab = it.world().lookup(prefab_name.c_str());
             if (!prefab.is_valid())
             {
