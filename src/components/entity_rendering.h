@@ -40,8 +40,14 @@ inline FlecsRegistry register_entity_renderers_component([](flecs::world& world)
     world.component<EntityRenderers>().add(flecs::Singleton);
 
     world.component<RenderingColor>("RenderingColor")
-        .member<godot::Color>("value");
+        .member<float>("r")
+        .member<float>("g")
+        .member<float>("b")
+        .member<float>("a");
 
     world.component<RenderingCustomData>("RenderingCustomData")
-        .member<godot::Color>("value");
+        .member<float>("r")
+        .member<float>("g")
+        .member<float>("b")
+        .member<float>("a");
 });

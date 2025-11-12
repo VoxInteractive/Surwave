@@ -19,7 +19,6 @@
 #include "world.h"
 #include "flecs_registry.h"
 #include "../components/entity_rendering.h"
-#include "../components/godot_variants.h"
 
 using godot::Color;
 using godot::PackedFloat32Array;
@@ -149,9 +148,8 @@ void collect_instances_and_update(
     std::vector<Color> instance_colors;
     std::vector<Color> instance_custom_data;
 
-    // To ensure queries are cached, we must give them a unique name. The query
-    // structure depends on the transform type, and whether colors and custom data
-    // are used. We generate a name that reflects this unique structure.
+    // To ensure queries are cached, we must give them a unique name. The query structure depends on the transform type, 
+    // and whether colors and custom data are used. We generate a name that reflects this unique structure.
     std::string query_name = "PrefabInstanceQuery_";
     if constexpr (std::is_same_v<TransformType, Transform2D>) {
         query_name += "2D";
@@ -171,29 +169,20 @@ void collect_instances_and_update(
         qb.with<const RenderingCustomData>();
         query_name += "_WithCustomData";
     }
-    qb.with(flecs::IsA, "$prefab"); // Use a variable for the prefab.
-    auto prefab_instance_query = qb.build(query_name.c_str());
+    qb.with(flecs::IsA, "$prefab"); // Use a variable for the prefab name
+    auto prefab_instance_query = qb.build();
 
-    prefab_instance_query.iter(it.world()).set_var("prefab", prefab).each([&](flecs::iter& it, size_t i, const TransformType& t) {
-        transforms.push_back(t);
+    prefab_instance_query.iter(world).set_var("prefab", prefab).each([&](flecs::iter& it, size_t instance_idx, const TransformType& transform) {
+        transforms.push_back(transform);
 
-        int term_index = 1; // Start after TransformType
-        bool has_color = false;
+        // These flags can be directly derived from renderer.use_colors and renderer.use_custom_data
+        // because qb.with makes these terms mandatory.
         if (renderer.use_colors) {
-            has_color = it.is_set(term_index);
-            term_index++;
+            instance_colors.push_back(it.field<const RenderingColor>(1)[instance_idx].value);
         }
-
-        bool has_custom_data = false;
         if (renderer.use_custom_data) {
-            has_custom_data = it.is_set(term_index);
-        }
-
-        if (has_color) {
-            instance_colors.push_back(it.field<const RenderingColor>(1)[i].value);
-        }
-        if (has_custom_data) {
-            instance_custom_data.push_back(it.field<const RenderingCustomData>(renderer.use_colors ? 2 : 1)[i].value);
+            // If colors are used, custom data is term 2, otherwise term 1.
+            instance_custom_data.push_back(it.field<const RenderingCustomData>(renderer.use_colors ? 2 : 1)[instance_idx].value);
         }
     });
 
