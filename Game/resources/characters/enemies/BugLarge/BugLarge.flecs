@@ -1,0 +1,6 @@
+prefab BugLarge : Enemy {
+	HitPoints: {value: 80}
+	MovementSpeed: {value: 20}
+
+	RenderingColor: { r: 0.0, g: 0.0, b: 1.0, a: 1.0 }
+}

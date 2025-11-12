@@ -12,6 +12,7 @@ inline FlecsRegistry register_transform_update_systems([](flecs::world& world)
     // This system updates the Transform2D component for entities that have Position2D, Rotation2D, and Scale2D.
     world.system<const Position2D, const Rotation2D, const Scale2D>("Transform2D Update")
         .kind(flecs::PreStore)
+        .multi_threaded()
         .write<godot::Transform2D>() //  This will ensure that if any subsequent system reads these transform components, Flecs will insert a sync point to merge the deferred set operations first.
         .each([](flecs::entity e, const Position2D& position, const Rotation2D& rotation, const Scale2D& scale)
     {
@@ -26,6 +27,7 @@ inline FlecsRegistry register_transform_update_systems([](flecs::world& world)
     // This system updates the Transform3D component for entities that have Position3D, Rotation3D, and Scale3D.
     world.system<const Position3D, const Rotation3D, const Scale3D>("Transform3D Update")
         .kind(flecs::PreStore)
+        .multi_threaded()
         .write<godot::Transform3D>()
         .each([](flecs::entity e, const Position3D& position, const Rotation3D& rotation, const Scale3D& scale)
     {
