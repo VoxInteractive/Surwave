@@ -61,7 +61,7 @@ extern std::unordered_map<godot::RID, PackedFloat32Array> g_multimesh_buffer_cac
 
 namespace {
 
-    void write_color_to_buffer(PackedFloat32Array& buffer, int& cursor, const Color& color)
+    void write_color_to_buffer(PackedFloat32Array& buffer, size_t& cursor, const Color& color)
     {
         buffer.set(cursor++, color.r);
         buffer.set(cursor++, color.g);
@@ -77,9 +77,9 @@ namespace {
         const std::vector<Color>& instance_colors,
         const std::vector<Color>& instance_custom_data)
     {
-        size_t instance_count = std::min(transforms.size(), static_cast<size_t>(renderer.instance_count));
+        size_t instance_count = std::min(transforms.size(), renderer.instance_count);
 
-        int floats_per_instance = 0;
+        size_t floats_per_instance = 0;
         if (renderer.transform_format == godot::MultiMesh::TRANSFORM_2D)
         {
             floats_per_instance = 8;
@@ -92,7 +92,7 @@ namespace {
         floats_per_instance += (renderer.use_colors ? 4 : 0) + (renderer.use_custom_data ? 4 : 0);
 
         PackedFloat32Array& buffer = g_multimesh_buffer_cache[renderer.rid];
-        int required_size = static_cast<int>(renderer.instance_count * floats_per_instance);
+        size_t required_size = renderer.instance_count * floats_per_instance;
         if (buffer.size() != required_size)
         {
             UtilityFunctions::push_warning(
@@ -102,10 +102,10 @@ namespace {
             buffer.resize(required_size);
         }
 
-        int buffer_cursor = 0;
-        for (size_t i = 0; i < instance_count; ++i)
+        size_t buffer_cursor = 0;
+        for (size_t instance_idx = 0; instance_idx < instance_count; ++instance_idx)
         {
-            const TransformType& t = transforms[i];
+            const TransformType& t = transforms[instance_idx];
 
             if constexpr (std::is_same_v<TransformType, Transform2D>)
             {
@@ -121,16 +121,17 @@ namespace {
 
             if (renderer.use_colors && !instance_colors.empty())
             {
-                write_color_to_buffer(buffer, buffer_cursor, instance_colors[i % instance_colors.size()]);
+                write_color_to_buffer(buffer, buffer_cursor, instance_colors[instance_idx % instance_colors.size()]);
             }
 
             if (renderer.use_custom_data && !instance_custom_data.empty())
             {
-                write_color_to_buffer(buffer, buffer_cursor, instance_custom_data[i % instance_custom_data.size()]);
+                write_color_to_buffer(buffer, buffer_cursor, instance_custom_data[instance_idx % instance_custom_data.size()]);
             }
         }
 
         rendering_server->multimesh_set_buffer(renderer.rid, buffer);
+        rendering_server->multimesh_set_visible_instances(renderer.rid, instance_count);
     }
 }
 
@@ -186,10 +187,7 @@ void collect_instances_and_update(
         }
     });
 
-    if (!transforms.empty())
-    {
-        update_multimesh_buffer<TransformType>(rendering_server, renderer, transforms, instance_colors, instance_custom_data);
-    }
+    update_multimesh_buffer<TransformType>(rendering_server, renderer, transforms, instance_colors, instance_custom_data);
 }
 
 inline FlecsRegistry register_entity_rendering_multimesh_system([](flecs::world& world)

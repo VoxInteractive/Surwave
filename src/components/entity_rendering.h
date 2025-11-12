@@ -18,8 +18,8 @@ struct MultiMeshRenderer
     godot::MultiMesh::TransformFormat transform_format;
     bool use_colors;
     bool use_custom_data;
-    int instance_count;
-    int visible_instance_count;
+    size_t instance_count;
+    size_t visible_instance_count;
 };
 
 struct RenderingColor {
