@@ -14,8 +14,8 @@ inline FlecsRegistry register_transform_update_systems([](flecs::world& world)
     world.system<const Position2D, const Rotation2D, const Scale2D, godot::Transform2D>("Transform2D Update")
         .kind(flecs::PreStore)
         .multi_threaded()
-        .write<godot::Transform2D>() // Declare that this system writes to Transform2D
-        .each([](flecs::entity e, const Position2D& position, const Rotation2D& rotation, const Scale2D& scale, godot::Transform2D& transform)
+        .term_at(4).out() // Mark godot::Transform2D as [out]
+        .each([](const Position2D& position, const Rotation2D& rotation, const Scale2D& scale, godot::Transform2D& transform)
     {
         transform = {
             rotation.value,
@@ -30,8 +30,8 @@ inline FlecsRegistry register_transform_update_systems([](flecs::world& world)
     world.system<const Position3D, const Rotation3D, const Scale3D, godot::Transform3D>("Transform3D Update")
         .kind(flecs::PreStore)
         .multi_threaded()
-        .write<godot::Transform3D>() // Declare that this system writes to Transform3D
-        .each([](flecs::entity e, const Position3D& position, const Rotation3D& rotation, const Scale3D& scale, godot::Transform3D& transform)
+        .term_at(4).out() // Mark godot::Transform3D as [out]
+        .each([](const Position3D& position, const Rotation3D& rotation, const Scale3D& scale, godot::Transform3D& transform)
     {
         // The Quaternion approach is more efficient. While Quaternion::from_euler has a cost,
         // it avoids the multiple matrix multiplications that Basis::set_euler_scale performs internally.
@@ -43,4 +43,4 @@ inline FlecsRegistry register_transform_update_systems([](flecs::world& world)
             { position.x, position.y, position.z }
         };
     });
-});;
+});
