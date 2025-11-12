@@ -15,6 +15,7 @@ enum class RendererType {
 struct MultiMeshRenderer
 {
     godot::RID rid;
+    flecs::query<> query;
     godot::MultiMesh::TransformFormat transform_format;
     bool use_colors;
     bool use_custom_data;

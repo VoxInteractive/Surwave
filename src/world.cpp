@@ -124,6 +124,27 @@ void FlecsWorld::setup_entity_renderers()
                 continue;
             }
 
+            // Build a query for this renderer configuration.
+            auto qb = world.query_builder();
+            if (multimesh->get_transform_format() == godot::MultiMesh::TRANSFORM_2D)
+            {
+                qb.with<const godot::Transform2D>();
+            }
+            else
+            {
+                qb.with<const godot::Transform3D>();
+            }
+
+            if (multimesh->is_using_colors())
+            {
+                qb.with<const RenderingColor>();
+            }
+            if (multimesh->is_using_custom_data())
+            {
+                qb.with<const RenderingCustomData>();
+            }
+            qb.with(flecs::IsA, world.lookup(prefab_name_str.c_str()));
+
             MultiMeshRenderer renderer_data;
             renderer_data.rid = multimesh_rid;
             renderer_data.transform_format = multimesh->get_transform_format();
@@ -131,6 +152,7 @@ void FlecsWorld::setup_entity_renderers()
             renderer_data.use_custom_data = multimesh->is_using_custom_data();
             renderer_data.instance_count = multimesh->get_instance_count();
             renderer_data.visible_instance_count = multimesh->get_visible_instance_count();
+            renderer_data.query = qb.build();
 
             renderers.renderers_by_type[RendererType::MultiMesh][prefab_name_str] = renderer_data;
             renderer_count++;

@@ -137,84 +137,63 @@ namespace {
 
 // Collect instances for a single prefab and update the corresponding multimesh buffer.
 // This helper builds a query specialized for the transform type (2D or 3D) and
-// conditionally includes vertex colors as a query term when the renderer expects them.
+// conditionally includes vertex colors and custom data as query terms when the renderer expects them.
 template <typename TransformType>
-void collect_instances_and_update(
+void update_renderer_for_prefab(
     RenderingServer* rendering_server,
-    flecs::world world,
-    flecs::entity prefab,
     const MultiMeshRenderer& renderer)
 {
     std::vector<TransformType> transforms;
     std::vector<Color> instance_colors;
     std::vector<Color> instance_custom_data;
 
-    // To ensure queries are cached, we must give them a unique name. The query structure depends on the transform type, 
-    // and whether colors and custom data are used. We generate a name that reflects this unique structure.
-    std::string query_name = "PrefabInstanceQuery_";
-    if constexpr (std::is_same_v<TransformType, Transform2D>) {
-        query_name += "2D";
-    }
-    else {
-        query_name += "3D";
-    }
+    renderer.query.run([&](flecs::iter& it) {
+        while (it.next()) {
+            auto transform_field = it.field<const TransformType>(0);
+            for (auto i : it) {
+                transforms.push_back(transform_field[i]);
+            }
 
-    auto qb = world.query_builder<const TransformType>();
-    if (renderer.use_colors)
-    {
-        qb.with<const RenderingColor>();
-        query_name += "_WithColor";
-    }
-    if (renderer.use_custom_data)
-    {
-        qb.with<const RenderingCustomData>();
-        query_name += "_WithCustomData";
-    }
-    qb.with(flecs::IsA, "$prefab"); // Use a variable for the prefab name
-    auto prefab_instance_query = qb.build();
-
-    prefab_instance_query.iter(world).set_var("prefab", prefab).each([&](flecs::iter& it, size_t instance_idx, const TransformType& transform) {
-        transforms.push_back(transform);
-
-        // These flags can be directly derived from renderer.use_colors and renderer.use_custom_data
-        // because qb.with makes these terms mandatory.
-        if (renderer.use_colors) {
-            const RenderingColor instance_color = it.field<const RenderingColor>(1)[instance_idx];
-            instance_colors.push_back(Color(instance_color.r, instance_color.g, instance_color.b, instance_color.a));
-        }
-        if (renderer.use_custom_data) {
-            // If colors are used, custom data is term 2, otherwise term 1.
-            const RenderingCustomData instance_custom_datum = it.field<const RenderingCustomData>(renderer.use_colors ? 2 : 1)[instance_idx];
-            instance_custom_data.push_back(Color(instance_custom_datum.r, instance_custom_datum.g, instance_custom_datum.b, instance_custom_datum.a));
+            int field_index = 1;
+            if (renderer.use_colors) {
+                auto color_field = it.field<const RenderingColor>(field_index++);
+                for (auto i : it) {
+                    const RenderingColor& c = color_field[i];
+                    instance_colors.push_back(Color(c.r, c.g, c.b, c.a));
+                }
+            }
+            if (renderer.use_custom_data) {
+                auto custom_data_field = it.field<const RenderingCustomData>(field_index);
+                for (auto i : it) {
+                    const RenderingCustomData& c = custom_data_field[i];
+                    instance_custom_data.push_back(Color(c.r, c.g, c.b, c.a));
+                }
+            }
         }
     });
 
     update_multimesh_buffer<TransformType>(rendering_server, renderer, transforms, instance_colors, instance_custom_data);
 }
 
+
 inline FlecsRegistry register_entity_rendering_multimesh_system([](flecs::world& world)
 {
-    world.system<>("Entity Rendering (MultiMesh)")
+    // This system iterates over all MultiMesh renderers and updates their buffers.
+    // It's designed to be efficient by using pre-built queries stored in the MultiMeshRenderer component.
+    world.system("Entity Rendering (MultiMesh)")
         .kind(flecs::OnStore)
-        .run([&](flecs::iter& it) {
+        .run([](flecs::iter& it) {
 
-        const EntityRenderers* entity_renderers = nullptr;
-        if (it.world().has<EntityRenderers>())
+        if (!it.world().has<EntityRenderers>())
         {
-            entity_renderers = &it.world().get<EntityRenderers>();
+            return; // No renderers component
         }
-        if (!entity_renderers)
-        {
-            UtilityFunctions::push_warning("Entity Rendering (MultiMesh): EntityRenderers singleton component not found");
-            return;
-        }
+        const EntityRenderers& renderers = it.world().get<EntityRenderers>();
 
-        std::unordered_map<RendererType, std::unordered_map<std::string, MultiMeshRenderer>>::const_iterator multimesh_renderers_iterator =
-            entity_renderers->renderers_by_type.find(RendererType::MultiMesh);
-        if (multimesh_renderers_iterator == entity_renderers->renderers_by_type.end())
+        auto multimesh_renderers_it = renderers.renderers_by_type.find(RendererType::MultiMesh);
+        if (multimesh_renderers_it == renderers.renderers_by_type.end())
         {
-            UtilityFunctions::push_warning("Entity Rendering (MultiMesh): No multimesh renderers found in EntityRenderers");
-            return;
+            return; // No multimesh renderers
         }
 
         RenderingServer* rendering_server = RenderingServer::get_singleton();
@@ -224,26 +203,17 @@ inline FlecsRegistry register_entity_rendering_multimesh_system([](flecs::world&
             return;
         }
 
-        for (const std::pair<const std::string, MultiMeshRenderer>& prefab_renderer_pair : multimesh_renderers_iterator->second)
+        for (auto& prefab_renderer_pair : multimesh_renderers_it->second)
         {
-            const std::string& prefab_name = prefab_renderer_pair.first;
             const MultiMeshRenderer& renderer = prefab_renderer_pair.second;
 
-            flecs::entity prefab = it.world().lookup(prefab_name.c_str());
-            if (!prefab.is_valid())
-            {
-                UtilityFunctions::push_warning("Entity Rendering (MultiMesh): Prefab entity not found: " + godot::String(prefab_name.c_str()));
-                continue;
-            }
-
-            // Use a specialized query for this prefab depending on the renderer's transform format.
             if (renderer.transform_format == godot::MultiMesh::TRANSFORM_2D)
             {
-                collect_instances_and_update<Transform2D>(rendering_server, it.world(), prefab, renderer);
+                update_renderer_for_prefab<Transform2D>(rendering_server, renderer);
             }
             else
             {
-                collect_instances_and_update<Transform3D>(rendering_server, it.world(), prefab, renderer);
+                update_renderer_for_prefab<Transform3D>(rendering_server, renderer);
             }
         }
     });
