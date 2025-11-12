@@ -19,6 +19,7 @@
 #include "world.h"
 #include "flecs_registry.h"
 #include "../components/entity_rendering.h"
+#include "../components/godot_variants.h"
 
 using godot::Color;
 using godot::PackedFloat32Array;
@@ -134,9 +135,68 @@ namespace {
     }
 }
 
+// Collect instances for a single prefab and update the corresponding multimesh buffer.
+// This helper builds a query specialized for the transform type (2D or 3D) and
+// conditionally includes vertex colors as a query term when the renderer expects them.
+template <typename TransformType>
+void collect_instances_and_update(
+    RenderingServer* rendering_server,
+    flecs::world world,
+    flecs::entity prefab,
+    const MultiMeshRenderer& renderer)
+{
+    std::vector<TransformType> transforms;
+    std::vector<Color> instance_colors;
+    std::vector<Color> instance_custom_data;
+
+    auto qb = world.query_builder<const TransformType>();
+    if (renderer.use_colors)
+    {
+        qb.with<const RenderingColor>();
+    }
+    if (renderer.use_custom_data)
+    {
+        qb.with<const RenderingCustomData>();
+    }
+    qb.with(flecs::IsA, prefab); // Will only match the entities that are instances of the given prefab
+    auto prefab_instance_query = qb.build();
+
+    prefab_instance_query.iter([&](flecs::iter& it, const TransformType* transform) {
+        const RenderingColor* rendering_color = nullptr;
+        const RenderingCustomData* rendering_custom_data = nullptr;
+
+        int term_index = 2; // Start after TransformType
+        if (renderer.use_colors) {
+            if (it.is_set(term_index)) {
+                rendering_color = it.field<const RenderingColor>(term_index);
+            }
+            term_index++;
+        }
+        if (renderer.use_custom_data) {
+            if (it.is_set(term_index)) {
+                rendering_custom_data = it.field<const RenderingCustomData>(term_index);
+            }
+        }
+
+        for (auto i : it) {
+            transforms.push_back(transform[i]);
+            if (rendering_color) {
+                instance_colors.push_back(rendering_color[i].value);
+            }
+            if (rendering_custom_data) {
+                instance_custom_data.push_back(rendering_custom_data[i].value);
+            }
+        }
+    });
+
+    if (!transforms.empty())
+    {
+        update_multimesh_buffer<TransformType>(rendering_server, renderer, transforms, instance_colors, instance_custom_data);
+    }
+}
+
 inline FlecsRegistry register_entity_rendering_multimesh_system([](flecs::world& world)
 {
-    // System registered as OnUpdate by default; user can also call it by name.
     world.system<>("Entity Rendering (MultiMesh)")
         .kind(flecs::OnStore)
         .run([&](flecs::iter& it) {
@@ -179,45 +239,14 @@ inline FlecsRegistry register_entity_rendering_multimesh_system([](flecs::world&
                 continue;
             }
 
-            std::vector<Transform2D> transforms2d;
-            std::vector<Transform3D> transforms3d;
-            std::vector<Color> instance_colors;
-            std::vector<Color> instance_custom_data; // Stored as Color for convenience
-
-            flecs::query<const Transform2D*, const Transform3D*, const Color*> prefab_instance_query =
-                it.world().query_builder<const Transform2D*, const Transform3D*, const Color*>()
-                .with(flecs::IsA, prefab)
-                .build();
-            // https://discordapp.com/channels/633826290415435777/1090412095893422101/1437600527738470513
-            prefab_instance_query.each([&](flecs::entity entity, const Transform2D* transform2d, const Transform3D* transform3d, const Color* color) {
-                if (transform2d)
-                {
-                    transforms2d.push_back(*transform2d);
-                }
-                else if (transform3d)
-                {
-                    transforms3d.push_back(*transform3d);
-                }
-
-                if (color)
-                {
-                    instance_colors.push_back(*color);
-                }
-
-                // custom_data: a user component named 'CustomData' might exist as Color or Vector4.
-                if (entity.has<Color>())
-                {
-                    instance_custom_data.push_back(entity.get<Color>());
-                }
-            });
-
-            if (!transforms2d.empty())
+            // Use a specialized query for this prefab depending on the renderer's transform format.
+            if (renderer.transform_format == godot::MultiMesh::TRANSFORM_2D)
             {
-                update_multimesh_buffer<Transform2D>(rendering_server, renderer, transforms2d, instance_colors, instance_custom_data);
+                collect_instances_and_update<Transform2D>(rendering_server, it.world(), prefab, renderer);
             }
-            else if (!transforms3d.empty())
+            else
             {
-                update_multimesh_buffer<Transform3D>(rendering_server, renderer, transforms3d, instance_colors, instance_custom_data);
+                collect_instances_and_update<Transform3D>(rendering_server, it.world(), prefab, renderer);
             }
         }
     });

@@ -22,6 +22,14 @@ struct MultiMeshRenderer
     int visible_instance_count;
 };
 
+struct RenderingColor {
+    godot::Color value;
+};
+
+struct RenderingCustomData {
+    godot::Color value;
+};
+
 struct EntityRenderers
 {
     // Map from renderer type to a map of prefab names to multimesh RIDs
@@ -30,4 +38,10 @@ struct EntityRenderers
 
 inline FlecsRegistry register_entity_renderers_component([](flecs::world& world) {
     world.component<EntityRenderers>().add(flecs::Singleton);
+
+    world.component<RenderingColor>("RenderingColor")
+        .member<godot::Color>("value");
+
+    world.component<RenderingCustomData>("RenderingCustomData")
+        .member<godot::Color>("value");
 });
