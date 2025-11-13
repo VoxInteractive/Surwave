@@ -4,42 +4,35 @@ shader_type canvas_item;
 uniform int column_count = 1;
 uniform int row_count = 1;
 
-varying vec4 instance_data;
-varying float total_frames_in_sheet;
+varying vec3 anim_and_flip_data; // .r: animated_frame_index, .g: flip_horizontal, .b: flip_vertical
+varying vec2 cell_data;          // .r: cell_size.x, .g: cell_size.y
 
 void vertex() {
     // ─────────────────────────────────────────
-    // 1. Retrieve per-instance data
+    // 1. Retrieve and process per-instance data
     // ─────────────────────────────────────────
-    instance_data = INSTANCE_CUSTOM;
+    // Unpack instance data
+    float base_frame_index        = INSTANCE_CUSTOM.r; // Base frame index
+    float anim_range_and_offset   = INSTANCE_CUSTOM.g; // Whole number part: Animation range in frames, Decimal part: Animation time offset as a fraction of anim_speed
+    float anim_speed_signed       = INSTANCE_CUSTOM.b; // Duration per frame in seconds; sign controls direction. Set to zero just show the base frame (no animation).
+    float flip_mode               = INSTANCE_CUSTOM.a; // 0 = none, -1 = horizontal, 1 = vertical flip
 
-    // Calculate total frames once per vertex
-    total_frames_in_sheet = float(column_count * row_count);
-}
+    vec3 local_anim_and_flip_data;
 
-void fragment() {
-    // ─────────────────────────────────────────
-    // 2.  Unpack and Decode the instance data
-    // ─────────────────────────────────────────
-    float base_frame_index        = instance_data.r; // Base frame index
-    float anim_range_and_offset   = instance_data.g; // Whole number part: Animation range in frames, Decimal part: Animation time offset as a fraction of anim_speed
-    float anim_speed_signed       = instance_data.b; // Duration per frame in seconds; sign controls direction. Set to zero just show the base frame (no animation).
-    float flip_mode               = instance_data.a; // 0 = none, -1 = horizontal, 1 = vertical flip
-
-    float flip_horizontal = step(flip_mode, -0.5); // 1 if flip_mode is -1
-    float flip_vertical   = step(0.5, flip_mode);  // 1 if flip_mode is 1
+    // Decode flip data
+    local_anim_and_flip_data.g = step(flip_mode, -0.5); // .g (flip_horizontal): 1 if flip_mode is -1
+    local_anim_and_flip_data.b = step(0.5, flip_mode);  // .b (flip_vertical): 1 if flip_mode is 1
 
     // ─────────────────────────────────────────
-    // 3. Animation timing and current frame
+    // 2. Animation timing and current frame
+    // ─────────────────────────────────────────
     float anim_speed = abs(anim_speed_signed);
 
     // Extract animation range and direction
-    // The whole number part of anim_range_and_offset determines the number of frames in the animation window.
     float anim_window_length = floor(anim_range_and_offset);
     float anim_direction     = sign(anim_speed_signed); // +1 → right, -1 → left
 
-    // The fractional part of anim_range_and_offset determines the animation time offset.
-    // This offset is applied as a fraction of the anim_speed (seconds per frame).
+    // Extract animation time offset
     float anim_offset_fraction = fract(anim_range_and_offset);
 
     // Compute animation phase over time (0–1)
@@ -47,12 +40,30 @@ void fragment() {
     float cycle_duration = max(anim_window_length * anim_speed, 0.0001);
     float anim_phase = fract(time_seconds / cycle_duration);
 
+    // Calculate total frames
+    float total_frames_in_sheet = float(column_count * row_count);
+
     // Current frame offset within the animation window
     float anim_frame_offset = floor(anim_phase * anim_window_length);
 
     // Compute animated frame index (wrap around for looping)
-    float animated_frame_index = base_frame_index + anim_direction * anim_frame_offset;
-    animated_frame_index = mod(animated_frame_index, total_frames_in_sheet);
+    float animated_frame_index = mod(base_frame_index + anim_direction * anim_frame_offset, total_frames_in_sheet);
+    local_anim_and_flip_data.r = animated_frame_index;
+
+    // Store cell size for fragment shader
+    cell_data = vec2(1.0 / float(column_count), 1.0 / float(row_count));
+
+    anim_and_flip_data = local_anim_and_flip_data;
+}
+
+void fragment() {
+    // ─────────────────────────────────────────
+    // 3. Unpack vertex shader results
+    // ─────────────────────────────────────────
+    float animated_frame_index = anim_and_flip_data.r;
+    float flip_horizontal      = anim_and_flip_data.g;
+    float flip_vertical        = anim_and_flip_data.b;
+    vec2 cell_size             = cell_data;
 
     // ─────────────────────────────────────────
     // 4. Compute frame grid coordinates
@@ -60,7 +71,6 @@ void fragment() {
     float column_index = mod(animated_frame_index, float(column_count));
     float row_index    = floor(animated_frame_index / float(column_count));
 
-    vec2 cell_size    = vec2(1.0 / float(column_count), 1.0 / float(row_count));
     vec2 frame_origin = vec2(column_index, row_index) * cell_size;
 
     // ─────────────────────────────────────────
