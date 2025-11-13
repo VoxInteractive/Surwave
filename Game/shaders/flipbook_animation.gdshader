@@ -17,37 +17,34 @@ void fragment() {
     // ─────────────────────────────────────────
     // 2.  Unpack and Decode the instance data
     // ─────────────────────────────────────────
-    float frame_index_signed      = instance_data.x; // base frame index (may be negative for horizontal flip)
-    float rotation_radians_signed = instance_data.y; // rotation in radians (may be negative for vertical flip)
-    float anim_range_signed       = instance_data.z; // animation range (positive → right, negative → left)
-    float anim_speed              = instance_data.w; // seconds per frame
+    float base_frame_index        = instance_data.x; // Base frame index
+    float anim_range_and_offset   = instance_data.y; // Whole number part: Animation range in frames, Decimal part: Animation time offset as a fraction of anim_speed
+    float anim_speed_signed       = instance_data.z; // Duration per frame in seconds; sign controls direction. Set to zero just show the base frame (no animation).
+    float flip_mode               = instance_data.w; // 0 = none, -1 = horizontal, 1 = vertical flip
 
-    float flip_horizontal = step(frame_index_signed, 0.0);      // 1 if frame_index_signed < 0
-    float flip_vertical   = step(rotation_radians_signed, 0.0); // 1 if rotation_radians_signed < 0
-
-    // Absolute frame and rotation
-    float base_frame_index = abs(frame_index_signed);
-    float rotation = abs(rotation_radians_signed);
+    float flip_horizontal = step(flip_mode, -0.5); // 1 if flip_mode is -1
+    float flip_vertical   = step(0.5, flip_mode);  // 1 if flip_mode is 1
 
     // ─────────────────────────────────────────
     // 3. Animation timing and current frame
-    // ─────────────────────────────────────────
-    float total_frames_in_sheet = float(column_count * row_count);
+    float anim_speed = abs(anim_speed_signed);
 
     // Extract animation range and direction
-    float anim_window_length = abs(anim_range_signed);
-    float anim_direction     = sign(anim_range_signed); // +1 → right, -1 → left
+    // The whole number part of anim_range_and_offset determines the number of frames in the animation window.
+    float anim_window_length = floor(anim_range_and_offset);
+    float anim_direction     = sign(anim_speed_signed); // +1 → right, -1 → left
 
-    // Separate fractional offset component (0–1)
-    float anim_offset_fraction = fract(abs(anim_range_signed));
+    // The fractional part of anim_range_and_offset determines the animation time offset.
+    // This offset is applied as a fraction of the anim_speed (seconds per frame).
+    float anim_offset_fraction = fract(anim_range_and_offset);
 
     // Compute animation phase over time (0–1)
-    float time_seconds = TIME; // built-in Godot uniform
+    float time_seconds = TIME + anim_offset_fraction * anim_speed;
     float cycle_duration = max(anim_window_length * anim_speed, 0.0001);
-    float anim_phase = fract((time_seconds / cycle_duration) + anim_offset_fraction);
+    float anim_phase = fract(time_seconds / cycle_duration);
 
     // Current frame offset within the animation window
-    float anim_frame_offset = floor(anim_phase * anim_window_length + 0.5);
+    float anim_frame_offset = floor(anim_phase * anim_window_length);
 
     // Compute animated frame index (wrap around for looping)
     float animated_frame_index = base_frame_index + anim_direction * anim_frame_offset;
@@ -63,7 +60,7 @@ void fragment() {
     vec2 frame_origin = vec2(column_index, row_index) * cell_size;
 
     // ─────────────────────────────────────────
-    // 5. Local UV transform (flip + rotation around frame center)
+    // 5. Local UV transform (flip)
     // ─────────────────────────────────────────
     // Convert UV into local [0,1] space of the current frame
     vec2 uv_local = (UV - frame_origin) / cell_size;
@@ -72,17 +69,10 @@ void fragment() {
     uv_local.x = mix(uv_local.x, 1.0 - uv_local.x, flip_horizontal);
     uv_local.y = mix(uv_local.y, 1.0 - uv_local.y, flip_vertical);
 
-    // Rotate around frame center (0.5, 0.5)
-    vec2 uv_centered = uv_local - vec2(0.5);
-    float cos_r = cos(rotation);
-    float sin_r = sin(rotation);
-    mat2 rotation_matrix = mat2(vec2(cos_r, -sin_r), vec2(sin_r, cos_r));
-    vec2 uv_rotated = rotation_matrix * uv_centered + vec2(0.5);
-
     // ─────────────────────────────────────────
     // 6. Sample the texture
     // ─────────────────────────────────────────
-    vec2 uv_final = frame_origin + uv_rotated * cell_size;
+    vec2 uv_final = frame_origin + uv_local * cell_size;
     vec4 tex_color = texture(TEXTURE, uv_final);
 
     COLOR = tex_color * COLOR;
