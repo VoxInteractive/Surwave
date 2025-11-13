@@ -112,26 +112,47 @@ void update_renderer_for_prefab(
                 }
 
                 size_t buffer_cursor = instance_count * floats_per_instance;
-                const TransformType& t = transform_field[i];
+                const TransformType& transform = transform_field[i];
 
                 if constexpr (std::is_same_v<TransformType, Transform2D>) {
-                    buffer_ptr[buffer_cursor++] = t.columns[0].x; buffer_ptr[buffer_cursor++] = t.columns[1].x; buffer_ptr[buffer_cursor++] = 0.0f; buffer_ptr[buffer_cursor++] = t.columns[2].x;
-                    buffer_ptr[buffer_cursor++] = t.columns[0].y; buffer_ptr[buffer_cursor++] = t.columns[1].y; buffer_ptr[buffer_cursor++] = 0.0f; buffer_ptr[buffer_cursor++] = t.columns[2].y;
+                    buffer_ptr[buffer_cursor++] = transform.columns[0].x;
+                    buffer_ptr[buffer_cursor++] = transform.columns[1].x;
+                    buffer_ptr[buffer_cursor++] = 0.0f;
+                    buffer_ptr[buffer_cursor++] = transform.columns[2].x;
+                    buffer_ptr[buffer_cursor++] = transform.columns[0].y;
+                    buffer_ptr[buffer_cursor++] = transform.columns[1].y;
+                    buffer_ptr[buffer_cursor++] = 0.0f;
+                    buffer_ptr[buffer_cursor++] = transform.columns[2].y;
                 }
                 else if constexpr (std::is_same_v<TransformType, Transform3D>) {
-                    buffer_ptr[buffer_cursor++] = t.basis.rows[0][0]; buffer_ptr[buffer_cursor++] = t.basis.rows[0][1]; buffer_ptr[buffer_cursor++] = t.basis.rows[0][2]; buffer_ptr[buffer_cursor++] = t.origin.x;
-                    buffer_ptr[buffer_cursor++] = t.basis.rows[1][0]; buffer_ptr[buffer_cursor++] = t.basis.rows[1][1]; buffer_ptr[buffer_cursor++] = t.basis.rows[1][2]; buffer_ptr[buffer_cursor++] = t.origin.y;
-                    buffer_ptr[buffer_cursor++] = t.basis.rows[2][0]; buffer_ptr[buffer_cursor++] = t.basis.rows[2][1]; buffer_ptr[buffer_cursor++] = t.basis.rows[2][2]; buffer_ptr[buffer_cursor++] = t.origin.z;
+                    buffer_ptr[buffer_cursor++] = transform.basis.rows[0][0];
+                    buffer_ptr[buffer_cursor++] = transform.basis.rows[0][1];
+                    buffer_ptr[buffer_cursor++] = transform.basis.rows[0][2];
+                    buffer_ptr[buffer_cursor++] = transform.origin.x;
+                    buffer_ptr[buffer_cursor++] = transform.basis.rows[1][0];
+                    buffer_ptr[buffer_cursor++] = transform.basis.rows[1][1];
+                    buffer_ptr[buffer_cursor++] = transform.basis.rows[1][2];
+                    buffer_ptr[buffer_cursor++] = transform.origin.y;
+                    buffer_ptr[buffer_cursor++] = transform.basis.rows[2][0];
+                    buffer_ptr[buffer_cursor++] = transform.basis.rows[2][1];
+                    buffer_ptr[buffer_cursor++] = transform.basis.rows[2][2];
+                    buffer_ptr[buffer_cursor++] = transform.origin.z;
                 }
 
                 if (renderer.use_colors) {
-                    const RenderingColor& c = it.field<const RenderingColor>(1)[i];
-                    buffer_ptr[buffer_cursor++] = c.r; buffer_ptr[buffer_cursor++] = c.g; buffer_ptr[buffer_cursor++] = c.b; buffer_ptr[buffer_cursor++] = c.a;
+                    const RenderingColor& color = it.field<const RenderingColor>(1)[i];
+                    buffer_ptr[buffer_cursor++] = color.r;
+                    buffer_ptr[buffer_cursor++] = color.g;
+                    buffer_ptr[buffer_cursor++] = color.b;
+                    buffer_ptr[buffer_cursor++] = color.a;
                 }
                 if (renderer.use_custom_data) {
                     const int field_idx = renderer.use_colors ? 2 : 1;
-                    const RenderingCustomData& c = it.field<const RenderingCustomData>(field_idx)[i];
-                    buffer_ptr[buffer_cursor++] = c.r; buffer_ptr[buffer_cursor++] = c.g; buffer_ptr[buffer_cursor++] = c.b; buffer_ptr[buffer_cursor++] = c.a;
+                    const RenderingCustomData& custom_data = it.field<const RenderingCustomData>(field_idx)[i];
+                    buffer_ptr[buffer_cursor++] = custom_data.r;
+                    buffer_ptr[buffer_cursor++] = custom_data.g;
+                    buffer_ptr[buffer_cursor++] = custom_data.b;
+                    buffer_ptr[buffer_cursor++] = custom_data.a;
                 }
                 instance_count++;
             }
