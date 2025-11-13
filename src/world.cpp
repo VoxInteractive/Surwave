@@ -10,7 +10,7 @@
 #include <godot_cpp/variant/utility_functions.hpp>
 
 #include "world.h"
-#include "utilities.h"
+#include "utilities/platform.h"
 #include "flecs_registry.h"
 #include "scripts_loader.h"
 
@@ -45,7 +45,7 @@ FlecsWorld::FlecsWorld()
 #endif
 
     // Set the number of threads Flecs should use based on CPU thread count
-    unsigned int num_threads = ::project::Utilities::get_thread_count();
+    unsigned int num_threads = ::utilities::Platform::get_thread_count();
     world.set_threads(static_cast<int>(num_threads));
 
     register_components_and_systems_with_world(world);

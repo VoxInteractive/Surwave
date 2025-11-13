@@ -1,8 +1,8 @@
 #pragma once
 
-namespace project
+namespace utilities
 {
-    class Utilities
+    class Platform
     {
     public:
         static unsigned int get_thread_count();

@@ -1,6 +1,6 @@
 extends FlecsWorld
 
-var spawn_iterations: int = 1000
+var spawn_iterations: int = 10
 var spawn_iteration_counter: int = 0
 
 func _ready() -> void:

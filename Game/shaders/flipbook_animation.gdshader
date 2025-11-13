@@ -1,8 +1,8 @@
 shader_type canvas_item;
 
 // Spritesheet layout
-instance uniform int column_count = 1;
-instance uniform int row_count = 1;
+uniform int column_count = 1;
+uniform int row_count = 1;
 
 varying vec4 instance_data;
 
@@ -17,17 +17,17 @@ void fragment() {
     // ─────────────────────────────────────────
     // 2.  Unpack and Decode the instance data
     // ─────────────────────────────────────────
-    float frame_index_signed      = instance_data.x; // base frame index (may be negative for flip)
-    float rotation_degrees_signed = instance_data.y; // rotation degrees (may be negative for flip)
+    float frame_index_signed      = instance_data.x; // base frame index (may be negative for horizontal flip)
+    float rotation_radians_signed = instance_data.y; // rotation in radians (may be negative for vertical flip)
     float anim_range_signed       = instance_data.z; // animation range (positive → right, negative → left)
     float anim_speed              = instance_data.w; // seconds per frame
 
-    float flip_horizontal = step(frame_index_signed, 0.0);     // 1 if frame_index < 0
-    float flip_vertical   = step(rotation_degrees_signed, 0.0); // 1 if rotation < 0
+    float flip_horizontal = step(frame_index_signed, 0.0);      // 1 if frame_index_signed < 0
+    float flip_vertical   = step(rotation_radians_signed, 0.0); // 1 if rotation_radians_signed < 0
 
     // Absolute frame and rotation
     float base_frame_index = abs(frame_index_signed);
-    float rotation_radians = radians(abs(rotation_degrees_signed));
+    float rotation = abs(rotation_radians_signed);
 
     // ─────────────────────────────────────────
     // 3. Animation timing and current frame
@@ -73,8 +73,8 @@ void fragment() {
 
     // Rotate around frame center (0.5, 0.5)
     vec2 uv_centered = uv_local - 0.5;
-    float cos_r = cos(rotation_radians);
-    float sin_r = sin(rotation_radians);
+    float cos_r = cos(rotation);
+    float sin_r = sin(rotation);
     mat2 rotation_matrix = mat2(vec2(cos_r, -sin_r), vec2(sin_r, cos_r));
     vec2 uv_rotated = rotation_matrix * uv_centered + 0.5;
 
