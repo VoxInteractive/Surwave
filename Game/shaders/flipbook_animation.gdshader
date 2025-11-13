@@ -63,20 +63,21 @@ void fragment() {
     vec2 frame_origin = vec2(column_index, row_index) * cell_size;
 
     // ─────────────────────────────────────────
-    // 5. Local UV transform (flip + rotation)
+    // 5. Local UV transform (flip + rotation around frame center)
     // ─────────────────────────────────────────
-    vec2 uv_local = UV;
+    // Convert UV into local [0,1] space of the current frame
+    vec2 uv_local = (UV - frame_origin) / cell_size;
 
     // Apply flips
     uv_local.x = mix(uv_local.x, 1.0 - uv_local.x, flip_horizontal);
     uv_local.y = mix(uv_local.y, 1.0 - uv_local.y, flip_vertical);
 
     // Rotate around frame center (0.5, 0.5)
-    vec2 uv_centered = uv_local - 0.5;
+    vec2 uv_centered = uv_local - vec2(0.5);
     float cos_r = cos(rotation);
     float sin_r = sin(rotation);
     mat2 rotation_matrix = mat2(vec2(cos_r, -sin_r), vec2(sin_r, cos_r));
-    vec2 uv_rotated = rotation_matrix * uv_centered + 0.5;
+    vec2 uv_rotated = rotation_matrix * uv_centered + vec2(0.5);
 
     // ─────────────────────────────────────────
     // 6. Sample the texture
