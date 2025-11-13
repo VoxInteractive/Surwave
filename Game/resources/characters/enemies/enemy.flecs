@@ -9,4 +9,6 @@ struct MovementSpeed {
 prefab Enemy : Character2D {
 	HitPoints: { value: 100 }
 	MovementSpeed: { value: 10 }
+
+	(EnemyState, IDLE)
 }

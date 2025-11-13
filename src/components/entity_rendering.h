@@ -43,7 +43,7 @@ struct EntityRenderers
     std::unordered_map<RendererType, std::unordered_map<std::string, MultiMeshRenderer>> renderers_by_type;
 };
 
-inline FlecsRegistry register_entity_renderers_component([](flecs::world& world) {
+inline FlecsRegistry register_entity_rendering_components([](flecs::world& world) {
     world.component<EntityRenderers>().add(flecs::Singleton);
 
     world.component<RenderingColor>("RenderingColor")
