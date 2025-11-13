@@ -12,10 +12,10 @@ void vertex() {
     // 1. Retrieve and process per-instance data
     // ─────────────────────────────────────────
     // Unpack instance data
-    float base_frame_index        = INSTANCE_CUSTOM.r; // Base frame index
-    float anim_range_and_offset   = INSTANCE_CUSTOM.g; // Whole number part: Animation range in frames, Decimal part: Animation time offset as a fraction of the cycle duration.
-    float anim_speed_signed       = INSTANCE_CUSTOM.b; // Animation speed in frames per second; sign controls direction. Set to zero to show the base frame (no animation).
-    float flip_mode               = INSTANCE_CUSTOM.a; // 0 = none, -1 = horizontal, 1 = vertical flip
+    float base_frame_index  = INSTANCE_CUSTOM.r; // Base frame index
+    float anim_properties   = INSTANCE_CUSTOM.g; // Whole number part: Animation range in frames, Decimal part: Animation time offset as a fraction of the cycle duration. Sign: positive = looping, negative = one-shot.
+    float anim_speed_signed = INSTANCE_CUSTOM.b; // Animation speed in frames per second; sign controls direction. Set to zero to show the base frame (no animation).
+    float flip_mode         = INSTANCE_CUSTOM.a; // 0 = none, -1 = horizontal, 1 = vertical flip
 
     vec3 local_anim_and_flip_data;
 
@@ -27,19 +27,23 @@ void vertex() {
     // 2. Animation timing and current frame
     // ─────────────────────────────────────────
     // Extract animation range and direction
-    float anim_window_length = floor(abs(anim_range_and_offset));
+    float anim_window_length = floor(abs(anim_properties));
     float anim_direction     = sign(anim_speed_signed); // +1 → right, -1 → left
 
     // Extract animation time offset
-    float anim_offset_fraction = fract(abs(anim_range_and_offset));
+    float anim_offset_fraction = fract(abs(anim_properties));
     
     // Calculate cycle duration and animation phase
-    float anim_speed = abs(anim_speed_signed);
+    float anim_speed     = abs(anim_speed_signed);
     float cycle_duration = anim_window_length / max(anim_speed, 1e-5); // Add epsilon to prevent division by zero
-    float time_offset = anim_offset_fraction * cycle_duration;
+    float time_offset    = anim_offset_fraction * cycle_duration;
 
     // Compute animation phase over time (0–1)
-    float anim_phase = fract((TIME + time_offset) / max(cycle_duration, 1e-5)); // Add epsilon to prevent division by zero
+    float normalized_time = (TIME + time_offset) / max(cycle_duration, 1e-5); // Add epsilon to prevent division by zero
+
+    // Selection between one-shot and looping animation modes
+    float is_looping = step(0.0, anim_properties); // 1.0 if positive (looping), 0.0 if negative (one-shot)
+    float anim_phase = mix(clamp(normalized_time, 0.0, 1.0), fract(normalized_time), is_looping);
     
     float total_frames_in_sheet = float(column_count * row_count);
 
