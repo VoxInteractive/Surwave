@@ -13,7 +13,6 @@ inline FlecsRegistry register_transform_update_systems([](flecs::world& world)
     // Prerequisite: All entities matching this query must already have a godot::Transform2D component.
     world.system<const Position2D, const Rotation2D, const Scale2D, godot::Transform2D>("Transform2D Update")
         .kind(flecs::PreStore)
-        .multi_threaded()
         .term_at(4).out() // Mark godot::Transform2D as [out]
         .each([](const Position2D& position, const Rotation2D& rotation, const Scale2D& scale, godot::Transform2D& transform)
     {
@@ -29,7 +28,6 @@ inline FlecsRegistry register_transform_update_systems([](flecs::world& world)
     // Prerequisite: All entities matching this query must already have a godot::Transform3D component.
     world.system<const Position3D, const Rotation3D, const Scale3D, godot::Transform3D>("Transform3D Update")
         .kind(flecs::PreStore)
-        .multi_threaded()
         .term_at(4).out() // Mark godot::Transform3D as [out]
         .each([](const Position3D& position, const Rotation3D& rotation, const Scale3D& scale, godot::Transform3D& transform)
     {

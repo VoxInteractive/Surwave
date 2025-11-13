@@ -1,6 +1,6 @@
 extends FlecsWorld
 
-var spawn_iterations: int = 10000
+var spawn_iterations: int = 1000
 var spawn_iteration_counter: int = 0
 
 func _ready() -> void:
@@ -13,8 +13,17 @@ func _process(delta: float) -> void:
 		for prefab in ["BugSmall", "BugHumanoid", "BugLarge", "Mech"]:
 			run_system("Prefab Instantiation", {
 				"prefab": prefab,
-				"count": 1,
+				"count": 10,
 				"transforms": [
+					Transform2D(0, Vector2(randf_range(-1000, 1000), randf_range(-1000, 1000))),
+					Transform2D(0, Vector2(randf_range(-1000, 1000), randf_range(-1000, 1000))),
+					Transform2D(0, Vector2(randf_range(-1000, 1000), randf_range(-1000, 1000))),
+					Transform2D(0, Vector2(randf_range(-1000, 1000), randf_range(-1000, 1000))),
+					Transform2D(0, Vector2(randf_range(-1000, 1000), randf_range(-1000, 1000))),
+					Transform2D(0, Vector2(randf_range(-1000, 1000), randf_range(-1000, 1000))),
+					Transform2D(0, Vector2(randf_range(-1000, 1000), randf_range(-1000, 1000))),
+					Transform2D(0, Vector2(randf_range(-1000, 1000), randf_range(-1000, 1000))),
+					Transform2D(0, Vector2(randf_range(-1000, 1000), randf_range(-1000, 1000))),
 					Transform2D(0, Vector2(randf_range(-1000, 1000), randf_range(-1000, 1000))),
 				]
 			})
