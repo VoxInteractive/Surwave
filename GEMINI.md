@@ -12,3 +12,4 @@
 
 # Validation
 - After you make modifications, run the build via `scons` to verify that the project compiles successfully.
+- Don't make any git commits
