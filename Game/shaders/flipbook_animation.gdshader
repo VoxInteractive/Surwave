@@ -13,8 +13,8 @@ void vertex() {
     // ─────────────────────────────────────────
     // Unpack instance data
     float base_frame_index        = INSTANCE_CUSTOM.r; // Base frame index
-    float anim_range_and_offset   = INSTANCE_CUSTOM.g; // Whole number part: Animation range in frames, Decimal part: Animation time offset as a fraction of anim_speed
-    float anim_speed_signed       = INSTANCE_CUSTOM.b; // Duration per frame in seconds; sign controls direction. Set to zero just show the base frame (no animation).
+    float anim_range_and_offset   = INSTANCE_CUSTOM.g; // Whole number part: Animation range in frames, Decimal part: Animation time offset as a fraction of the cycle duration.
+    float anim_speed_signed       = INSTANCE_CUSTOM.b; // Animation speed in frames per second; sign controls direction. Set to zero to show the base frame (no animation).
     float flip_mode               = INSTANCE_CUSTOM.a; // 0 = none, -1 = horizontal, 1 = vertical flip
 
     vec3 local_anim_and_flip_data;
@@ -26,32 +26,34 @@ void vertex() {
     // ─────────────────────────────────────────
     // 2. Animation timing and current frame
     // ─────────────────────────────────────────
-    float anim_speed = abs(anim_speed_signed);
-
     // Extract animation range and direction
-    float anim_window_length = floor(anim_range_and_offset);
+    float anim_window_length = floor(abs(anim_range_and_offset));
     float anim_direction     = sign(anim_speed_signed); // +1 → right, -1 → left
 
     // Extract animation time offset
-    float anim_offset_fraction = fract(anim_range_and_offset);
+    float anim_offset_fraction = fract(abs(anim_range_and_offset));
+    
+    // Calculate cycle duration and animation phase
+    float anim_speed = abs(anim_speed_signed);
+    float cycle_duration = anim_window_length / max(anim_speed, 1e-5); // Add epsilon to prevent division by zero
+    float time_offset = anim_offset_fraction * cycle_duration;
 
     // Compute animation phase over time (0–1)
-    float time_seconds = TIME + anim_offset_fraction * anim_speed;
-    float cycle_duration = max(anim_window_length * anim_speed, 0.0001);
-    float anim_phase = fract(time_seconds / cycle_duration);
-
-    // Calculate total frames
+    float anim_phase = fract((TIME + time_offset) / max(cycle_duration, 1e-5)); // Add epsilon to prevent division by zero
+    
     float total_frames_in_sheet = float(column_count * row_count);
 
     // Current frame offset within the animation window
     float anim_frame_offset = floor(anim_phase * anim_window_length);
 
     // Compute animated frame index (wrap around for looping)
-    float animated_frame_index = mod(base_frame_index + anim_direction * anim_frame_offset, total_frames_in_sheet);
+    float animated_frame_index = mod(base_frame_index + anim_direction * anim_frame_offset + total_frames_in_sheet, total_frames_in_sheet);
     local_anim_and_flip_data.r = animated_frame_index;
 
     // Calculate and store data for the fragment shader
-    vec2 cell_size = vec2(1.0 / float(column_count), 1.0 / float(row_count));
+    // Add a small epsilon to the denominator to prevent division by zero if counts are zero.
+    vec2 cell_size = 1.0 / (vec2(float(column_count), float(row_count)) + 1e-5);
+
     float column_index = mod(animated_frame_index, float(column_count));
     float row_index    = floor(animated_frame_index / float(column_count));
     vec2 frame_origin = vec2(column_index, row_index) * cell_size;
@@ -71,7 +73,7 @@ void fragment() {
     vec2 frame_origin          = vertex_to_fragment_data.zw;
 
     // ─────────────────────────────────────────
-    // 5. Local UV transform (flip)
+    // 4. Local UV transform (flip)
     // ─────────────────────────────────────────
     // Convert UV into local [0,1] space of the current frame
     vec2 uv_local = (UV - frame_origin) / cell_size;
@@ -81,7 +83,7 @@ void fragment() {
     uv_local.y = mix(uv_local.y, 1.0 - uv_local.y, flip_vertical);
 
     // ─────────────────────────────────────────
-    // 6. Sample the texture
+    // 5. Sample the texture
     // ─────────────────────────────────────────
     vec2 uv_final = frame_origin + uv_local * cell_size;
     vec4 tex_color = texture(TEXTURE, uv_final);
