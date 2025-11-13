@@ -5,7 +5,7 @@ uniform int column_count = 1;
 uniform int row_count = 1;
 
 varying vec3 anim_and_flip_data; // .r: animated_frame_index, .g: flip_horizontal, .b: flip_vertical
-varying vec2 cell_data;          // .r: cell_size.x, .g: cell_size.y
+varying vec4 vertex_to_fragment_data; // .xy: cell_size, .zw: frame_origin
 
 void vertex() {
     // ─────────────────────────────────────────
@@ -50,9 +50,13 @@ void vertex() {
     float animated_frame_index = mod(base_frame_index + anim_direction * anim_frame_offset, total_frames_in_sheet);
     local_anim_and_flip_data.r = animated_frame_index;
 
-    // Store cell size for fragment shader
-    cell_data = vec2(1.0 / float(column_count), 1.0 / float(row_count));
+    // Calculate and store data for the fragment shader
+    vec2 cell_size = vec2(1.0 / float(column_count), 1.0 / float(row_count));
+    float column_index = mod(animated_frame_index, float(column_count));
+    float row_index    = floor(animated_frame_index / float(column_count));
+    vec2 frame_origin = vec2(column_index, row_index) * cell_size;
 
+    vertex_to_fragment_data = vec4(cell_size, frame_origin);
     anim_and_flip_data = local_anim_and_flip_data;
 }
 
@@ -63,15 +67,8 @@ void fragment() {
     float animated_frame_index = anim_and_flip_data.r;
     float flip_horizontal      = anim_and_flip_data.g;
     float flip_vertical        = anim_and_flip_data.b;
-    vec2 cell_size             = cell_data;
-
-    // ─────────────────────────────────────────
-    // 4. Compute frame grid coordinates
-    // ─────────────────────────────────────────
-    float column_index = mod(animated_frame_index, float(column_count));
-    float row_index    = floor(animated_frame_index / float(column_count));
-
-    vec2 frame_origin = vec2(column_index, row_index) * cell_size;
+    vec2 cell_size             = vertex_to_fragment_data.xy;
+    vec2 frame_origin          = vertex_to_fragment_data.zw;
 
     // ─────────────────────────────────────────
     // 5. Local UV transform (flip)
