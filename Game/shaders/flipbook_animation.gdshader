@@ -5,12 +5,16 @@ uniform int column_count = 1;
 uniform int row_count = 1;
 
 varying vec4 instance_data;
+varying float total_frames_in_sheet;
 
 void vertex() {
     // ─────────────────────────────────────────
     // 1. Retrieve per-instance data
     // ─────────────────────────────────────────
     instance_data = INSTANCE_CUSTOM;
+
+    // Calculate total frames once per vertex
+    total_frames_in_sheet = float(column_count * row_count);
 }
 
 void fragment() {
