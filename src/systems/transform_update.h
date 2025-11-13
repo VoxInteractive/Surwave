@@ -16,12 +16,8 @@ inline FlecsRegistry register_transform_update_systems([](flecs::world& world)
         .term_at(4).out() // Mark godot::Transform2D as [out]
         .each([](const Position2D& position, const Rotation2D& rotation, const Scale2D& scale, godot::Transform2D& transform)
     {
-        transform = {
-            rotation.value,
-            godot::Size2(scale.x, scale.y),
-            0.0f, // skew
-            godot::Vector2(position.x, position.y)
-        };
+        transform.set_origin({ position.x, position.y });
+        transform.set_rotation_and_scale(rotation.value, { scale.x, scale.y });
     });
 
     // This system updates the Transform3D component for entities that have Position3D, Rotation3D, and Scale3D.
