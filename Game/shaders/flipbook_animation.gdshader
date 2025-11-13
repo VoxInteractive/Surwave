@@ -17,10 +17,10 @@ void fragment() {
     // ─────────────────────────────────────────
     // 2.  Unpack and Decode the instance data
     // ─────────────────────────────────────────
-    float base_frame_index        = instance_data.x; // Base frame index
-    float anim_range_and_offset   = instance_data.y; // Whole number part: Animation range in frames, Decimal part: Animation time offset as a fraction of anim_speed
-    float anim_speed_signed       = instance_data.z; // Duration per frame in seconds; sign controls direction. Set to zero just show the base frame (no animation).
-    float flip_mode               = instance_data.w; // 0 = none, -1 = horizontal, 1 = vertical flip
+    float base_frame_index        = instance_data.r; // Base frame index
+    float anim_range_and_offset   = instance_data.g; // Whole number part: Animation range in frames, Decimal part: Animation time offset as a fraction of anim_speed
+    float anim_speed_signed       = instance_data.b; // Duration per frame in seconds; sign controls direction. Set to zero just show the base frame (no animation).
+    float flip_mode               = instance_data.a; // 0 = none, -1 = horizontal, 1 = vertical flip
 
     float flip_horizontal = step(flip_mode, -0.5); // 1 if flip_mode is -1
     float flip_vertical   = step(0.5, flip_mode);  // 1 if flip_mode is 1
