@@ -5,8 +5,8 @@ const float FLIP_H = 1.0;
 const float FLIP_V = 2.0;
 
 // Spritesheet layout
-uniform int column_count = 1;
-uniform int row_count = 1;
+uniform int columns = 1;
+uniform int rows = 1;
 
 varying vec4 anim_and_flip_data; // .r: animated_frame_index, .g: flip_horizontal, .b: flip_vertical, .a: alpha
 varying vec4 vertex_to_fragment_data; // .xy: cell_size, .zw: frame_origin
@@ -20,10 +20,13 @@ void vertex() {
     float anim_speed_signed = INSTANCE_CUSTOM.b; // Animation speed in frames per second; sign controls direction. Set to zero to show the base frame (no animation).    
     float flags             = INSTANCE_CUSTOM.a; // Flags: 1.0: flip_h, 2.0: flip_v
 
+    float column_count = max(float(columns), 1.0);
+    float row_count = max(float(rows), 1.0);
+
     vec4 local_anim_and_flip_data;
 
     // If base_frame_data is negative, its fractional part determines transparency.
-    float is_transparent = step(base_frame_data, -0.0001); // 1.0 if base_frame_data is negative
+    float is_transparent = step(base_frame_data, -0.0001); // 1.0 if base_frame_data is negative, 0.0 otherwise
     float transparency = fract(abs(base_frame_data));
     local_anim_and_flip_data.a = mix(1.0, 1.0 - transparency, is_transparent);
 
@@ -53,7 +56,7 @@ void vertex() {
     float is_looping = step(0.0, anim_properties); // 1.0 if positive (looping), 0.0 if negative (one-shot)
     float anim_phase = mix(clamp(normalized_time, 0.0, 1.0), fract(normalized_time), is_looping);
     
-    float total_frames_in_sheet = float(column_count * row_count);
+    float total_frames_in_sheet = column_count * row_count;
 
     // Current frame offset within the animation window
     float anim_frame_offset = floor(anim_phase * anim_window_length);
@@ -64,10 +67,10 @@ void vertex() {
 
     // Calculate and store data for the fragment shader
     // Add a small epsilon to the denominator to prevent division by zero if counts are zero.
-    vec2 cell_size = 1.0 / (vec2(float(column_count), float(row_count)) + 1e-5);
+    vec2 cell_size = 1.0 / (vec2(column_count, row_count) + 1e-5);
 
-    float column_index = mod(animated_frame_index, float(column_count));
-    float row_index    = floor(animated_frame_index / float(column_count));
+    float column_index = mod(animated_frame_index, column_count);
+    float row_index    = floor(animated_frame_index / column_count);
     vec2 frame_origin = vec2(column_index, row_index) * cell_size;
 
     vertex_to_fragment_data = vec4(cell_size, frame_origin);
