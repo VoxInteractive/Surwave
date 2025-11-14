@@ -4,15 +4,17 @@ shader_type canvas_item;
 const float FLIP_H = 1.0;
 const float FLIP_V = 2.0;
 
-// Spritesheet layout
+// --- Spritesheet layout ---
 uniform int columns = 1;
 uniform int rows = 1;
-// New uniforms for padding and margin (in UV space, or pixels to be converted)
-// These should be in UV space (0.0 to 1.0) relative to the entire spritesheet.
-// Example: if a 32x32 frame has 1px padding, and spritesheet is 128x128,
-// frame_padding_uv.x would be 1.0 / 128.0.
-uniform vec2 frame_padding_uv = vec2(0.0, 0.0); // Padding on *one side* of the frame image within its slot
-uniform vec2 sheet_margin_uv = vec2(0.0, 0.0);  // Margin from the top-left edge of the spritesheet
+
+// --- Spritesheet Padding and Margin ---
+// All values are in UV space (0.0 to 1.0), calculated relative to the full spritesheet dimensions.
+// To convert from pixels: value_in_uv = value_in_pixels / spritesheet_dimension_in_pixels.
+// `sheet_margin_uv`: The empty space from the edge of the image file to the start of the animation grid.
+uniform vec2 sheet_margin_uv = vec2(0.0, 0.0);
+// `frame_padding_uv`: The empty space from the edge of a grid cell to the actual sprite image inside it.
+uniform vec2 frame_padding_uv = vec2(0.0, 0.0);
 
 varying vec4 anim_and_flip_data; // .r: animated_frame_index, .g: flip_horizontal, .b: flip_vertical, .a: alpha
 varying vec4 vertex_to_fragment_data; // .xy: actual_frame_size_uv, .zw: frame_image_origin_uv
@@ -24,7 +26,7 @@ void vertex() {
     float base_frame_data   = 0.0; // INSTANCE_CUSTOM.r; // Sign indicates transparency mode, absolute value holds frame index and transparency.
     float anim_properties   = 4.0; // INSTANCE_CUSTOM.g; // Whole number part: Animation range in frames, Decimal part: Animation time offset as a fraction of the cycle duration. Sign: positive = looping, negative = one-shot.
     float anim_speed_signed = 1.0; // INSTANCE_CUSTOM.b; // Animation speed in frames per second; sign controls direction. Set to zero to show the base frame (no animation).
-    float flags_float       = 1.0; // INSTANCE_CUSTOM.a; // Flags: 1.0: flip_h, 2.0: flip_v
+    float flags_float       = 0.0; // INSTANCE_CUSTOM.a; // Flags: 1.0: flip_h, 2.0: flip_v
 
     float column_count = max(float(columns), 1.0);
     float row_count = max(float(rows), 1.0);
