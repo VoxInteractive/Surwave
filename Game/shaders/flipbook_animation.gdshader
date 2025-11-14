@@ -24,7 +24,7 @@ void vertex() {
     // 1. Retrieve and process per-instance data
     // ─────────────────────────────────────────
     float base_frame_data   = 0.0; // INSTANCE_CUSTOM.r; // Sign indicates transparency mode, absolute value holds frame index and transparency.
-    float anim_properties   = 4.0; // INSTANCE_CUSTOM.g; // Whole number part: Animation range in frames, Decimal part: Animation time offset as a fraction of the cycle duration. Sign: positive = looping, negative = one-shot.
+    float anim_properties   = 3.0; // INSTANCE_CUSTOM.g; // Whole number part: Animation range in frames, Decimal part: Animation time offset as a fraction of the cycle duration.
     float anim_speed_signed = 1.0; // INSTANCE_CUSTOM.b; // Animation speed in frames per second; sign controls direction. Set to zero to show the base frame (no animation).
     float flags_float       = 0.0; // INSTANCE_CUSTOM.a; // Flags: 1.0: flip_h, 2.0: flip_v
 
@@ -47,26 +47,23 @@ void vertex() {
     // 2. Animation timing and current frame
     // ─────────────────────────────────────────
     // Extract animation range and direction
-    float anim_window_length = floor(abs(anim_properties));
+    float anim_window_length = floor(anim_properties);
     float anim_direction     = sign(anim_speed_signed); // +1 → right, -1 → left
 
     // Extract animation time offset
-    float anim_offset_fraction = fract(abs(anim_properties));
+    float anim_offset_fraction = fract(anim_properties);
 
     // Calculate cycle duration and animation phase
-    float anim_speed     = abs(anim_speed_signed);
+    float anim_speed = abs(anim_speed_signed);
     float cycle_duration = anim_window_length / max(anim_speed, 1e-5); // Add epsilon to prevent division by zero
-    float time_offset    = anim_offset_fraction * cycle_duration;
-
-    // Compute animation phase over time (0–1)
-    float current_time = TIME + time_offset;
-
-    // Selection between one-shot and looping animation modes
-    float is_looping = step(0.0, anim_properties); // 1.0 if positive (looping), 0.0 if negative (one-shot)
-    float time_in_cycle = mix(min(current_time, cycle_duration), mod(current_time, cycle_duration), is_looping);
+    float time_offset = anim_offset_fraction * cycle_duration;
+    
+    // Compute time within the current animation cycle
+    float time_in_cycle = mod(TIME + time_offset, cycle_duration);
 
     // Current frame offset within the animation window
-    float anim_frame_offset = floor(time_in_cycle * anim_speed);
+    float raw_anim_frame_offset = floor(time_in_cycle * anim_speed);
+    float anim_frame_offset = min(raw_anim_frame_offset, anim_window_length - 1.0);
 
     float total_frames_in_sheet = column_count * row_count;
 
