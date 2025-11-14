@@ -26,7 +26,7 @@ void vertex() {
     vec4 local_anim_and_flip_data;
 
     // If base_frame_data is negative, its fractional part determines transparency.
-    float is_transparent = step(base_frame_data, -0.0001); // 1.0 if base_frame_data is negative, 0.0 otherwise
+    float is_transparent = step(base_frame_data, -1e-5); // 1.0 if base_frame_data is negative, 0.0 otherwise
     float transparency = fract(abs(base_frame_data));
     local_anim_and_flip_data.a = mix(1.0, 1.0 - transparency, is_transparent);
 
@@ -60,7 +60,7 @@ void vertex() {
     float total_frames_in_sheet = column_count * row_count;
 
     // Current frame offset within the animation window
-    float anim_frame_offset = floor(anim_phase * anim_window_length) * step(1e-5, anim_speed);
+    float anim_frame_offset = floor(anim_phase * anim_window_length) * step(0.5, anim_window_length);
 
     // Compute animated frame index (wrap around for looping)
     float animated_frame_index = mod(base_frame_index + anim_direction * anim_frame_offset + total_frames_in_sheet, total_frames_in_sheet);
