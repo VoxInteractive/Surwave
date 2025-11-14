@@ -60,15 +60,14 @@ void vertex() {
     float total_frames_in_sheet = column_count * row_count;
 
     // Current frame offset within the animation window
-    float anim_frame_offset = floor(anim_phase * anim_window_length);
+    float anim_frame_offset = floor(anim_phase * anim_window_length) * step(1e-5, anim_speed);
 
     // Compute animated frame index (wrap around for looping)
     float animated_frame_index = mod(base_frame_index + anim_direction * anim_frame_offset + total_frames_in_sheet, total_frames_in_sheet);
     local_anim_and_flip_data.x = animated_frame_index;
 
     // Calculate and store data for the fragment shader
-    // Add a small epsilon to the denominator to prevent division by zero if counts are zero.
-    vec2 cell_size = 1.0 / (vec2(column_count, row_count) + 1e-5);
+    vec2 cell_size = vec2(1.0 / column_count, 1.0 / row_count);
 
     float column_index = mod(animated_frame_index, column_count);
     float row_index    = floor(animated_frame_index / column_count);
