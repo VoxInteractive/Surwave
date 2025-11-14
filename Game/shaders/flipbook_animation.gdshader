@@ -15,10 +15,10 @@ void vertex() {
     // ─────────────────────────────────────────
     // 1. Retrieve and process per-instance data
     // ─────────────────────────────────────────
-    float base_frame_and_transparency = 0.0; // INSTANCE_CUSTOM.r; // Sign indicates transparency mode, absolute value holds frame index and transparency.
-    float anim_range_and_time_offset  = -2.33; // INSTANCE_CUSTOM.g; // Whole number part: Animation range in frames, Decimal part: Animation time offset as a fraction of the cycle duration.
-    float anim_speed_and_direction    = 2.0; // INSTANCE_CUSTOM.b; // Animation speed in frames per second; sign controls direction. Set to zero to show the base frame (no animation).
-    float flags                       = 0.0; // INSTANCE_CUSTOM.a; // Flags: 1.0: flip_h, 2.0: flip_v, 3.0: flip_h & flip_v
+    float base_frame_and_transparency = INSTANCE_CUSTOM.r; // Abs(Whole number part) holds base frame index. When negative, the fractional part determines transparency as a percentage.
+    float anim_range_and_time_offset  = INSTANCE_CUSTOM.g; // Abs(Whole number part) Animation range in frames, Decimal part: Animation time offset as a fraction of the cycle duration (sign respected).
+    float anim_speed_and_direction    = INSTANCE_CUSTOM.b; // Animation speed in frames per second; sign controls direction. Set to zero to show the base frame without animation.
+    float flags                       = INSTANCE_CUSTOM.a; // 1.0: flip_h, 2.0: flip_v, 3.0: flip_h & flip_v
 
     float column_count = max(float(columns), 1.0);
     float row_count = max(float(rows), 1.0);
@@ -44,7 +44,7 @@ void vertex() {
     float anim_direction     = sign(anim_speed_and_direction); // +1 → right, -1 → left
 
     // Extract animation time offset
-    float anim_offset_fraction = fract(anim_range_and_time_offset);
+    float anim_offset_fraction = anim_range_and_time_offset - trunc(anim_range_and_time_offset);
 
     // Calculate cycle duration and animation phase
     float anim_speed = abs(anim_speed_and_direction);
