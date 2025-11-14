@@ -19,6 +19,7 @@
 #include "world.h"
 #include "flecs_registry.h"
 #include "../components/entity_rendering.h"
+#include "../utilities/godot_hashes.h"
 
 using godot::Color;
 using godot::PackedFloat32Array;
@@ -44,18 +45,6 @@ using godot::UtilityFunctions;
 // For Transform2D the float - order is : (x.x, y.x, padding_float, origin.x, x.y, y.y, padding_float, origin.y).
 // For Transform3D the float - order is : (basis.x.x, basis.y.x, basis.z.x, origin.x, basis.x.y, basis.y.y, basis.z.y, origin.y, basis.x.z, basis.y.z, basis.z.z, origin.z).
 
-// Tell the standard library how to generate a hash for godot::RID objects
-namespace std
-{
-    template <>
-    struct hash<godot::RID>
-    {
-        std::size_t operator()(const godot::RID& r) const
-        {
-            return std::hash<int64_t>()(r.get_id());
-        }
-    };
-}
 
 extern std::unordered_map<godot::RID, PackedFloat32Array> g_multimesh_buffer_cache;
 
@@ -102,62 +91,68 @@ void update_renderer_for_prefab(
     float* buffer_ptr = buffer.ptrw();
     size_t instance_count = 0;
 
-    renderer.query.run([&](flecs::iter& it) {
-        while (it.next()) {
-            auto transform_field = it.field<const TransformType>(0);
+    // Each renderer can have multiple queries (one per prefab). Iterate all
+    // queries and append matching instances to the buffer until the renderer's
+    // instance_count is reached.
+    for (const auto& q : renderer.queries) {
+        q.run([&](flecs::iter& it) {
+            while (it.next()) {
+                auto transform_field = it.field<const TransformType>(0);
 
-            for (auto i : it) {
-                if (instance_count >= renderer.instance_count) {
-                    break;
-                }
+                for (auto i : it) {
+                    if (instance_count >= renderer.instance_count) {
+                        break;
+                    }
 
-                size_t buffer_cursor = instance_count * floats_per_instance;
-                const TransformType& transform = transform_field[i];
+                    size_t buffer_cursor = instance_count * floats_per_instance;
+                    const TransformType& transform = transform_field[i];
 
-                if constexpr (std::is_same_v<TransformType, Transform2D>) {
-                    buffer_ptr[buffer_cursor++] = transform.columns[0].x;
-                    buffer_ptr[buffer_cursor++] = transform.columns[1].x;
-                    buffer_ptr[buffer_cursor++] = 0.0f;
-                    buffer_ptr[buffer_cursor++] = transform.columns[2].x;
-                    buffer_ptr[buffer_cursor++] = transform.columns[0].y;
-                    buffer_ptr[buffer_cursor++] = transform.columns[1].y;
-                    buffer_ptr[buffer_cursor++] = 0.0f;
-                    buffer_ptr[buffer_cursor++] = transform.columns[2].y;
-                }
-                else if constexpr (std::is_same_v<TransformType, Transform3D>) {
-                    buffer_ptr[buffer_cursor++] = transform.basis.rows[0][0];
-                    buffer_ptr[buffer_cursor++] = transform.basis.rows[0][1];
-                    buffer_ptr[buffer_cursor++] = transform.basis.rows[0][2];
-                    buffer_ptr[buffer_cursor++] = transform.origin.x;
-                    buffer_ptr[buffer_cursor++] = transform.basis.rows[1][0];
-                    buffer_ptr[buffer_cursor++] = transform.basis.rows[1][1];
-                    buffer_ptr[buffer_cursor++] = transform.basis.rows[1][2];
-                    buffer_ptr[buffer_cursor++] = transform.origin.y;
-                    buffer_ptr[buffer_cursor++] = transform.basis.rows[2][0];
-                    buffer_ptr[buffer_cursor++] = transform.basis.rows[2][1];
-                    buffer_ptr[buffer_cursor++] = transform.basis.rows[2][2];
-                    buffer_ptr[buffer_cursor++] = transform.origin.z;
-                }
+                    if constexpr (std::is_same_v<TransformType, Transform2D>) {
+                        buffer_ptr[buffer_cursor++] = transform.columns[0].x;
+                        buffer_ptr[buffer_cursor++] = transform.columns[1].x;
+                        buffer_ptr[buffer_cursor++] = 0.0f;
+                        buffer_ptr[buffer_cursor++] = transform.columns[2].x;
+                        buffer_ptr[buffer_cursor++] = transform.columns[0].y;
+                        buffer_ptr[buffer_cursor++] = transform.columns[1].y;
+                        buffer_ptr[buffer_cursor++] = 0.0f;
+                        buffer_ptr[buffer_cursor++] = transform.columns[2].y;
+                    }
+                    else if constexpr (std::is_same_v<TransformType, Transform3D>) {
+                        buffer_ptr[buffer_cursor++] = transform.basis.rows[0][0];
+                        buffer_ptr[buffer_cursor++] = transform.basis.rows[0][1];
+                        buffer_ptr[buffer_cursor++] = transform.basis.rows[0][2];
+                        buffer_ptr[buffer_cursor++] = transform.origin.x;
+                        buffer_ptr[buffer_cursor++] = transform.basis.rows[1][0];
+                        buffer_ptr[buffer_cursor++] = transform.basis.rows[1][1];
+                        buffer_ptr[buffer_cursor++] = transform.basis.rows[1][2];
+                        buffer_ptr[buffer_cursor++] = transform.origin.y;
+                        buffer_ptr[buffer_cursor++] = transform.basis.rows[2][0];
+                        buffer_ptr[buffer_cursor++] = transform.basis.rows[2][1];
+                        buffer_ptr[buffer_cursor++] = transform.basis.rows[2][2];
+                        buffer_ptr[buffer_cursor++] = transform.origin.z;
+                    }
 
-                if (renderer.use_colors) {
-                    const RenderingColor& color = it.field<const RenderingColor>(1)[i];
-                    buffer_ptr[buffer_cursor++] = color.r;
-                    buffer_ptr[buffer_cursor++] = color.g;
-                    buffer_ptr[buffer_cursor++] = color.b;
-                    buffer_ptr[buffer_cursor++] = color.a;
+                    if (renderer.use_colors) {
+                        const RenderingColor& color = it.field<const RenderingColor>(1)[i];
+                        buffer_ptr[buffer_cursor++] = color.r;
+                        buffer_ptr[buffer_cursor++] = color.g;
+                        buffer_ptr[buffer_cursor++] = color.b;
+                        buffer_ptr[buffer_cursor++] = color.a;
+                    }
+                    if (renderer.use_custom_data) {
+                        const int field_idx = renderer.use_colors ? 2 : 1;
+                        const RenderingCustomData& custom_data = it.field<const RenderingCustomData>(field_idx)[i];
+                        buffer_ptr[buffer_cursor++] = custom_data.r;
+                        buffer_ptr[buffer_cursor++] = custom_data.g;
+                        buffer_ptr[buffer_cursor++] = custom_data.b;
+                        buffer_ptr[buffer_cursor++] = custom_data.a;
+                    }
+                    instance_count++;
                 }
-                if (renderer.use_custom_data) {
-                    const int field_idx = renderer.use_colors ? 2 : 1;
-                    const RenderingCustomData& custom_data = it.field<const RenderingCustomData>(field_idx)[i];
-                    buffer_ptr[buffer_cursor++] = custom_data.r;
-                    buffer_ptr[buffer_cursor++] = custom_data.g;
-                    buffer_ptr[buffer_cursor++] = custom_data.b;
-                    buffer_ptr[buffer_cursor++] = custom_data.a;
-                }
-                instance_count++;
             }
-        }
-    });
+        });
+        if (instance_count >= renderer.instance_count) break;
+    }
 
     rendering_server->multimesh_set_buffer(renderer.rid, buffer);
     rendering_server->multimesh_set_visible_instances(renderer.rid, instance_count);
