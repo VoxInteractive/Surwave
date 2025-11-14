@@ -1,5 +1,9 @@
 shader_type canvas_item;
 
+// Flags that will be passed via INSTANCE_CUSTOM.a
+const int FLIP_H = 1;
+const int FLIP_V = 2;
+
 // Spritesheet layout
 uniform int column_count = 1;
 uniform int row_count = 1;
@@ -11,24 +15,21 @@ void vertex() {
     // ─────────────────────────────────────────
     // 1. Retrieve and process per-instance data
     // ─────────────────────────────────────────
-    // Unpack instance data.
-    // For base_frame_data: sign indicates transparency mode, absolute value holds frame index and transparency.
-    float base_frame_data   = INSTANCE_CUSTOM.r;
+    float base_frame_data   = INSTANCE_CUSTOM.r; // Sign indicates transparency mode, absolute value holds frame index and transparency.
     float anim_properties   = INSTANCE_CUSTOM.g; // Whole number part: Animation range in frames, Decimal part: Animation time offset as a fraction of the cycle duration. Sign: positive = looping, negative = one-shot.
-    float anim_speed_signed = INSTANCE_CUSTOM.b; // Animation speed in frames per second; sign controls direction. Set to zero to show the base frame (no animation).
-    float flip_mode         = INSTANCE_CUSTOM.a; // 0 = none, -1 = horizontal, 1 = vertical flip
+    float anim_speed_signed = INSTANCE_CUSTOM.b; // Animation speed in frames per second; sign controls direction. Set to zero to show the base frame (no animation).    
+    int flags               = int(INSTANCE_CUSTOM.a); // Bitwise flags. 1: flip_h, 2: flip_v
 
-    vec3 local_anim_and_flip_data;
+    vec4 local_anim_and_flip_data;
 
-    // Decode flip data
     // If base_frame_data is negative, its fractional part determines transparency.
     float is_transparent = step(base_frame_data, -0.0001); // 1.0 if base_frame_data is negative
     float transparency = fract(abs(base_frame_data));
-    anim_and_flip_data.a = mix(1.0, 1.0 - transparency, is_transparent);
+    local_anim_and_flip_data.a = mix(1.0, 1.0 - transparency, is_transparent);
 
     float base_frame_index = floor(abs(base_frame_data));
-    local_anim_and_flip_data.g = step(flip_mode, -0.5); // .g (flip_horizontal): 1 if flip_mode is -1
-    local_anim_and_flip_data.b = step(0.5, flip_mode);  // .b (flip_vertical): 1 if flip_mode is 1
+    local_anim_and_flip_data.y = float((flags & FLIP_H) == FLIP_H); // .g (flip_horizontal)
+    local_anim_and_flip_data.z = float((flags & FLIP_V) == FLIP_V); // .b (flip_vertical)
 
     // ─────────────────────────────────────────
     // 2. Animation timing and current frame
@@ -59,7 +60,7 @@ void vertex() {
 
     // Compute animated frame index (wrap around for looping)
     float animated_frame_index = mod(base_frame_index + anim_direction * anim_frame_offset + total_frames_in_sheet, total_frames_in_sheet);
-    local_anim_and_flip_data.r = animated_frame_index;
+    local_anim_and_flip_data.x = animated_frame_index;
 
     // Calculate and store data for the fragment shader
     // Add a small epsilon to the denominator to prevent division by zero if counts are zero.
@@ -70,7 +71,7 @@ void vertex() {
     vec2 frame_origin = vec2(column_index, row_index) * cell_size;
 
     vertex_to_fragment_data = vec4(cell_size, frame_origin);
-    anim_and_flip_data.rgb = local_anim_and_flip_data;
+    anim_and_flip_data = local_anim_and_flip_data;
 }
 
 void fragment() {
