@@ -25,8 +25,8 @@ void vertex() {
     // ─────────────────────────────────────────
     float base_frame_data   = 0.0; // INSTANCE_CUSTOM.r; // Sign indicates transparency mode, absolute value holds frame index and transparency.
     float anim_properties   = 3.0; // INSTANCE_CUSTOM.g; // Whole number part: Animation range in frames, Decimal part: Animation time offset as a fraction of the cycle duration.
-    float anim_speed_signed = -1.0; // INSTANCE_CUSTOM.b; // Animation speed in frames per second; sign controls direction. Set to zero to show the base frame (no animation).
-    float flags_float       = 0.0; // INSTANCE_CUSTOM.a; // Flags: 1.0: flip_h, 2.0: flip_v
+    float anim_speed_signed = 1.0; // INSTANCE_CUSTOM.b; // Animation speed in frames per second; sign controls direction. Set to zero to show the base frame (no animation).
+    float flags_float       = 0.0; // INSTANCE_CUSTOM.a; // Flags: 1.0: flip_h, 2.0: flip_v, 3.0: flip_h & flip_v
 
     float column_count = max(float(columns), 1.0);
     float row_count = max(float(rows), 1.0);
@@ -40,8 +40,9 @@ void vertex() {
 
     float base_frame_index = floor(abs(base_frame_data));
     float flags = floor(flags_float + 0.5); // Robustly round to nearest integer
-    local_anim_and_flip_data.y = mod(flags, 2.0) >= 1.0 ? 1.0 : 0.0; // .g (flip_horizontal)
-    local_anim_and_flip_data.z = floor(flags / 2.0) >= 1.0 ? 1.0 : 0.0; // .b (flip_vertical)
+    // Branchless flip logic using step()
+    local_anim_and_flip_data.y = step(1.0, mod(flags, 2.0)); // .g (flip_horizontal) - equivalent to (flags & 1)
+    local_anim_and_flip_data.z = step(1.0, floor(flags / 2.0)); // .b (flip_vertical) - equivalent to (flags & 2)
 
     // ─────────────────────────────────────────
     // 2. Animation timing and current frame
