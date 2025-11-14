@@ -1,8 +1,8 @@
 shader_type canvas_item;
 
 // Flags that will be passed via INSTANCE_CUSTOM.a
-const int FLIP_H = 1;
-const int FLIP_V = 2;
+const float FLIP_H = 1.0;
+const float FLIP_V = 2.0;
 
 // Spritesheet layout
 uniform int column_count = 1;
@@ -18,7 +18,7 @@ void vertex() {
     float base_frame_data   = INSTANCE_CUSTOM.r; // Sign indicates transparency mode, absolute value holds frame index and transparency.
     float anim_properties   = INSTANCE_CUSTOM.g; // Whole number part: Animation range in frames, Decimal part: Animation time offset as a fraction of the cycle duration. Sign: positive = looping, negative = one-shot.
     float anim_speed_signed = INSTANCE_CUSTOM.b; // Animation speed in frames per second; sign controls direction. Set to zero to show the base frame (no animation).    
-    int flags               = int(INSTANCE_CUSTOM.a); // Bitwise flags. 1: flip_h, 2: flip_v
+    float flags             = INSTANCE_CUSTOM.a; // Flags: 1.0: flip_h, 2.0: flip_v
 
     vec4 local_anim_and_flip_data;
 
@@ -28,8 +28,8 @@ void vertex() {
     local_anim_and_flip_data.a = mix(1.0, 1.0 - transparency, is_transparent);
 
     float base_frame_index = floor(abs(base_frame_data));
-    local_anim_and_flip_data.y = float((flags & FLIP_H) == FLIP_H); // .g (flip_horizontal)
-    local_anim_and_flip_data.z = float((flags & FLIP_V) == FLIP_V); // .b (flip_vertical)
+    local_anim_and_flip_data.y = step(FLIP_H, mod(flags, FLIP_V * 2.0)); // .g (flip_horizontal)
+    local_anim_and_flip_data.z = step(FLIP_V, flags); // .b (flip_vertical)
 
     // ─────────────────────────────────────────
     // 2. Animation timing and current frame
