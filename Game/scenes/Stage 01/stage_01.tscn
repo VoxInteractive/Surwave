@@ -228,7 +228,7 @@ sources/0 = SubResource("TileSetAtlasSource_oji7v")
 [node name="Stage01" type="Node"]
 script = ExtResource("1_eml3u")
 
-[node name="World" type="Node" parent="."]
+[node name="World" type="FlecsWorld" parent="."]
 script = ExtResource("2_u0n13")
 
 [node name="BugSmall" type="MultiMeshInstance2D" parent="World"]
