@@ -15,10 +15,10 @@ void vertex() {
     // ─────────────────────────────────────────
     // 1. Retrieve and process per-instance data
     // ─────────────────────────────────────────
-    float base_frame_and_transparency     = 0.0; // INSTANCE_CUSTOM.r; // Sign indicates transparency mode, absolute value holds frame index and transparency.
-    float animation_range_and_time_offset = 2.0; // INSTANCE_CUSTOM.g; // Whole number part: Animation range in frames, Decimal part: Animation time offset as a fraction of the cycle duration.
-    float animation_speed_and_direction   = 2.0; // INSTANCE_CUSTOM.b; // Animation speed in frames per second; sign controls direction. Set to zero to show the base frame (no animation).
-    float flags                           = 0.0; // INSTANCE_CUSTOM.a; // Flags: 1.0: flip_h, 2.0: flip_v, 3.0: flip_h & flip_v
+    float base_frame_and_transparency = 0.0; // INSTANCE_CUSTOM.r; // Sign indicates transparency mode, absolute value holds frame index and transparency.
+    float anim_range_and_time_offset  = -2.33; // INSTANCE_CUSTOM.g; // Whole number part: Animation range in frames, Decimal part: Animation time offset as a fraction of the cycle duration.
+    float anim_speed_and_direction    = 2.0; // INSTANCE_CUSTOM.b; // Animation speed in frames per second; sign controls direction. Set to zero to show the base frame (no animation).
+    float flags                       = 0.0; // INSTANCE_CUSTOM.a; // Flags: 1.0: flip_h, 2.0: flip_v, 3.0: flip_h & flip_v
 
     float column_count = max(float(columns), 1.0);
     float row_count = max(float(rows), 1.0);
@@ -40,14 +40,14 @@ void vertex() {
     // 2. Animation timing and current frame
     // ─────────────────────────────────────────
     // Extract animation range and direction
-    float anim_window_length = floor(animation_range_and_time_offset) + 1.0;
-    float anim_direction     = sign(animation_speed_and_direction); // +1 → right, -1 → left
+    float anim_window_length = floor(abs(anim_range_and_time_offset)) + 1.0;
+    float anim_direction     = sign(anim_speed_and_direction); // +1 → right, -1 → left
 
     // Extract animation time offset
-    float anim_offset_fraction = fract(animation_range_and_time_offset);
+    float anim_offset_fraction = fract(anim_range_and_time_offset);
 
     // Calculate cycle duration and animation phase
-    float anim_speed = abs(animation_speed_and_direction);
+    float anim_speed = abs(anim_speed_and_direction);
     float cycle_duration = anim_window_length / max(anim_speed, 1e-5); // Add epsilon to prevent division by zero
     float time_offset = anim_offset_fraction * cycle_duration;
     
