@@ -10,7 +10,7 @@ func _process(delta: float) -> void:
 	progress(delta)
 
 	if spawn_iteration_counter < spawn_iterations:
-		for prefab in ["BugSmall", "BugHumanoid", "BugLarge", "Mech"]:
+		for prefab in ["Armadillo", "Bee", "Rabbit", "Wolf"]:
 			run_system("Prefab Instantiation", {
 				"prefab": prefab,
 				"count": 10,

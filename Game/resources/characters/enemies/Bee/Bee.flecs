@@ -1,0 +1,7 @@
+prefab Bee : Enemy {
+	HitPoints: {value: 1}
+	MovementSpeed: {value: 5}
+	Damage: {value: 1}
+
+	RenderingCustomData: { r: 4, g: 3, b: 5, a: 0 }
+}

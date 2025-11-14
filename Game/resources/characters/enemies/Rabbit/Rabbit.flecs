@@ -1,0 +1,7 @@
+prefab Rabbit : Enemy {
+	HitPoints: {value: 3}
+	MovementSpeed: {value: 4}
+	Damage: {value: 2}
+
+	RenderingCustomData: { r: 8, g: 3, b: 4, a: 0 }
+}

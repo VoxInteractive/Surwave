@@ -6,9 +6,17 @@ struct MovementSpeed {
 	value = f32
 }
 
+struct Damage {
+	value = f32
+}
+
 prefab Enemy : Character2D {
-	HitPoints: { value: 100 }
-	MovementSpeed: { value: 10 }
+	HitPoints: { value: 1 }
+	MovementSpeed: { value: 1 }
+	Damage: { value: 1 }
+
+	RenderingColor: { r: 1, g: 1, b: 1, a: 1 }
+	RenderingCustomData: { r: 0, g: 0, b: 0, a: 0 }
 
 	(EnemyState, IDLE)
 }
