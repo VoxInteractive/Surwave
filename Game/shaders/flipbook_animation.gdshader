@@ -25,7 +25,7 @@ void vertex() {
     // ─────────────────────────────────────────
     float base_frame_data   = 0.0; // INSTANCE_CUSTOM.r; // Sign indicates transparency mode, absolute value holds frame index and transparency.
     float anim_properties   = 3.0; // INSTANCE_CUSTOM.g; // Whole number part: Animation range in frames, Decimal part: Animation time offset as a fraction of the cycle duration.
-    float anim_speed_signed = 1.0; // INSTANCE_CUSTOM.b; // Animation speed in frames per second; sign controls direction. Set to zero to show the base frame (no animation).
+    float anim_speed_signed = -1.0; // INSTANCE_CUSTOM.b; // Animation speed in frames per second; sign controls direction. Set to zero to show the base frame (no animation).
     float flags_float       = 0.0; // INSTANCE_CUSTOM.a; // Flags: 1.0: flip_h, 2.0: flip_v
 
     float column_count = max(float(columns), 1.0);
@@ -58,19 +58,15 @@ void vertex() {
     float cycle_duration = anim_window_length / max(anim_speed, 1e-5); // Add epsilon to prevent division by zero
     float time_offset = anim_offset_fraction * cycle_duration;
     
-    // Compute time within the current animation cycle
-    float time_in_cycle = mod(TIME + time_offset, cycle_duration);
+    // Compute time within the current animation cycle, accounting for direction
+    float time_in_cycle = mod((TIME * anim_direction) + time_offset, cycle_duration);
 
     // Current frame offset within the animation window
     float raw_anim_frame_offset = floor(time_in_cycle * anim_speed);
     float anim_frame_offset = min(raw_anim_frame_offset, anim_window_length - 1.0);
 
     float total_frames_in_sheet = column_count * row_count;
-
-    float current_frame_offset = anim_direction * anim_frame_offset;
-
-    // Compute animated frame index (wrap around for looping)
-    float animated_frame_index = mod(base_frame_index + current_frame_offset, total_frames_in_sheet);
+    float animated_frame_index = mod(base_frame_index + anim_frame_offset, total_frames_in_sheet);
     local_anim_and_flip_data.x = animated_frame_index;
 
     // Calculate and store data for the fragment shader
