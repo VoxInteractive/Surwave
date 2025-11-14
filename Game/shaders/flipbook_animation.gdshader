@@ -31,8 +31,8 @@ void vertex() {
     local_anim_and_flip_data.a = mix(1.0, 1.0 - transparency, is_transparent);
 
     float base_frame_index = floor(abs(base_frame_data));
-    local_anim_and_flip_data.y = step(FLIP_H, mod(flags, FLIP_V * 2.0)); // .g (flip_horizontal)
-    local_anim_and_flip_data.z = step(FLIP_V, flags); // .b (flip_vertical)
+    local_anim_and_flip_data.y = step(0.5, mod(flags, 2.0)); // .g (flip_horizontal)
+    local_anim_and_flip_data.z = step(0.5, mod(floor(flags / 2.0), 2.0)); // .b (flip_vertical)
 
     // ─────────────────────────────────────────
     // 2. Animation timing and current frame
