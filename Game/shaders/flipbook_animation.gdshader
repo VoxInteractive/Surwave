@@ -8,14 +8,6 @@ const float FLIP_V = 2.0;
 uniform int columns = 1;
 uniform int rows = 1;
 
-// --- Spritesheet Padding and Margin ---
-// All values are in UV space (0.0 to 1.0), calculated relative to the full spritesheet dimensions.
-// To convert from pixels: value_in_uv = value_in_pixels / spritesheet_dimension_in_pixels.
-// `sheet_margin_uv`: The empty space from the edge of the image file to the start of the animation grid.
-uniform vec2 sheet_margin_uv = vec2(0.0, 0.0);
-// `frame_padding_uv`: The empty space from the edge of a grid cell to the actual sprite image inside it.
-uniform vec2 frame_padding_uv = vec2(0.0, 0.0);
-
 varying vec4 anim_and_flip_data; // .r: animated_frame_index, .g: flip_horizontal, .b: flip_vertical, .a: alpha
 varying vec4 vertex_to_fragment_data; // .xy: actual_frame_size_uv, .zw: frame_image_origin_uv
 
@@ -24,8 +16,8 @@ void vertex() {
     // 1. Retrieve and process per-instance data
     // ─────────────────────────────────────────
     float base_frame_and_transparency     = 0.0; // INSTANCE_CUSTOM.r; // Sign indicates transparency mode, absolute value holds frame index and transparency.
-    float animation_range_and_time_offset = 3.0; // INSTANCE_CUSTOM.g; // Whole number part: Animation range in frames, Decimal part: Animation time offset as a fraction of the cycle duration.
-    float animation_speed_and_direction   = 1.0; // INSTANCE_CUSTOM.b; // Animation speed in frames per second; sign controls direction. Set to zero to show the base frame (no animation).
+    float animation_range_and_time_offset = 2.0; // INSTANCE_CUSTOM.g; // Whole number part: Animation range in frames, Decimal part: Animation time offset as a fraction of the cycle duration.
+    float animation_speed_and_direction   = 2.0; // INSTANCE_CUSTOM.b; // Animation speed in frames per second; sign controls direction. Set to zero to show the base frame (no animation).
     float flags                           = 0.0; // INSTANCE_CUSTOM.a; // Flags: 1.0: flip_h, 2.0: flip_v, 3.0: flip_h & flip_v
 
     float column_count = max(float(columns), 1.0);
@@ -48,7 +40,7 @@ void vertex() {
     // 2. Animation timing and current frame
     // ─────────────────────────────────────────
     // Extract animation range and direction
-    float anim_window_length = floor(animation_range_and_time_offset);
+    float anim_window_length = floor(animation_range_and_time_offset) + 1.0;
     float anim_direction     = sign(animation_speed_and_direction); // +1 → right, -1 → left
 
     // Extract animation time offset
@@ -72,25 +64,14 @@ void vertex() {
 
     // Calculate and store data for the fragment shader
     // UV size of a single grid cell (including padding and margin distribution)
-    vec2 total_grid_cell_size_uv = vec2(1.0 / column_count, 1.0 / row_count);
-
-    // Let's recalculate this more robustly:
-    // Total usable area for frames after accounting for sheet margins
-    vec2 total_sheet_usable_uv_size = vec2(1.0, 1.0) - sheet_margin_uv * 2.0;
-    // Size of one frame slot within this usable area (including inter-frame padding)
-    vec2 frame_slot_size_within_usable_area = total_sheet_usable_uv_size / vec2(column_count, row_count);
-    
-    // The actual frame image size is the slot size minus internal padding (padding on both sides)
-    vec2 actual_frame_size_uv = frame_slot_size_within_usable_area - frame_padding_uv * 2.0;
+    vec2 actual_frame_size_uv = vec2(1.0 / column_count, 1.0 / row_count);
 
     // Calculate the UV offset for the current frame's top-left corner
     float column_index = mod(animated_frame_index, column_count);
     float row_index    = floor(animated_frame_index / column_count);
     
     // Origin of the current frame's *image* on the spritesheet
-    vec2 frame_image_origin_uv = sheet_margin_uv + 
-                                 vec2(column_index, row_index) * frame_slot_size_within_usable_area +
-                                 frame_padding_uv;
+    vec2 frame_image_origin_uv = vec2(column_index, row_index) * actual_frame_size_uv;
 
     vertex_to_fragment_data = vec4(actual_frame_size_uv, frame_image_origin_uv);
     anim_and_flip_data = local_anim_and_flip_data;
