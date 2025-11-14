@@ -18,7 +18,7 @@ void vertex() {
     float base_frame_data   = INSTANCE_CUSTOM.r; // Sign indicates transparency mode, absolute value holds frame index and transparency.
     float anim_properties   = INSTANCE_CUSTOM.g; // Whole number part: Animation range in frames, Decimal part: Animation time offset as a fraction of the cycle duration. Sign: positive = looping, negative = one-shot.
     float anim_speed_signed = INSTANCE_CUSTOM.b; // Animation speed in frames per second; sign controls direction. Set to zero to show the base frame (no animation).    
-    float flags             = INSTANCE_CUSTOM.a; // Flags: 1.0: flip_h, 2.0: flip_v
+    float flags_float       = INSTANCE_CUSTOM.a; // Flags: 1.0: flip_h, 2.0: flip_v
 
     float column_count = max(float(columns), 1.0);
     float row_count = max(float(rows), 1.0);
@@ -31,6 +31,7 @@ void vertex() {
     local_anim_and_flip_data.a = mix(1.0, 1.0 - transparency, is_transparent);
 
     float base_frame_index = floor(abs(base_frame_data));
+    float flags = floor(flags_float + 0.5); // Robustly round to nearest integer
     local_anim_and_flip_data.y = step(0.5, mod(flags, 2.0)); // .g (flip_horizontal)
     local_anim_and_flip_data.z = step(0.5, mod(floor(flags / 2.0), 2.0)); // .b (flip_vertical)
 
