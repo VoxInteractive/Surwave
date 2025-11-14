@@ -15,8 +15,5 @@ prefab Enemy : Character2D {
 	MovementSpeed: { value: 1 }
 	Damage: { value: 1 }
 
-	RenderingColor: { r: 1, g: 1, b: 1, a: 1 }
-	RenderingCustomData: { r: 0, g: 0, b: 0, a: 0 }
-
 	(EnemyState, IDLE)
 }

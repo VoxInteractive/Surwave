@@ -48,18 +48,6 @@ using godot::UtilityFunctions;
 
 extern std::unordered_map<godot::RID, PackedFloat32Array> g_multimesh_buffer_cache;
 
-namespace {
-
-    void write_color_to_buffer(PackedFloat32Array& buffer, size_t& cursor, const Color& color)
-    {
-        buffer.set(cursor++, color.r);
-        buffer.set(cursor++, color.g);
-        buffer.set(cursor++, color.b);
-        buffer.set(cursor++, color.a);
-    }
-
-}
-
 // Collect instances for a single prefab and update the corresponding multimesh buffer.
 // This helper builds a query specialized for the transform type (2D or 3D) and
 // conditionally includes vertex colors and custom data as query terms when the renderer expects them.
@@ -91,9 +79,8 @@ void update_renderer_for_prefab(
     float* buffer_ptr = buffer.ptrw();
     size_t instance_count = 0;
 
-    // Each renderer can have multiple queries (one per prefab). Iterate all
-    // queries and append matching instances to the buffer until the renderer's
-    // instance_count is reached.
+    // Each renderer can have multiple queries (one per prefab). Iterate all queries and append matching instances
+    // to the buffer until the renderer's instance_count is reached.
     for (const auto& q : renderer.queries) {
         q.run([&](flecs::iter& it) {
             while (it.next()) {
@@ -132,16 +119,16 @@ void update_renderer_for_prefab(
                         buffer_ptr[buffer_cursor++] = transform.origin.z;
                     }
 
+                    int next_field_idx = 1;
                     if (renderer.use_colors) {
-                        const RenderingColor& color = it.field<const RenderingColor>(1)[i];
-                        buffer_ptr[buffer_cursor++] = color.r;
-                        buffer_ptr[buffer_cursor++] = color.g;
-                        buffer_ptr[buffer_cursor++] = color.b;
-                        buffer_ptr[buffer_cursor++] = color.a;
+                        const RenderingColor& color_data = it.field<const RenderingColor>(next_field_idx++)[i];
+                        buffer_ptr[buffer_cursor++] = color_data.r;
+                        buffer_ptr[buffer_cursor++] = color_data.g;
+                        buffer_ptr[buffer_cursor++] = color_data.b;
+                        buffer_ptr[buffer_cursor++] = color_data.a;
                     }
                     if (renderer.use_custom_data) {
-                        const int field_idx = renderer.use_colors ? 2 : 1;
-                        const RenderingCustomData& custom_data = it.field<const RenderingCustomData>(field_idx)[i];
+                        const RenderingCustomData& custom_data = it.field<const RenderingCustomData>(next_field_idx++)[i];
                         buffer_ptr[buffer_cursor++] = custom_data.r;
                         buffer_ptr[buffer_cursor++] = custom_data.g;
                         buffer_ptr[buffer_cursor++] = custom_data.b;
