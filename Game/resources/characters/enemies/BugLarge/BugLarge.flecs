@@ -1,4 +1,4 @@
-prefab Wolf : Enemy {
+prefab BugLarge : Enemy {
 	HitPoints: {value: 8}
 	MovementSpeed: {value: 3}
 	Damage: {value: 5}

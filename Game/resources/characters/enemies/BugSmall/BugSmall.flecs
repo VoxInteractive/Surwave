@@ -1,4 +1,4 @@
-prefab Bee : Enemy {
+prefab BugSmall : Enemy {
 	HitPoints: {value: 1}
 	MovementSpeed: {value: 5}
 	Damage: {value: 1}
