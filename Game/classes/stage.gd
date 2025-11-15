@@ -30,6 +30,8 @@ func _ready() -> void:
 	_place_objects()
 	_initialise_altars()
 	_initialise_portals()
+	_instantiate_player()
+	_instantiate_camera()
 	_set_camera_limits()
 
 
@@ -43,6 +45,7 @@ func _validate_terrain() -> void:
 	assert(borders.tile_set.tile_size.x == borders.tile_set.tile_size.y, "Border tiles must be square")
 
 	assert(landmarks != null, "'Landmarks' node is missing or is invalid.")
+
 
 func _mark_landmark_occupied_areas() -> void:
 	if landmarks == null: return
@@ -67,6 +70,7 @@ func _mark_landmark_occupied_areas() -> void:
 			var landmark_position: Vector2 = landmark.position - landmark_size / 2
 			landmark_occupied_areas.append(Rect2(landmark_position, landmark_size))
 
+
 func _place_foliage() -> void:
 	if foliage == null: return
 
@@ -77,6 +81,7 @@ func _place_foliage() -> void:
 		for i in multimesh_instance.multimesh.instance_count:
 			var random_position = Vector2(randf_range(-half_terrain_size.x, half_terrain_size.x), randf_range(-half_terrain_size.y, half_terrain_size.y))
 			multimesh_instance.multimesh.set_instance_transform_2d(i, Transform2D(randf_range(0, TAU), random_position))
+
 
 func _place_objects(inner_boundary: float = 100.0) -> int:
 	if objects == null: return 0
@@ -144,18 +149,36 @@ func _place_objects(inner_boundary: float = 100.0) -> int:
 
 	return placed_count
 
+
 func _initialise_altars() -> void:
 	altar_nodes = get_tree().get_nodes_in_group("Altars")
 	
+
 func _initialise_portals() -> void:
 	portal_nodes = get_tree().get_nodes_in_group("Portals")
 
+
+func _instantiate_player() -> void:
+	var player_scene: PackedScene = preload("res://scenes/Player/Player.tscn")
+	var player_instance: Node2D = player_scene.instantiate() as Node2D
+	add_child(player_instance)
+	player_instance.position = Vector2(0, 0)
+
+
+func _instantiate_camera() -> void:
+	var camera_scene: PackedScene = preload("res://scenes/Camera/Camera.tscn")
+	var camera_instance: Camera2D = camera_scene.instantiate() as Camera2D
+	add_child(camera_instance)
+	camera_instance.position = Vector2(0, 0)
+
+
 func _set_camera_limits() -> void:
-	var camera = get_tree().get_root().get_node("Game/Camera") as Camera2D
+	var camera = get_node("Camera") as Camera2D
 	if camera:
 		camera.set_limits(terrain.mesh.size)
 	else:
 		push_warning("Stage: Camera node not found, couldn't set limits.")
+
 
 func _process(delta: float) -> void:
 	pass

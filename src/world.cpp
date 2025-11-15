@@ -12,7 +12,17 @@
 #include "world.h"
 #include "utilities/platform.h"
 #include "flecs_registry.h"
+#include "flecs_singleton_setter_registry.h"
 #include "scripts_loader.h"
+
+#include "components/godot_variants.h"
+#include "components/entity_rendering.h"
+#include "components/transform.h"
+#include "components/player.h"
+
+#include "systems/prefab_instantiation.h"
+#include "systems/transform_update.h"
+#include "systems/entity_rendering.h"
 
 // Define the global buffer cache that is declared in entity_rendering.h
 std::unordered_map<godot::RID, godot::PackedFloat32Array> g_multimesh_buffer_cache;
@@ -49,6 +59,14 @@ FlecsWorld::FlecsWorld()
     world.set_threads(static_cast<int>(num_threads));
 
     register_components_and_systems_with_world(world);
+
+    // Populate the instance's singleton setters from the global registry
+    for (const auto& pair : get_global_singleton_setters())
+    {
+        const std::string& component_name = pair.first;
+        const FlecsSingletonSetterRegistry& global_setter = pair.second;
+        singleton_setters[component_name] = [this, global_setter](const godot::Dictionary& data) { global_setter(this->world, data); };
+    }
 
     // Load Flecs script files that live in the project's flecs_scripts folder.
     // Use a Godot resource path so the loader can resolve it via ProjectSettings.
@@ -202,7 +220,11 @@ void FlecsWorld::set_singleton_component(const godot::String& component_name, co
     }
 
     std::string name = component_name.utf8().get_data();
-    // TODO: Implement actual data assignment
+    auto singleton_setter = singleton_setters.find(name);
+    if (singleton_setter != singleton_setters.end())
+    {
+        singleton_setter->second(data);
+    }
 }
 
 void FlecsWorld::progress(double delta)
