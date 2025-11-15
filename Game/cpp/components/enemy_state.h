@@ -2,6 +2,7 @@
 
 #include "src/flecs_registry.h"
 
+
 enum class EnemyState {
     IDLE,
     RUNNING,
@@ -10,7 +11,8 @@ enum class EnemyState {
     DEAD
 };
 
-inline FlecsRegistry register_enemy_components([](flecs::world& world) {
+
+inline FlecsRegistry register_enemy_state_components([](flecs::world& world) {
     world.component<EnemyState>()
         .constant("IDLE", EnemyState::IDLE)
         .constant("RUNNING", EnemyState::RUNNING)
