@@ -1,4 +1,4 @@
-prefab BugLarge : Enemy {
+prefab BugLarge : Bug {
 	HitPoints: {value: 8}
 	MovementSpeed: {value: 3}
 	Damage: {value: 5}
