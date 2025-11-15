@@ -8,8 +8,8 @@
 #include <godot_cpp/variant/rid.hpp>
 #include <godot_cpp/classes/multi_mesh.hpp>
 
-#include "flecs_registry.h"
-#include "../utilities/godot_hashes.h"
+#include "src/flecs_registry.h"
+#include "src/utilities/godot_hashes.h"
 
 
 enum class RendererType {

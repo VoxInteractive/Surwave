@@ -17,7 +17,7 @@
 #include <godot_cpp/variant/vector4.hpp>
 #include <godot_cpp/variant/vector4i.hpp>
 
-#include "flecs_registry.h"
+#include "src/flecs_registry.h"
 
 
 inline FlecsRegistry register_godot_variant_components([](flecs::world& world)

@@ -9,20 +9,20 @@
 #include <godot_cpp/classes/rendering_server.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-#include "world.h"
-#include "utilities/platform.h"
-#include "flecs_registry.h"
-#include "flecs_singleton_setter_registry.h"
-#include "scripts_loader.h"
+#include "src/world.h"
+#include "src/utilities/platform.h"
+#include "src/flecs_registry.h"
+#include "src/flecs_singleton_setter_registry.h"
+#include "src/scripts_loader.h"
 
-#include "components/godot_variants.h"
-#include "components/entity_rendering.h"
-#include "components/transform.h"
-#include "components/player.h"
+#include "src/components/godot_variants.h"
+#include "src/components/entity_rendering.h"
+#include "src/components/transform.h"
+#include "src/components/player.h"
 
-#include "systems/prefab_instantiation.h"
-#include "systems/transform_update.h"
-#include "systems/entity_rendering.h"
+#include "src/systems/prefab_instantiation.h"
+#include "src/systems/transform_update.h"
+#include "src/systems/entity_rendering.h"
 
 // Define the global buffer cache that is declared in entity_rendering.h
 std::unordered_map<godot::RID, godot::PackedFloat32Array> g_multimesh_buffer_cache;

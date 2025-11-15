@@ -43,7 +43,8 @@ def find_source_files(base_dir):
 
 sources, include_paths = find_source_files("src")
 game_cpp_sources, game_cpp_include_paths = find_source_files("Game/cpp")
-env.Append(CPPPATH=["godot-cpp/include", "godot-cpp/gen/include", "flecs/distr/"] + include_paths + game_cpp_include_paths)
+
+env.Append(CPPPATH=["godot-cpp/include", "godot-cpp/gen/include", "flecs/distr/", ".", "src", "Game/cpp"])
 
 flecs_c_source = "flecs/distr/flecs.c"
 

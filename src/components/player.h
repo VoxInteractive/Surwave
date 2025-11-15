@@ -2,8 +2,8 @@
 
 #include <godot_cpp/variant/vector2.hpp>
 
-#include "flecs_registry.h"
-#include "flecs_singleton_setter_registry.h"
+#include "src/flecs_registry.h"
+#include "src/flecs_singleton_setter_registry.h"
 
 struct PlayerPosition
 {

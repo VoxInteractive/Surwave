@@ -1,6 +1,6 @@
 #pragma once
 
-#include "flecs_registry.h"
+#include "src/flecs_registry.h"
 
 struct Position2D {
     float x, y;

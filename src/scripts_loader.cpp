@@ -6,7 +6,7 @@
 #include <godot_cpp/classes/project_settings.hpp>
 #include <godot_cpp/classes/file_access.hpp>
 
-#include "scripts_loader.h"
+#include "src/scripts_loader.h"
 
 using godot::UtilityFunctions;
 

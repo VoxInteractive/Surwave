@@ -7,8 +7,8 @@
 #include <godot_cpp/variant/utility_functions.hpp>
 #include <godot_cpp/variant/variant.hpp>
 
-#include "../components/transform.h"
-#include "flecs_registry.h"
+#include "src/components/transform.h"
+#include "src/flecs_registry.h"
 
 using godot::Dictionary;
 using godot::UtilityFunctions;

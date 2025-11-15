@@ -1,6 +1,6 @@
 #pragma once
 
-#include "flecs_registry.h"
+#include "src/flecs_registry.h"
 
 enum class EnemyState {
     IDLE,

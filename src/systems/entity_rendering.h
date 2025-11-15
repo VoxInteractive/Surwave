@@ -16,10 +16,10 @@
 #include <godot_cpp/variant/utility_functions.hpp>
 
 #include <flecs.h>
-#include "world.h"
-#include "flecs_registry.h"
-#include "../components/entity_rendering.h"
-#include "../utilities/godot_hashes.h"
+#include "src/world.h"
+#include "src/flecs_registry.h"
+#include "src/components/entity_rendering.h"
+#include "src/utilities/godot_hashes.h"
 
 using godot::Color;
 using godot::PackedFloat32Array;

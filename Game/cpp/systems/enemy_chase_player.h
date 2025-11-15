@@ -3,8 +3,8 @@
 #include <flecs.h>
 #include <godot_cpp/variant/vector2.hpp>
 
-#include "../../src/components/player.h"
-#include "../../src/components/transform.h"
+#include "components/player.h"
+#include "components/transform.h"
 
 struct MovementSpeed {
 	float value;
