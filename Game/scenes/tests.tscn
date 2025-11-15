@@ -1,0 +1,13 @@
+[gd_scene load_steps=4 format=3 uid="uid://dlmcer5574vg5"]
+
+[ext_resource type="Shader" uid="uid://c6w6e2p6d7103" path="res://shaders/flipbook_animation.gdshader" id="1_tcuvc"]
+[ext_resource type="Texture2D" uid="uid://bbpjjjtucvjlr" path="res://resources/characters/enemies/Bugs/Bugs.png" id="2_oumj0"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_lh7aj"]
+shader = ExtResource("1_tcuvc")
+shader_parameter/columns = 6
+shader_parameter/rows = 12
+
+[node name="FlipbookShaderTest" type="Sprite2D"]
+material = SubResource("ShaderMaterial_lh7aj")
+texture = ExtResource("2_oumj0")

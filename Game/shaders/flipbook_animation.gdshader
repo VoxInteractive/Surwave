@@ -15,10 +15,11 @@ void vertex() {
     // ─────────────────────────────────────────
     // 1. Retrieve and process per-instance data
     // ─────────────────────────────────────────
-    float base_frame_and_transparency = INSTANCE_CUSTOM.r; // Abs(Whole number part) holds base frame index. When negative, the fractional part determines transparency as a percentage.
-    float anim_range_and_time_offset  = INSTANCE_CUSTOM.g; // Abs(Whole number part) Animation range in frames, Decimal part: Animation time offset as a fraction of the cycle duration (sign respected).
-    float anim_speed_and_direction    = INSTANCE_CUSTOM.b; // Animation speed in frames per second; sign controls direction. Set to zero to show the base frame without animation.
-    float flags                       = INSTANCE_CUSTOM.a; // 1.0: flip_h, 2.0: flip_v, 3.0: flip_h & flip_v
+    // The hardcoded values are for temporary testing purposes
+    float base_frame_and_transparency = 66.0; // INSTANCE_CUSTOM.r; // Abs(Whole number part) holds base frame index. When negative, the fractional part determines transparency as a percentage.
+    float anim_range_and_time_offset  = 5.0;  // INSTANCE_CUSTOM.g; // Abs(Whole number part) Animation range in frames, Decimal part: Animation time offset as a fraction of the cycle duration (sign respected).
+    float anim_speed_and_direction    = 2.0;  // INSTANCE_CUSTOM.b; // Animation speed in frames per second; sign controls direction. Set to zero to show the base frame without animation.
+    float flags                       = 0.0;  // INSTANCE_CUSTOM.a; // 1.0: flip_h, 2.0: flip_v, 3.0: flip_h & flip_v
 
     float column_count = max(float(columns), 1.0);
     float row_count = max(float(rows), 1.0);
@@ -33,8 +34,8 @@ void vertex() {
     float base_frame_index = floor(abs(base_frame_and_transparency));
     float flags_rounded = floor(flags + 0.5); // Robustly round to nearest integer
     // Branchless flip logic using step()
-    local_anim_and_flip_data.y = step(1.0, mod(flags_rounded, 2.0)); // .g (flip_horizontal) - equivalent to (flags_rounded & 1)
-    local_anim_and_flip_data.z = step(1.0, floor(flags_rounded / 2.0)); // .b (flip_vertical) - equivalent to (flags_rounded & 2)
+    local_anim_and_flip_data.y = step(0.5, abs(mod(flags_rounded, 2.0))) * step(flags_rounded, -0.5); // .g (flip_horizontal)
+    local_anim_and_flip_data.z = step(1.5, abs(flags_rounded)) * step(flags_rounded, -0.5);             // .b (flip_vertical)
 
     // ─────────────────────────────────────────
     // 2. Animation timing and current frame
@@ -94,8 +95,8 @@ void fragment() {
     vec2 uv_flipped = UV;
 
     // Apply flips
-    uv_flipped.x = mix(uv_flipped.x, 1.0 - uv_flipped.x, flip_horizontal);
-    uv_flipped.y = mix(uv_flipped.y, 1.0 - uv_flipped.y, flip_vertical);
+    uv_flipped.x = mix(uv_flipped.x, 1.0 - uv_flipped.x, abs(flip_horizontal));
+    uv_flipped.y = mix(uv_flipped.y, 1.0 - uv_flipped.y, abs(flip_vertical));
 
     // ─────────────────────────────────────────
     // 5. Sample the texture
