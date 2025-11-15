@@ -7,7 +7,6 @@
 #include <godot_cpp/classes/multi_mesh_instance2d.hpp>
 #include <godot_cpp/classes/multi_mesh_instance3d.hpp>
 #include <godot_cpp/classes/rendering_server.hpp>
-#include <godot_cpp/classes/json.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
 #include "src/world.h"
@@ -15,6 +14,7 @@
 #include "src/flecs_registry.h"
 #include "src/flecs_singleton_setter_registry.h"
 #include "src/scripts_loader.h"
+#include "src/flecs_singleton_getter_registry.h"
 
 #include "src/components/godot_variants.h"
 #include "src/components/entity_rendering.h"
@@ -69,6 +69,13 @@ FlecsWorld::FlecsWorld()
         singleton_setters[component_name] = [this, global_setter](const godot::Variant& data) { global_setter(this->world, data); };
     }
 
+    // Populate the instance's singleton getters from the global registry
+    for (const auto& pair : get_singleton_getters())
+    {
+        const std::string& component_name = pair.first;
+        const FlecsSingletonGetter& global_getter = pair.second;
+        singleton_getters[component_name] = [this, global_getter]() { return global_getter(this->world); };
+    }
     // Load Flecs script files that live in the project's flecs_scripts folder.
     // Use a Godot resource path so the loader can resolve it via ProjectSettings.
     FlecsScriptsLoader loader;
@@ -237,31 +244,14 @@ godot::Variant FlecsWorld::get_singleton_component(const godot::String& componen
     }
 
     std::string name = component_name.utf8().get_data();
-    flecs::entity component_entity = world.lookup(name.c_str());
-    if (!component_entity.is_valid())
+    auto it = singleton_getters.find(name);
+    if (it == singleton_getters.end())
     {
-        UtilityFunctions::push_warning(godot::String("Component '") + component_name + "' not found in Flecs world.");
+        UtilityFunctions::push_warning(godot::String("No getter for singleton component '") + component_name + "' found.");
         return godot::Variant();
     }
 
-    const void* component_data = world.get(component_entity, component_entity);
-    if (!component_data)
-    {
-        return godot::Variant(); // Singleton not set.
-    }
-
-    flecs::string expr_string = world.to_expr(component_entity, component_data);
-    godot::String godot_expr_string(expr_string.c_str());
-
-    godot::Ref<godot::JSON> json;
-    json.instantiate();
-    godot::Error err = json->parse(godot_expr_string);
-    if (err != godot::OK) {
-        UtilityFunctions::push_warning(godot::String("Failed to parse component data for '") + component_name + "': " + json->get_error_message());
-        return godot::Variant();
-    }
-
-    return json->get_data();
+    return it->second();
 }
 
 void FlecsWorld::progress(double delta)
