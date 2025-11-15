@@ -81,7 +81,7 @@ func _physics_process(delta: float) -> void:
 	character_body.velocity = input_movement_vector * adjusted_movement_speed
 
 	is_colliding = character_body.move_and_slide()
-	world.set_singleton_component("PlayerPosition", {"value": character_body.global_position})
+	world.set_singleton_component("PlayerPosition", character_body.global_position)
 
 	movement_in_frame = character_body.global_position - position_at_frame_start
 	has_moved_this_frame = movement_in_frame.length() > 0.01
@@ -118,3 +118,8 @@ func _physics_process(delta: float) -> void:
 				set_state(PlayerState.SHOOTING_RIGHT)
 		else:
 			set_state(PlayerState.IDLE)
+
+func _process(delta: float) -> void:
+	var pos_data = world.get_singleton_component("PlayerPosition")
+	if pos_data:
+		print(pos_data)

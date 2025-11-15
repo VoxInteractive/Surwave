@@ -22,6 +22,7 @@ public:
     // GDScript-visible methods that we'll bind
     void progress(double delta); // To be called every frame from GDScript attached to the FlecsWorld node. Make sure ecs_ftime_t matches the type of delta.
     void set_singleton_component(const godot::String& component_name, const godot::Variant& data);
+    godot::Variant get_singleton_component(const godot::String& component_name);
     bool run_system(const godot::String& system_name, const godot::Dictionary& parameters); // For triggering on-demand (kind: 0) Flecs systems from GDScript
 
     // Virtual methods overridden from Node

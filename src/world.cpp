@@ -7,6 +7,7 @@
 #include <godot_cpp/classes/multi_mesh_instance2d.hpp>
 #include <godot_cpp/classes/multi_mesh_instance3d.hpp>
 #include <godot_cpp/classes/rendering_server.hpp>
+#include <godot_cpp/classes/json.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
 #include "src/world.h"
@@ -227,6 +228,42 @@ void FlecsWorld::set_singleton_component(const godot::String& component_name, co
     }
 }
 
+godot::Variant FlecsWorld::get_singleton_component(const godot::String& component_name)
+{
+    if (!is_initialised)
+    {
+        UtilityFunctions::push_warning(godot::String("FlecsWorld::get_singleton_component was called before world was initialised"));
+        return godot::Variant();
+    }
+
+    std::string name = component_name.utf8().get_data();
+    flecs::entity component_entity = world.lookup(name.c_str());
+    if (!component_entity.is_valid())
+    {
+        UtilityFunctions::push_warning(godot::String("Component '") + component_name + "' not found in Flecs world.");
+        return godot::Variant();
+    }
+
+    const void* component_data = world.get(component_entity, component_entity);
+    if (!component_data)
+    {
+        return godot::Variant(); // Singleton not set.
+    }
+
+    flecs::string expr_string = world.to_expr(component_entity, component_data);
+    godot::String godot_expr_string(expr_string.c_str());
+
+    godot::Ref<godot::JSON> json;
+    json.instantiate();
+    godot::Error err = json->parse(godot_expr_string);
+    if (err != godot::OK) {
+        UtilityFunctions::push_warning(godot::String("Failed to parse component data for '") + component_name + "': " + json->get_error_message());
+        return godot::Variant();
+    }
+
+    return json->get_data();
+}
+
 void FlecsWorld::progress(double delta)
 {
     if (!is_initialised)
@@ -284,5 +321,6 @@ void FlecsWorld::_bind_methods()
 {
     ClassDB::bind_method(D_METHOD("progress", "delta"), &FlecsWorld::progress);
     ClassDB::bind_method(D_METHOD("set_singleton_component", "component_name", "data"), &FlecsWorld::set_singleton_component);
+    ClassDB::bind_method(D_METHOD("get_singleton_component", "component_name"), &FlecsWorld::get_singleton_component);
     ClassDB::bind_method(D_METHOD("run_system", "system_name", "data"), &FlecsWorld::run_system, DEFVAL(godot::Dictionary()));
 }

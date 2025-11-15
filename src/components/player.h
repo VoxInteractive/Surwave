@@ -11,9 +11,9 @@ struct PlayerPosition
 };
 
 inline FlecsRegistry register_player_components([](flecs::world& world) {
-    world.component<PlayerPosition>().add(flecs::Singleton);
+    world.component<PlayerPosition>("PlayerPosition").add(flecs::Singleton);
 
-    register_singleton_setter<godot::Vector2>("PlayerPosition", [](flecs::world& world, const godot::Vector2& value) {
-        world.set<PlayerPosition>({ value });
+    register_singleton_setter<godot::Vector2>("PlayerPosition", [](flecs::world& world, const godot::Vector2& player_position) {
+        world.set<PlayerPosition>({ player_position });
     });
 });
