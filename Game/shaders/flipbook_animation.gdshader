@@ -16,55 +16,15 @@ varying vec3 color_mask;
 varying float blend_mode;
 varying float has_color_mask;
 
-// The 'flags' variable is a bit-packed float used to control flipping and color masking effects.
-// A value of 0.0 indicates that no effects should be applied.
-//
-// The integer part of the float is used for bitwise operations. Here is the layout:
-//
-// Bits    | Purpose        | Range   | Description
-// --------|----------------|---------|-------------------------------------------------
-// 0-1     | Flip Mode      | 0-3     | 0: None, 1: H-Flip, 2: V-Flip, 3: H & V Flip
-// 2-4     | Blend Mode     | 0-7     | 0: None, 1: Add, 2: Subtract, 3: Multiply
-// 5-10    | Red Channel    | 0-63    | 6 bits for the Red color channel (0-63).
-// 11-16   | Green Channel  | 0-63    | 6 bits for the Green color channel (0-63).
-// 17-22   | Blue Channel   | 0-63    | 6 bits for the Blue color channel (0-63).
-//
-// --- How to Calculate the 'flags' Value ---
-// You can construct the 'flags' value by summing the integer values for each component.
-//
-// Value = (Flip) + (Blend << 2) + (R << 5) + (G << 11) + (B << 17)
-//
-// Where:
-// - R, G, B are 0-63. To convert from 0-255, use: floor(value * 63.0 / 255.0)
-//
-// --- Examples ---
-//
-// 1. Horizontal Flip only:
-//    flags = 1.0
-//
-// 2. Additive blend with pure Red (R:63, G:0, B:0):
-//    - Flip: 0
-//    - Blend: 1 (Add) -> 1 << 2 = 4
-//    - Red: 63 -> 63 << 5 = 2016
-//    flags = 0 + 4 + 2016 = 2020.0
-//
-// 3. Multiply blend with Cyan (R:0, G:63, B:63) and H+V flip:
-//    - Flip: 3
-//    - Blend: 3 (Multiply) -> 3 << 2 = 12
-//    - Green: 63 -> 63 << 11 = 129024
-//    - Blue: 63 -> 63 << 17 = 8257536
-//    flags = 3 + 12 + 129024 + 8257536 = 8386575.0
-//
-
 void vertex() {
     // ─────────────────────────────────────────
     // 1. Retrieve and process per-instance data
     // ─────────────────────────────────────────
     // The hardcoded values are for temporary testing purposes
-    float base_frame_and_transparency = 66.0; // INSTANCE_CUSTOM.r; // Abs(Whole part) holds base frame index. When negative, the fractional part determines transparency as a percentage.
-    float anim_range_and_time_offset  = 5.0;  // INSTANCE_CUSTOM.g; // Abs(Whole part) Animation range in frames, fractional part: Animation time offset as a fraction of the cycle duration (sign respected).
-    float anim_speed_and_direction    = 2.0;  // INSTANCE_CUSTOM.b; // Animation speed in frames per second; sign controls direction. Set to zero to show the base frame without animation.    
-    float flags                       = 8386575.0;  // INSTANCE_CUSTOM.a; // See the detailed explanation above.
+    float base_frame_and_transparency = INSTANCE_CUSTOM.r; // Abs(Whole part) holds base frame index. When negative, the fractional part determines transparency as a percentage.
+    float anim_range_and_time_offset  = INSTANCE_CUSTOM.g; // Abs(Whole part) Animation range in frames, fractional part: Animation time offset as a fraction of the cycle duration (sign respected).
+    float anim_speed_and_direction    = INSTANCE_CUSTOM.b; // Animation speed in frames per second; sign controls direction. Set to zero to show the base frame without animation.    
+    float flags                       = INSTANCE_CUSTOM.a; // Controls flip and blend modes, and a colour mask. See the detailed explanation at the bottom.
 
     float column_count = max(float(columns), 1.0);
     float row_count = max(float(rows), 1.0);
@@ -183,3 +143,45 @@ void fragment() {
     COLOR = tex_color;
     COLOR.a *= alpha;
 }
+
+// The 'flags' variable is a bit-packed float used to control flipping and colour masking effects.
+// A value of 0.0 indicates that no effects should be applied.
+//
+// The integer part of the float is used for bitwise operations. Here is the layout:
+//
+// Bits    | Purpose        | Range   | Description
+// --------|----------------|---------|-------------------------------------------------
+// 0-1     | Flip Mode      | 0-3     | 0: None, 1: H-Flip, 2: V-Flip, 3: H & V-Flip
+// 2-4     | Blend Mode     | 0-3     | 0: None, 1: Add, 2: Subtract, 3: Multiply
+// 5-10    | Red Channel    | 0-63    | 6 bits for the Red colour channel (0-63).
+// 11-16   | Green Channel  | 0-63    | 6 bits for the Green colour channel (0-63).
+// 17-22   | Blue Channel   | 0-63    | 6 bits for the Blue colour channel (0-63).
+//
+// --- How to Calculate the 'flags' Value ---
+// You can construct the 'flags' value by summing the integer values for each component.
+//
+// Value = (Flip) + (Blend << 2) + (R << 5) + (G << 11) + (B << 17)
+//
+// Where:
+// - R, G, B are 0-63. To convert from 0-255, use: floor(value * 63.0 / 255.0).
+//
+// The largest valid integer value for flags is 8,388,607.0. Invalid (incl. negative) values will result in non-transparent pixels coloured in black.
+//
+// --- Examples ---
+//
+// 1. Horizontal Flip only:
+//    flags = 1.0
+//
+// 2. Additive blend with pure Red (R:63, G:0, B:0):
+//    - Flip: 0
+//    - Blend: 1 (Add) -> 1 << 2 = 4
+//    - Red: 63 -> 63 << 5 = 2016
+//    flags = 0 + 4 + 2016 = 2020.0
+//
+// 3. Multiply blend with Cyan (R:0, G:63, B:63) and H+V flip:
+//    - Flip: 3
+//    - Blend: 3 (Multiply) -> 3 << 2 = 12
+//    - Green: 63 -> 63 << 11 = 129024
+//    - Blue: 63 -> 63 << 17 = 8257536
+//    flags = 3 + 12 + 129024 + 8257536 = 8386575.0
+//
