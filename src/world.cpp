@@ -61,11 +61,11 @@ FlecsWorld::FlecsWorld()
     register_components_and_systems_with_world(world);
 
     // Populate the instance's singleton setters from the global registry
-    for (const auto& pair : get_global_singleton_setters())
+    for (const auto& pair : get_singleton_setters())
     {
         const std::string& component_name = pair.first;
-        const FlecsSingletonSetterRegistry& global_setter = pair.second;
-        singleton_setters[component_name] = [this, global_setter](const godot::Dictionary& data) { global_setter(this->world, data); };
+        const FlecsSingletonSetter& global_setter = pair.second;
+        singleton_setters[component_name] = [this, global_setter](const godot::Variant& data) { global_setter(this->world, data); };
     }
 
     // Load Flecs script files that live in the project's flecs_scripts folder.
@@ -211,7 +211,7 @@ const flecs::world* FlecsWorld::get_world() const
     return &world;
 }
 
-void FlecsWorld::set_singleton_component(const godot::String& component_name, const Dictionary& data)
+void FlecsWorld::set_singleton_component(const godot::String& component_name, const godot::Variant& data)
 {
     if (!is_initialised)
     {

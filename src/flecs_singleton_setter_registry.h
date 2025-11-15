@@ -5,19 +5,27 @@
 #include <string>
 #include <unordered_map>
 
-#include <flecs.h>
-#include <godot_cpp/variant/dictionary.hpp>
+#include <godot_cpp/variant/variant.hpp>
 
-using godot::Dictionary;
+// Forward-declare flecs::world to avoid including the full <flecs.h> header.
+// This is sufficient for using pointers or references and improves compile times.
+namespace flecs
+{
+    class world;
+}
 
-// Setter that receives the flecs world and the Godot Dictionary payload.
-using FlecsSingletonSetterRegistry = std::function<void(flecs::world &world, const Dictionary &data)>;
+using FlecsSingletonSetter = std::function<void(flecs::world&, const godot::Variant&)>;
 
-// Register a setter for a singleton component. Components may call this from their
-// static registration helpers (FlecsRegistry) so the FlecsWorld can pick them
-// up at construction time.
-void register_singleton_setter(const std::string &component_name, FlecsSingletonSetterRegistry setter);
+inline std::unordered_map<std::string, FlecsSingletonSetter>& get_singleton_setters()
+{
+    static std::unordered_map<std::string, FlecsSingletonSetter> g_singleton_setters;
+    return g_singleton_setters;
+}
 
-// Return a const reference to the global map. Used by FlecsWorld when
-// constructing its instance-specific dispatcher.
-const std::unordered_map<std::string, FlecsSingletonSetterRegistry> &get_global_singleton_setters();
+template <typename T>
+void register_singleton_setter(const std::string& name, std::function<void(flecs::world&, const T&)> setter)
+{
+    get_singleton_setters()[name] = [setter](flecs::world& world, const godot::Variant& v) {
+        setter(world, v.operator T());
+    };
+}
