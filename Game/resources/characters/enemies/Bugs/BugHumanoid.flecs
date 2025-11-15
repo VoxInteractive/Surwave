@@ -3,5 +3,5 @@ prefab BugHumanoid : Enemy {
 	MovementSpeed: {value: 4}
 	MeleeDamage: {value: 2}
 
-	RenderingCustomData: { r: 8, g: 3, b: 4, a: 0 }
+	RenderingCustomData: { r: 36, g: 0, b: 0, a: 0 }
 }

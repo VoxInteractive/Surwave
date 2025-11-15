@@ -13,8 +13,8 @@
 #include "src/utilities/platform.h"
 #include "src/flecs_registry.h"
 #include "src/flecs_singleton_setter_registry.h"
-#include "src/scripts_loader.h"
 #include "src/flecs_singleton_getter_registry.h"
+#include "src/scripts_loader.h"
 
 #include "src/components/godot_variants.h"
 #include "src/components/entity_rendering.h"

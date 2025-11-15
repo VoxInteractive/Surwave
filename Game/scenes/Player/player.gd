@@ -118,8 +118,3 @@ func _physics_process(delta: float) -> void:
 				set_state(PlayerState.SHOOTING_RIGHT)
 		else:
 			set_state(PlayerState.IDLE)
-
-func _process(delta: float) -> void:
-	var pos_data = world.get_singleton_component("PlayerPosition")
-	if pos_data:
-		print(pos_data)
