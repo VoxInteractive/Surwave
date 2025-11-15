@@ -121,11 +121,11 @@ void update_renderer_for_prefab(
 
                     int next_field_idx = 1;
                     if (renderer.use_colors) {
-                        const RenderingColor& color_data = it.field<const RenderingColor>(next_field_idx++)[i];
-                        buffer_ptr[buffer_cursor++] = color_data.r;
-                        buffer_ptr[buffer_cursor++] = color_data.g;
-                        buffer_ptr[buffer_cursor++] = color_data.b;
-                        buffer_ptr[buffer_cursor++] = color_data.a;
+                        const RenderingColor& color = it.field<const RenderingColor>(next_field_idx++)[i];
+                        buffer_ptr[buffer_cursor++] = color.r;
+                        buffer_ptr[buffer_cursor++] = color.g;
+                        buffer_ptr[buffer_cursor++] = color.b;
+                        buffer_ptr[buffer_cursor++] = color.a;
                     }
                     if (renderer.use_custom_data) {
                         const RenderingCustomData& custom_data = it.field<const RenderingCustomData>(next_field_idx++)[i];
