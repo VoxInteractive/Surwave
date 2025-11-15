@@ -1,13 +1,10 @@
 shader_type canvas_item;
 
-// Flags that will be passed via INSTANCE_CUSTOM.a
-const float FLIP_H_FLAG = 1.0;
-const float FLIP_V_FLAG = 2.0;
-
 // Color Masking constants
-const int BLEND_MODE_ADD = 0;
-const int BLEND_MODE_SUBTRACT = 1;
-const int BLEND_MODE_MULTIPLY = 2;
+const int BLEND_MODE_NONE = 0;
+const int BLEND_MODE_ADD = 1;
+const int BLEND_MODE_SUBTRACT = 2;
+const int BLEND_MODE_MULTIPLY = 3;
 
 // --- Spritesheet layout ---
 uniform int columns = 1;
@@ -19,16 +16,61 @@ varying vec3 color_mask;
 varying float blend_mode;
 varying float has_color_mask;
 
+// The 'flags' variable is a bit-packed float used to control flipping and color masking effects.
+// A value of 0.0 indicates that no effects should be applied.
+//
+// The integer part of the float is used for bitwise operations. Here is the layout:
+//
+// Bits    | Purpose        | Range   | Description
+// --------|----------------|---------|----------------------------------------------------
+// 0-1     | Flip Mode      | 0-3     | 0: None, 1: H-Flip, 2: V-Flip, 3: H & V Flip
+// 2-4     | Blend Mode     | 0-7     | 0: None, 1: Add, 2: Subtract, 3: Multiply
+// 5-12    | Red Channel    | 0-255   | 8 bits for the Red color channel.
+// 13-20   | Green Channel  | 0-255   | 8 bits for the Green color channel.
+// 21-22   | Blue Channel   | 0-3     | The 2 most significant bits of the Blue channel.
+//
+// The fractional part of the float is used to store the remaining 6 bits of the Blue channel,
+// providing higher precision. This allows for a full 0-255 range for Blue.
+//
+// --- How to Calculate the 'flags' Value ---
+// You can construct the 'flags' value by summing the integer values for each component.
+//
+// Value = (Flip) + (Blend << 2) + (R << 5) + (G << 13) + (B_int << 21) + B_frac
+//
+// Where:
+// - R, G are 0-255.
+// - B_int = floor(B / 64), where B is 0-255.
+// - B_frac = (B % 64) / 64.0.
+//
+// --- Examples ---
+//
+// 1. Horizontal Flip only:
+//    flags = 1.0
+//
+// 2. Additive blend with pure Red (255, 0, 0):
+//    - Flip: 0
+//    - Blend: 1 (Add) -> 1 << 2 = 4
+//    - Red: 255 -> 255 << 5 = 8160
+//    flags = 0 + 4 + 8160 = 8164.0
+//
+// 3. Multiply blend with Cyan (0, 255, 255) and H+V flip:
+//    - Flip: 3
+//    - Blend: 3 (Multiply) -> 3 << 2 = 12
+//    - Green: 255 -> 255 << 13 = 2088960
+//    - Blue: 255 -> B_int = floor(255/64)=3 -> 3 << 21 = 6291456
+//                 B_frac = (255%64)/64.0 = 63/64.0 = 0.984375
+//    flags = 3 + 12 + 2088960 + 6291456 + 0.984375 = 8380431.984375
+//
 
 void vertex() {
     // ─────────────────────────────────────────
     // 1. Retrieve and process per-instance data
     // ─────────────────────────────────────────
     // The hardcoded values are for temporary testing purposes
-    float base_frame_and_transparency = 66.0; // INSTANCE_CUSTOM.r; // Abs(Whole number part) holds base frame index. When negative, the fractional part determines transparency as a percentage.
-    float anim_range_and_time_offset  = 5.0;  // INSTANCE_CUSTOM.g; // Abs(Whole number part) Animation range in frames, Decimal part: Animation time offset as a fraction of the cycle duration (sign respected).
+    float base_frame_and_transparency = 66.0; // INSTANCE_CUSTOM.r; // Abs(Whole part) holds base frame index. When negative, the fractional part determines transparency as a percentage.
+    float anim_range_and_time_offset  = 5.0;  // INSTANCE_CUSTOM.g; // Abs(Whole part) Animation range in frames, fractional part: Animation time offset as a fraction of the cycle duration (sign respected).
     float anim_speed_and_direction    = 2.0;  // INSTANCE_CUSTOM.b; // Animation speed in frames per second; sign controls direction. Set to zero to show the base frame without animation.    
-    float flags                       = 8323072.0;  // INSTANCE_CUSTOM.a; // Bitwise: 1 for flip_h, 2 for flip_v. Positive values for color masking.
+    float flags                       = 0.0;  // INSTANCE_CUSTOM.a; // See the detailed explanation above.
 
     float column_count = max(float(columns), 1.0);
     float row_count = max(float(rows), 1.0);
@@ -40,25 +82,24 @@ void vertex() {
     float transparency = fract(abs(base_frame_and_transparency));
     local_anim_and_flag_data.a = mix(1.0, 1.0 - transparency, is_transparent);
 
-    int flags_int = int(flags);
-    has_color_mask = step(0.0, flags); // 1.0 if flags is positive or zero
+    // A flag value of 0.0 means no flipping or color masking.
+    has_color_mask = step(1e-5, flags);
 
-    if (has_color_mask > 0.5) {
-        // Positive flags are for color masking
-        int r = (flags_int >> 10) & 0x7F;
-        int g = (flags_int >> 17) & 0x7F;
-        int b = (flags_int >> 24) & 0x7F;
-        color_mask = vec3(float(r) / 127.0, float(g) / 127.0, float(b) / 127.0);
-        blend_mode = float((flags_int >> 7) & 0x07);
-        local_anim_and_flag_data.y = float(flags_int & 1); // flip_h
-        local_anim_and_flag_data.z = float((flags_int >> 1) & 1); // flip_v
-    } else {
-        // Negative flags are for flipping only
-        float flags_rounded = floor(abs(flags) + 0.5);
-        local_anim_and_flag_data.y = step(0.5, mod(flags_rounded, 2.0)); // flip_h
-        local_anim_and_flag_data.z = step(1.5, flags_rounded); // flip_v
-        has_color_mask = 0.0;
-    }
+    int flags_int = int(flags);
+    float flags_frac = fract(flags);
+
+    // Decode flip, blend mode, and color from the integer part of 'flags'
+    int flip_mode = flags_int & 3; // Bits 0-1
+    blend_mode = float((flags_int >> 2) & 7); // Bits 2-4
+
+    float r = float((flags_int >> 5) & 255) / 255.0; // Bits 5-12
+    float g = float((flags_int >> 13) & 255) / 255.0; // Bits 13-20
+    // Blue is split between integer (2 MSB) and fractional (6 LSB) parts for full 8-bit precision.
+    float b = (float((flags_int >> 21) & 3) * 64.0 + flags_frac * 64.0) / 255.0;
+    color_mask = vec3(r, g, b);
+
+    local_anim_and_flag_data.y = float(flip_mode & 1); // flip_h
+    local_anim_and_flag_data.z = float((flip_mode >> 1) & 1); // flip_v
 
     float base_frame_index = floor(abs(base_frame_and_transparency));
 
@@ -142,6 +183,9 @@ void fragment() {
     // Combine the results based on the active blend mode and whether masking is enabled.
     vec3 masked_color = is_add * add_result + is_subtract * subtract_result + is_multiply * multiply_result;
     tex_color.rgb = mix(tex_color.rgb, masked_color, has_color_mask);
+    
+    // When blend_mode is 0 (BLEND_MODE_NONE), none of the 'is_*' flags will be active, resulting in masked_color being vec3(0.0).
+    // The mix() function then correctly defaults to tex_color.rgb, effectively applying no blending.
 
     COLOR = tex_color;
     COLOR.a *= alpha;
