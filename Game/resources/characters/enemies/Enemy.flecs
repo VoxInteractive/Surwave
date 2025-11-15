@@ -10,7 +10,7 @@ struct Damage {
 	value = f32
 }
 
-prefab Bug : Character2D {
+prefab Enemy : Character2D {
 	HitPoints: { value: 1 }
 	MovementSpeed: { value: 1 }
 	Damage: { value: 1 }

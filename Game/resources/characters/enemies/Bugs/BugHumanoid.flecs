@@ -1,4 +1,4 @@
-prefab BugHumanoid : Bug {
+prefab BugHumanoid : Enemy {
 	HitPoints: {value: 3}
 	MovementSpeed: {value: 4}
 	Damage: {value: 2}
