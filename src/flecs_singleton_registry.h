@@ -1,4 +1,3 @@
-// Global registry for singleton setter callbacks.
 #pragma once
 
 #include <functional>
@@ -7,12 +6,35 @@
 
 #include <godot_cpp/variant/variant.hpp>
 
-// Forward-declare flecs::world to avoid including the full <flecs.h> header.
-// This is sufficient for using pointers or references and improves compile times.
-namespace flecs
+#include <flecs.h>
+
+// Getters
+
+using FlecsSingletonGetter = std::function<godot::Variant(const flecs::world&)>;
+
+namespace
 {
-    class world;
+    inline std::unordered_map<std::string, FlecsSingletonGetter>& get_singleton_getters()
+    {
+        static std::unordered_map<std::string, FlecsSingletonGetter> getters;
+        return getters;
+    }
 }
+
+template <typename T>
+void register_singleton_getter(const char* name)
+{
+    get_singleton_getters()[name] = [](const flecs::world& world) -> godot::Variant
+    {
+        const T* data = world.try_get<T>();
+        if (data) {
+            return *data;
+        }
+        return godot::Variant();
+    };
+}
+
+// Setters
 
 using FlecsSingletonSetter = std::function<void(flecs::world&, const godot::Variant&)>;
 
