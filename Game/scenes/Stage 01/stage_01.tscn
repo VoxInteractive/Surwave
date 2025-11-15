@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=4 uid="uid://1f0s78v8ooax"]
+[gd_scene load_steps=32 format=4 uid="uid://1f0s78v8ooax"]
 
 [ext_resource type="Script" uid="uid://b0ekcl6i0i8y0" path="res://scenes/Stage 01/stage_01.gd" id="1_eml3u"]
 [ext_resource type="Texture2D" uid="uid://d6c6qr0di0ba" path="res://scenes/Stage 01/tiles_outdoors.png" id="1_oji7v"]
@@ -9,8 +9,13 @@
 [ext_resource type="Shader" uid="uid://c6w6e2p6d7103" path="res://shaders/flipbook_animation.gdshader" id="3_c1wav"]
 [ext_resource type="Texture2D" uid="uid://byjknt5h78oqt" path="res://scenes/Stage 01/foliage/grass2.png" id="3_u0n13"]
 [ext_resource type="Texture2D" uid="uid://pwpiyyc44edk" path="res://scenes/Stage 01/foliage/grass3.png" id="4_gms3k"]
-[ext_resource type="Texture2D" uid="uid://ceeegxfkp3rbo" path="res://resources/characters/enemies/Enemies.png" id="4_qgwcv"]
+[ext_resource type="Texture2D" uid="uid://bbpjjjtucvjlr" path="res://resources/characters/enemies/Bugs/Bugs.png" id="4_qgwcv"]
 [ext_resource type="Texture2D" uid="uid://4vkky8xmxasg" path="res://scenes/Stage 01/foliage/grass4.png" id="5_qgwcv"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_1m5sl"]
+shader = ExtResource("3_c1wav")
+shader_parameter/columns = 6
+shader_parameter/rows = 12
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_qgwcv"]
 shader = ExtResource("3_c1wav")
@@ -196,9 +201,10 @@ script = ExtResource("1_eml3u")
 script = ExtResource("2_u0n13")
 
 [node name="Enemies" type="MultiMeshInstance2D" parent="World"]
+material = SubResource("ShaderMaterial_1m5sl")
 multimesh = SubResource("MultiMesh_c1wav")
 texture = ExtResource("4_qgwcv")
-metadata/prefabs_rendered = ["Armadillo", "Bee", "Rabbit", "Wolf"]
+metadata/prefabs_rendered = ["BugSmall", "BugHumanoid", "BugLarge"]
 
 [node name="Terrain" type="MeshInstance2D" parent="."]
 z_index = -99
