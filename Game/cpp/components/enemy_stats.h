@@ -19,11 +19,16 @@ struct PlayerDetectionRadius {
     float value;
 };
 
+struct WanderMoveDuration {
+    float value;
+};
+
+struct WanderRestDuration {
+    float value;
+};
+
 
 inline FlecsRegistry register_enemy_stats_components([](flecs::world& world) {
-    world.component<PlayerDetectionRadius>()
-        .member<float>("value");
-
     world.component<HitPoints>()
         .member<float>("value");
 
@@ -31,5 +36,14 @@ inline FlecsRegistry register_enemy_stats_components([](flecs::world& world) {
         .member<float>("value");
 
     world.component<MeleeDamage>()
+        .member<float>("value");
+
+    world.component<PlayerDetectionRadius>()
+        .member<float>("value");
+
+    world.component<WanderMoveDuration>()
+        .member<float>("value");
+
+    world.component<WanderRestDuration>()
         .member<float>("value");
 });
