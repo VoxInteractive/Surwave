@@ -1,7 +1,0 @@
-prefab Armadillo : Enemy {
-	HitPoints: {value: 5}
-	MovementSpeed: {value: 1.5}
-	Damage: {value: 3}
-
-	RenderingCustomData: { r: 0, g: 3, b: 1.5, a: 0 }
-}
