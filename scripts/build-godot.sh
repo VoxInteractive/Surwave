@@ -1,4 +1,5 @@
 #!/usr/bin/bash
+set -ex
 
 BRANCH="4.5"
 WORKING_DIR="$HOME/src/godot"
@@ -63,7 +64,6 @@ COMMON_BUILD_ARGS+=("module_webxr_enabled=no")
 # module_text_server_adv_enabled=no
 # module_text_server_fb_enabled=yes
 
-set -ex
 
 cd "${WORKING_DIR}"
 git fetch origin ${BRANCH}

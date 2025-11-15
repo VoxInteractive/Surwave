@@ -68,8 +68,8 @@ FLECS_PRODUCTION_OPTS = [
 ]
 FLECS_OPTS = FLECS_DEVELOPMENT_OPTS if env["target"] == "template_debug" else FLECS_PRODUCTION_OPTS
 
-FLECS_WINDOWS_OPTS = [f"/D{o}" for o in (FLECS_OPTS + FLECS_COMMON_OPTS)]
-FLECS_UNIX_OPTS =    [f"-D{o}" for o in (FLECS_OPTS + FLECS_COMMON_OPTS)]
+FLECS_WINDOWS_OPTS = [f"/D{o}" for o in (FLECS_OPTS + FLECS_COMMON_OPTS)] + ["/TC", "/DWIN32_LEAN_AND_MEAN"]
+FLECS_UNIX_OPTS =    [f"-D{o}" for o in (FLECS_OPTS + FLECS_COMMON_OPTS)] + ["-std=gnu99"]
 
 # Ensure all translation units (C and C++) see the same Flecs defines (e.g. ecs_ftime_t=double)
 # Convert any "name=value" strings into (name, value) tuples so SCons emits the
@@ -95,14 +95,14 @@ if env["platform"] == "windows":
     flecs_c_obj = env.SharedObject(
         target="flecs_c_obj",
         source=[flecs_c_source],
-        CFLAGS=(["/TC", "/DWIN32_LEAN_AND_MEAN", "/O2", "/DFLECS_NDEBUG"] + FLECS_WINDOWS_OPTS) if env.get("is_msvc", False) else (["-std=gnu99", "-O2", "-DFLECS_NDEBUG"] + FLECS_UNIX_OPTS),
+        CFLAGS=FLECS_WINDOWS_OPTS if env.get("is_msvc", False) else FLECS_UNIX_OPTS,
     )
 else:
     env.Append(CXXFLAGS=["-std=c++17"])
     flecs_c_obj = env.SharedObject(
         target="flecs_c_obj",
         source=[flecs_c_source],
-        CFLAGS=["-std=gnu99", "-O2", "-DFLECS_NDEBUG"] + FLECS_UNIX_OPTS,
+        CFLAGS=FLECS_UNIX_OPTS,
     )
 
 

@@ -1,11 +1,8 @@
-#include <algorithm>
 #include <thread>
 
-#include "utilities.h"
+#include "platform.h"
 
-using namespace project;
-
-unsigned int Utilities::get_thread_count()
+unsigned int utilities::Platform::get_thread_count()
 {
     unsigned int num_hardware_threads = std::thread::hardware_concurrency();
     unsigned int num_threads = std::max(

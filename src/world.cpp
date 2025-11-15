@@ -10,7 +10,7 @@
 #include <godot_cpp/variant/utility_functions.hpp>
 
 #include "world.h"
-#include "utilities.h"
+#include "utilities/platform.h"
 #include "flecs_registry.h"
 #include "scripts_loader.h"
 
@@ -45,7 +45,7 @@ FlecsWorld::FlecsWorld()
 #endif
 
     // Set the number of threads Flecs should use based on CPU thread count
-    unsigned int num_threads = ::project::Utilities::get_thread_count();
+    unsigned int num_threads = ::utilities::Platform::get_thread_count();
     world.set_threads(static_cast<int>(num_threads));
 
     register_components_and_systems_with_world(world);
@@ -113,6 +113,21 @@ void FlecsWorld::setup_entity_renderers()
             continue;
         }
 
+        auto& renderer_map = renderers.renderers_by_type[RendererType::MultiMesh];
+        // Use godot::RID directly as the key. try_emplace will create a new renderer only if one for this RID doesn't exist.
+        auto [it, inserted] = renderer_map.try_emplace(multimesh_rid);
+        if (inserted) {
+            it->second.rid = multimesh_rid;
+            it->second.transform_format = multimesh->get_transform_format();
+            it->second.use_colors = multimesh->is_using_colors();
+            it->second.use_custom_data = multimesh->is_using_custom_data();
+            it->second.instance_count = multimesh->get_instance_count();
+            it->second.visible_instance_count = multimesh->get_visible_instance_count();
+            renderer_count++;
+        }
+        MultiMeshRenderer* mm_renderer = &it->second;
+
+        // For each prefab in this MultiMeshInstance, create a query and append it to this renderer's queries
         for (int j = 0; j < prefabs.size(); ++j)
         {
             godot::String prefab_name = prefabs[j];
@@ -145,17 +160,7 @@ void FlecsWorld::setup_entity_renderers()
             }
             qb.with(flecs::IsA, world.lookup(prefab_name_str.c_str()));
 
-            MultiMeshRenderer renderer_data;
-            renderer_data.rid = multimesh_rid;
-            renderer_data.transform_format = multimesh->get_transform_format();
-            renderer_data.use_colors = multimesh->is_using_colors();
-            renderer_data.use_custom_data = multimesh->is_using_custom_data();
-            renderer_data.instance_count = multimesh->get_instance_count();
-            renderer_data.visible_instance_count = multimesh->get_visible_instance_count();
-            renderer_data.query = qb.build();
-
-            renderers.renderers_by_type[RendererType::MultiMesh][prefab_name_str] = renderer_data;
-            renderer_count++;
+            mm_renderer->queries.push_back(qb.build());
         }
     }
 
