@@ -24,18 +24,18 @@ void vertex() {
     float column_count = max(float(columns), 1.0);
     float row_count = max(float(rows), 1.0);
 
-    vec4 local_anim_and_flip_data;
+    vec4 local_anim_and_flag_data;
 
     // If base_frame_and_transparency is negative, its fractional part determines transparency.
     float is_transparent = step(base_frame_and_transparency, -1e-5); // 1.0 if base_frame_and_transparency is negative, 0.0 otherwise
     float transparency = fract(abs(base_frame_and_transparency));
-    local_anim_and_flip_data.a = mix(1.0, 1.0 - transparency, is_transparent);
+    local_anim_and_flag_data.a = mix(1.0, 1.0 - transparency, is_transparent);
 
     float base_frame_index = floor(abs(base_frame_and_transparency));
     float flags_rounded = floor(flags + 0.5); // Robustly round to nearest integer
     // Branchless flip logic using step()
-    local_anim_and_flip_data.y = step(0.5, abs(mod(flags_rounded, 2.0))) * step(flags_rounded, -0.5); // .g (flip_horizontal)
-    local_anim_and_flip_data.z = step(1.5, abs(flags_rounded)) * step(flags_rounded, -0.5);             // .b (flip_vertical)
+    local_anim_and_flag_data.y = step(0.5, abs(mod(flags_rounded, 2.0))) * step(flags_rounded, -0.5); // .g (flip_horizontal)
+    local_anim_and_flag_data.z = step(1.5, abs(flags_rounded)) * step(flags_rounded, -0.5);             // .b (flip_vertical)
 
     // ─────────────────────────────────────────
     // 2. Animation timing and current frame
@@ -61,7 +61,7 @@ void vertex() {
 
     float total_frames_in_sheet = column_count * row_count;
     float animated_frame_index = mod(base_frame_index + anim_frame_offset, total_frames_in_sheet);
-    local_anim_and_flip_data.x = animated_frame_index;
+    local_anim_and_flag_data.x = animated_frame_index;
 
     // Calculate and store data for the fragment shader
     // UV size of a single grid cell (including padding and margin distribution)
@@ -75,7 +75,7 @@ void vertex() {
     vec2 frame_image_origin_uv = vec2(column_index, row_index) * actual_frame_size_uv;
 
     vertex_to_fragment_data = vec4(actual_frame_size_uv, frame_image_origin_uv);
-    anim_and_flip_data = local_anim_and_flip_data;
+    anim_and_flip_data = local_anim_and_flag_data;
 }
 
 void fragment() {
