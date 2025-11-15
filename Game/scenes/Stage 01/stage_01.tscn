@@ -24,7 +24,7 @@ shader_parameter/rows = 4
 
 [sub_resource type="QuadMesh" id="QuadMesh_sv3iu"]
 material = SubResource("ShaderMaterial_qgwcv")
-size = Vector2(24, -24)
+size = Vector2(48, -48)
 
 [sub_resource type="MultiMesh" id="MultiMesh_c1wav"]
 use_custom_data = true

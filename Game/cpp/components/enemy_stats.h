@@ -15,8 +15,15 @@ struct MeleeDamage {
     float value;
 };
 
+struct PlayerDetectionRadius {
+    float value;
+};
+
 
 inline FlecsRegistry register_enemy_stats_components([](flecs::world& world) {
+    world.component<PlayerDetectionRadius>()
+        .member<float>("value");
+
     world.component<HitPoints>()
         .member<float>("value");
 
