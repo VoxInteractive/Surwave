@@ -29,21 +29,21 @@ struct WanderRestDuration {
 
 
 inline FlecsRegistry register_enemy_stats_components([](flecs::world& world) {
-    world.component<HitPoints>()
+    world.component<HitPoints>("HitPoints")
         .member<float>("value");
 
-    world.component<MovementSpeed>()
+    world.component<MovementSpeed>("MovementSpeed")
         .member<float>("value");
 
-    world.component<MeleeDamage>()
+    world.component<MeleeDamage>("MeleeDamage")
         .member<float>("value");
 
-    world.component<PlayerDetectionRadius>()
+    world.component<PlayerDetectionRadius>("PlayerDetectionRadius")
         .member<float>("value");
 
-    world.component<WanderMoveDuration>()
+    world.component<WanderMoveDuration>("WanderMoveDuration")
         .member<float>("value");
 
-    world.component<WanderRestDuration>()
+    world.component<WanderRestDuration>("WanderRestDuration")
         .member<float>("value");
 });

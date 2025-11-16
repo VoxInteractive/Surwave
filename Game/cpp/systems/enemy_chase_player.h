@@ -6,13 +6,14 @@
 #include "src/components/player.h"
 #include "src/components/transform.h"
 
+#include "components/enemy_state.h"
 #include "components/enemy_stats.h"
-#include "components/state.h"
 
 
 inline FlecsRegistry register_enemy_chase_player_system([](flecs::world& world) {
 	world.system<Position2D, const MovementSpeed, const PlayerPosition>("Enemy Chase Player")
-		.with(flecs::IsA, world.lookup("Enemy"))
+		.with(flecs::IsA, world.lookup("Enemy")) // Optional, but good for clarity
+		.with<EnemyState, EnemyState::Chasing>()
 		.each([](flecs::iter& it, size_t i, Position2D& position, const MovementSpeed& movement_speed, const PlayerPosition& player_position) {
 
 		godot::Vector2 direction = player_position.value - godot::Vector2(position.x, position.y);
