@@ -19,6 +19,7 @@
 #include "src/components/entity_rendering.h"
 #include "src/components/transform.h"
 #include "src/components/player.h"
+#include "src/components/states.h"
 
 #include "src/systems/prefab_instantiation.h"
 #include "src/systems/transform_update.h"
