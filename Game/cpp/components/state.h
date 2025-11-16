@@ -1,8 +1,6 @@
 #pragma once
 
 #include <flecs.h>
-#include <godot_cpp/variant/vector2.hpp>
-#include <godot_cpp/variant/vector3.hpp>
 #include "src/flecs_registry.h"
 
 struct State {
@@ -19,7 +17,7 @@ void set_state(const flecs::entity& entity) {
     entity.add<State, T>();
 }
 
-// Overloaded helper for state transitions that require a target.
+// Overloaded helper for state transitions that require an entity target
 template<typename T>
 void set_state(const flecs::entity& entity, flecs::entity target) {
     entity.set<State, T>({ target });
