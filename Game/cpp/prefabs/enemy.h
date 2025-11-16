@@ -2,8 +2,8 @@
 
 #include "src/flecs_registry.h"
 
+#include "components/enemy_attributes.h"
 #include "components/enemy_state.h"
-#include "components/enemy_stats.h"
 
 
 inline FlecsRegistry register_enemy_prefab([](flecs::world& world) {

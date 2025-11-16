@@ -6,8 +6,8 @@
 #include "src/components/player.h"
 #include "src/components/transform.h"
 
+#include "components/enemy_attributes.h"
 #include "components/enemy_state.h"
-#include "components/enemy_stats.h"
 
 
 inline FlecsRegistry register_enemy_chase_player_system([](flecs::world& world) {
