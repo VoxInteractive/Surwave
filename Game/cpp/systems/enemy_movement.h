@@ -37,22 +37,23 @@ inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
 			const WanderRestDuration& rest_duration
 			) {
 		flecs::entity e = it.entity(i);
+
+		e.set<TimeInState>({ time_in_state.value + it.delta_time() });
+
 		godot::Vector2 current_position(position.x, position.y);
 		float distance_to_player = player_position.value.distance_to(current_position);
 
 		if (distance_to_player <= detection_radius.value)
 		{
-			current_state = EnemyState::CHASING;
+			e.set<EnemyState>({ EnemyState::CHASING }).set<TimeInState>({ 0.0f });
 		}
 
-		time_in_state.value += it.delta_time();
 
 		if (current_state == EnemyState::CHASING)
 		{
 			if (distance_to_player > detection_radius.value)
 			{
-				e.set<EnemyState>(EnemyState::WANDERING_RESTING);
-				time_in_state.value = 0.0f;
+				e.set<EnemyState>({ EnemyState::WANDERING_RESTING }).set<TimeInState>({ 0.0f });
 			}
 			else
 			{
@@ -70,8 +71,7 @@ inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
 		{
 			if (time_in_state.value >= rest_duration.value)
 			{
-				current_state = EnemyState::WANDERING_MOVING;
-				time_in_state.value = 0.0f;
+				e.set<EnemyState>({ EnemyState::WANDERING_MOVING }).set<TimeInState>({ 0.0f });
 				wander_direction.value = godot::Vector2(
 					(float)rand() / RAND_MAX * 2.0f - 1.0f,
 					(float)rand() / RAND_MAX * 2.0f - 1.0f
@@ -82,8 +82,7 @@ inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
 		{
 			if (time_in_state.value >= move_duration.value)
 			{
-				current_state = EnemyState::WANDERING_RESTING;
-				time_in_state.value = 0.0f;
+				e.set<EnemyState>({ EnemyState::WANDERING_RESTING }).set<TimeInState>({ 0.0f });
 			}
 			else
 			{
