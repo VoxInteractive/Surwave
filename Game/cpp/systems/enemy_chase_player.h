@@ -12,7 +12,7 @@
 
 inline FlecsRegistry register_enemy_chase_player_system([](flecs::world& world) {
 	world.system<Position2D, const MovementSpeed, const PlayerPosition>("Enemy Chase Player")
-		.with(flecs::IsA, world.lookup("Enemy")) // Optional, but good for clarity
+		.with(flecs::IsA, world.lookup("Enemy"))
 		.with<EnemyState, EnemyState::Chasing>()
 		.each([](flecs::iter& it, size_t i, Position2D& position, const MovementSpeed& movement_speed, const PlayerPosition& player_position) {
 

@@ -15,7 +15,7 @@ struct MeleeDamage {
     float value;
 };
 
-struct PlayerDetectionRadius {
+struct PlayerDetectionRadiusSquared {
     float value;
 };
 
@@ -38,7 +38,7 @@ inline FlecsRegistry register_enemy_stats_components([](flecs::world& world) {
     world.component<MeleeDamage>("MeleeDamage")
         .member<float>("value");
 
-    world.component<PlayerDetectionRadius>("PlayerDetectionRadius")
+    world.component<PlayerDetectionRadiusSquared>("PlayerDetectionRadiusSquared")
         .member<float>("value");
 
     world.component<WanderMoveDuration>("WanderMoveDuration")

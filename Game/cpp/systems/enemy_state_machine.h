@@ -4,26 +4,26 @@
 #include "src/components/player.h"
 #include "src/components/transform.h"
 
+#include "components/enemy_attributes.h"
 #include "components/enemy_state.h"
 
 
 inline FlecsRegistry register_enemy_state_machine_system([](flecs::world& world) {
-	world.system<const Position2D, const PlayerDetectionRadius>("Enemy State Machine")
+	world.system<const Position2D, const PlayerDetectionRadiusSquared, const PlayerPosition&>("Enemy State Machine")
 		.with(flecs::IsA, world.lookup("Enemy"))
-		.each([](flecs::iter& it, size_t i, const Position2D& position, const PlayerDetectionRadius& detection_radius) {
-		const auto* player_position = it.world().try_get<PlayerPosition>();
-		if (!player_position) {
-			return; // PlayerPosition singleton not found.
-		}
+		.each([](flecs::iter& it, size_t i, const Position2D& position, const PlayerDetectionRadiusSquared& detection_radius_sq, const PlayerPosition& player_position) {
+		flecs::entity entity = it.entity(i);
+		// entity.set<TimeInState>({ entity.get<TimeInState>().value + it.delta_time() });
 
-		godot::Vector2 position_vector{ position.x, position.y };
-		const float distance_sq = position_vector.distance_squared_to(player_position->value);
+		const float distance_to_player_sq = godot::Vector2(position.x, position.y).distance_squared_to(player_position.value);
+		// Hysteresis: Use a larger radius to lose the target than to acquire it.
+		const float lose_target_radius = detection_radius_sq.value * 1.2f;
 
-		if (distance_sq <= (detection_radius.value * detection_radius.value)) {
-			set_state<EnemyState::Chasing>(it.entity(i));
+		if (entity.has<EnemyState::Chasing>() && distance_to_player_sq > lose_target_radius) {
+			set_state<EnemyState::Wandering>(entity);
 		}
-		else {
-			set_state<EnemyState::Wandering>(it.entity(i));
+		else if (distance_to_player_sq <= detection_radius_sq.value) {
+			set_state<EnemyState::Chasing>(entity);
 		}
 	});
 });

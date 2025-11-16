@@ -2,8 +2,10 @@
 
 #include "src/flecs_registry.h"
 
+#include <godot_cpp/variant/vector2.hpp>
+
 struct Target {
-    flecs::entity entity;
+    godot::Vector2 position;
 };
 
 struct EnemyState {
@@ -22,14 +24,10 @@ struct TimeInState {
 // Helper function for tag-like state transitions.
 template<typename T>
 void set_state(const flecs::entity& entity) {
-    entity.add<EnemyState, T>();
-}
-
-// Overloaded helper for state transitions that require an entity target
-template<typename T>
-void set_state(const flecs::entity& entity, flecs::entity target) {
-    entity.add<EnemyState, T>()
-        .set<Target, EnemyState>({ target });
+    if (!entity.has<EnemyState, T>()) {
+        entity.add<EnemyState, T>();
+        entity.set<TimeInState>({ 0.0f });
+    }
 }
 
 inline FlecsRegistry register_enemy_state_components([](flecs::world& world) {
