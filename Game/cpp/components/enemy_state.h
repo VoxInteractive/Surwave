@@ -1,5 +1,7 @@
 #pragma once
 
+#include <godot_cpp/variant/vector2.hpp>
+
 #include "src/flecs_registry.h"
 
 
@@ -23,6 +25,10 @@ struct TimeInState {
     float value;
 };
 
+struct WanderDirection {
+    godot::Vector2 value;
+};
+
 inline FlecsRegistry register_enemy_state_components([](flecs::world& world) {
     world.component<EnemyState>()
         .constant("IDLE", EnemyState::IDLE)
@@ -40,4 +46,7 @@ inline FlecsRegistry register_enemy_state_components([](flecs::world& world) {
 
     world.component<TimeInState>()
         .member<float>("value");
+
+    world.component<WanderDirection>()
+        .member<godot::Vector2>("value");
 });
