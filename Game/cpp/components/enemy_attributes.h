@@ -19,6 +19,10 @@ struct PlayerDetectionRadiusSquared {
     float value;
 };
 
+struct LoseTargetRadiusSquared {
+    float value;
+};
+
 struct WanderMoveDuration {
     float value;
 };
@@ -39,6 +43,9 @@ inline FlecsRegistry register_enemy_stats_components([](flecs::world& world) {
         .member<float>("value");
 
     world.component<PlayerDetectionRadiusSquared>("PlayerDetectionRadiusSquared")
+        .member<float>("value");
+
+    world.component<LoseTargetRadiusSquared>("LoseTargetRadiusSquared")
         .member<float>("value");
 
     world.component<WanderMoveDuration>("WanderMoveDuration")
