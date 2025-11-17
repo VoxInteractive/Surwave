@@ -1,56 +1,58 @@
 #pragma once
 
+#include <godot_cpp/core/math_defs.hpp>
+
 #include "src/flecs_registry.h"
 
 
 struct HitPoints {
-    float value;
+    godot::real_t value;
 };
 
 struct MovementSpeed {
-    float value;
+    godot::real_t value;
 };
 
 struct MeleeDamage {
-    float value;
+    godot::real_t value;
 };
 
 struct PlayerDetectionRadiusSquared {
-    float value;
+    godot::real_t value;
 };
 
 struct LoseTargetRadiusSquared {
-    float value;
+    godot::real_t value;
 };
 
 struct WanderMoveDuration {
-    float value;
+    godot::real_t value;
 };
 
 struct WanderRestDuration {
-    float value;
+    godot::real_t value;
 };
 
 
 inline FlecsRegistry register_enemy_stats_components([](flecs::world& world) {
     world.component<HitPoints>("HitPoints")
-        .member<float>("value");
+        .member<godot::real_t>("value");
 
     world.component<MovementSpeed>("MovementSpeed")
-        .member<float>("value");
+        .member<godot::real_t>("value");
 
     world.component<MeleeDamage>("MeleeDamage")
-        .member<float>("value");
+        .member<godot::real_t>("value");
 
     world.component<PlayerDetectionRadiusSquared>("PlayerDetectionRadiusSquared")
-        .member<float>("value");
+        .member<godot::real_t>("value");
 
     world.component<LoseTargetRadiusSquared>("LoseTargetRadiusSquared")
-        .member<float>("value");
+        .member<godot::real_t>("value");
 
     world.component<WanderMoveDuration>("WanderMoveDuration")
-        .member<float>("value");
+        .member<godot::real_t>("value");
 
     world.component<WanderRestDuration>("WanderRestDuration")
-        .member<float>("value");
+        .member<godot::real_t>("value");
 });

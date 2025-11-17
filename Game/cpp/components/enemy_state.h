@@ -1,5 +1,6 @@
 #pragma once
 
+#include <godot_cpp/core/math_defs.hpp>
 #include <godot_cpp/variant/vector2.hpp>
 
 #include "src/flecs_registry.h"
@@ -21,7 +22,7 @@ struct EnemyState {
 };
 
 struct TimeInState {
-    float value;
+    godot::real_t value;
 };
 
 // Helper function for state transitions.
@@ -57,5 +58,5 @@ inline FlecsRegistry register_enemy_state_components([](flecs::world& world) {
     });
 
     world.component<TimeInState>("TimeInState")
-        .member<float>("value");
+        .member<godot::real_t>("value");
 });

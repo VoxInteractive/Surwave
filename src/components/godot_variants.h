@@ -1,5 +1,6 @@
 #pragma once
 
+#include <godot_cpp/core/math_defs.hpp>
 #include <godot_cpp/variant/aabb.hpp>
 #include <godot_cpp/variant/basis.hpp>
 #include <godot_cpp/variant/color.hpp>
@@ -23,23 +24,23 @@
 inline FlecsRegistry register_godot_variant_components([](flecs::world& world)
 {
     world.component<godot::Color>("Color") // 16 bytes
-        .member<float>("r")
-        .member<float>("g")
-        .member<float>("b")
-        .member<float>("a");
+        .member<godot::real_t>("r")
+        .member<godot::real_t>("g")
+        .member<godot::real_t>("b")
+        .member<godot::real_t>("a");
 
     world.component<godot::Vector2>("Vector2") // 8 bytes
-        .member<float>("x")
-        .member<float>("y");
+        .member<godot::real_t>("x")
+        .member<godot::real_t>("y");
 
     world.component<godot::Vector2i>("Vector2i") // 8 bytes
         .member<int32_t>("x")
         .member<int32_t>("y");
 
     world.component<godot::Vector3>("Vector3") // 12 bytes
-        .member<float>("x")
-        .member<float>("y")
-        .member<float>("z");
+        .member<godot::real_t>("x")
+        .member<godot::real_t>("y")
+        .member<godot::real_t>("z");
 
     world.component<godot::Vector3i>("Vector3i") // 12 bytes
         .member<int32_t>("x")
@@ -47,10 +48,10 @@ inline FlecsRegistry register_godot_variant_components([](flecs::world& world)
         .member<int32_t>("z");
 
     world.component<godot::Vector4>("Vector4") // 16 bytes
-        .member<float>("x")
-        .member<float>("y")
-        .member<float>("z")
-        .member<float>("w");
+        .member<godot::real_t>("x")
+        .member<godot::real_t>("y")
+        .member<godot::real_t>("z")
+        .member<godot::real_t>("w");
 
     world.component<godot::Vector4i>("Vector4i") // 16 bytes
         .member<int32_t>("x")
@@ -68,13 +69,13 @@ inline FlecsRegistry register_godot_variant_components([](flecs::world& world)
 
     world.component<godot::Plane>("Plane") // 16 bytes
         .member<godot::Vector3>("normal")
-        .member<float>("d");
+        .member<godot::real_t>("d");
 
     world.component<godot::Quaternion>("Quaternion") // 16 bytes
-        .member<float>("x")
-        .member<float>("y")
-        .member<float>("z")
-        .member<float>("w");
+        .member<godot::real_t>("x")
+        .member<godot::real_t>("y")
+        .member<godot::real_t>("z")
+        .member<godot::real_t>("w");
 
     world.component<godot::Basis>("Basis") // 36 bytes - acceptable
         .member<godot::Vector3>("rows", 3);
