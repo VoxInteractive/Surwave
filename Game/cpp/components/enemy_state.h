@@ -34,12 +34,12 @@ inline FlecsRegistry register_enemy_state_components([](flecs::world& world) {
         .add(flecs::OneOf)
         .scope([&] {
         // Register all states as children of the State relationship
-        world.component<EnemyState::Attacking>();
-        world.component<EnemyState::Chasing>();
-        world.component<EnemyState::Dead>();
-        world.component<EnemyState::Dying>();
-        world.component<EnemyState::Idle>();
-        world.component<EnemyState::Wandering>();
+        world.component<EnemyState::Attacking>().add(flecs::Target);
+        world.component<EnemyState::Chasing>().add(flecs::Target);
+        world.component<EnemyState::Dead>().add(flecs::Target);
+        world.component<EnemyState::Dying>().add(flecs::Target);
+        world.component<EnemyState::Idle>().add(flecs::Target);
+        world.component<EnemyState::Wandering>().add(flecs::Target);
     });
 
     world.component<TimeInState>("TimeInState")
