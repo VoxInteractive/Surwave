@@ -20,6 +20,8 @@ from SCons.Script import Glob
 from SCons.Script import ARGUMENTS
 if "debug_symbols" not in ARGUMENTS:
     ARGUMENTS["debug_symbols"] = "yes"
+if "dev_build" not in ARGUMENTS:
+    ARGUMENTS["dev_build"] = "yes"
 if "optimize" not in ARGUMENTS:
     ARGUMENTS["optimize"] = "debug"
 env = SConscript("godot-cpp/SConstruct")
@@ -50,18 +52,18 @@ flecs_c_source = "flecs/distr/flecs.c"
 
 # Flecs
 FLECS_COMMON_OPTS = [
-    "FLECS_NDEBUG",
     "FLECS_CPP_NO_AUTO_REGISTRATION",
     # "ecs_ftime_t=double",
 ]
 
-FLECS_DEVELOPMENT_OPTS = []
+FLECS_DEVELOPMENT_OPTS = ["FLECS_DEBUG"]
 FLECS_PRODUCTION_OPTS = [
     "FLECS_CUSTOM_BUILD",
     "FLECS_CPP",
     "FLECS_DISABLE_COUNTERS",
     "FLECS_LOG",
     "FLECS_META",
+    "FLECS_NDEBUG",
     "FLECS_PIPELINE",
     "FLECS_SCRIPT",
     "FLECS_SYSTEM",
