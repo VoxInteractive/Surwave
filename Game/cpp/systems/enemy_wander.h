@@ -12,14 +12,13 @@
 
 
 inline FlecsRegistry register_enemy_wander_system([](flecs::world& world) {
-	world.system<Position2D, const MovementSpeed>("Enemy Wander")
+	world.system<Position2D, const MovementSpeed, const EnemyState::Wandering>("Enemy Wander")
 		.with(flecs::IsA, world.lookup("Enemy"))
-		.with<EnemyState, EnemyState::Wandering>()
-		.each([](flecs::iter& it, size_t i, Position2D& position, const MovementSpeed& movement_speed) {
+		.each([](flecs::iter& it, size_t i, Position2D& position, const MovementSpeed& movement_speed, const EnemyState::Wandering& wandering) {
 
-		float random_angle = godot::UtilityFunctions::randf_range(0.0f, Math_TAU);
-		godot::Vector2 random_direction = godot::Vector2(cos(random_angle), sin(random_angle));
+		const godot::Vector2& random_direction = wandering.value;
 		godot::Vector2 velocity = random_direction * movement_speed.value;
+
 		position.x += velocity.x * it.delta_time();
 		position.y += velocity.y * it.delta_time();
 	});

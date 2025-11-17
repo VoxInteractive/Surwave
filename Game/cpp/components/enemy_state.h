@@ -11,7 +11,7 @@ struct EnemyState {
         flecs::entity value; // target
     };
     struct Chasing {
-        godot::Vector2 value; // subject
+        godot::Vector2 value; // target
     };
     struct Dead {};
     struct Dying {};
@@ -49,12 +49,25 @@ inline FlecsRegistry register_enemy_state_components([](flecs::world& world) {
         .add(flecs::OneOf)
         .scope([&] {
         // Register all states as children of the State relationship
-        world.component<EnemyState::Attacking>().add(flecs::Target);
-        world.component<EnemyState::Chasing>().add(flecs::Target);
-        world.component<EnemyState::Dead>().add(flecs::Target);
-        world.component<EnemyState::Dying>().add(flecs::Target);
-        world.component<EnemyState::Idle>().add(flecs::Target);
-        world.component<EnemyState::Wandering>().add(flecs::Target);
+        world.component<EnemyState::Attacking>()
+            .member<flecs::entity>("target")
+            .add(flecs::Target);
+        world.component<EnemyState::Chasing>()
+            .member<godot::Vector2>("target")
+            .add(flecs::Target);
+
+        world.component<EnemyState::Dead>()
+            .add(flecs::Target);
+
+        world.component<EnemyState::Dying>()
+            .add(flecs::Target);
+
+        world.component<EnemyState::Idle>()
+            .add(flecs::Target);
+
+        world.component<EnemyState::Wandering>()
+            .member<godot::Vector2>("destination")
+            .add(flecs::Target);
     });
 
     world.component<TimeInState>("TimeInState")
