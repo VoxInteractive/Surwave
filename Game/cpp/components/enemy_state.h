@@ -4,9 +4,6 @@
 
 #include <godot_cpp/variant/vector2.hpp>
 
-struct Target {
-    godot::Vector2 position;
-};
 
 struct EnemyState {
     struct Attacking {};
@@ -32,15 +29,18 @@ void set_state(const flecs::entity& entity) {
 
 inline FlecsRegistry register_enemy_state_components([](flecs::world& world) {
     // State is an exclusive relationship. The target must be one of its children.
-    world.component<EnemyState>().add(flecs::Exclusive).add(flecs::OneOf);
-
-    // Register all states as children of the State relationship
-    world.component<EnemyState::Attacking>().child_of<EnemyState>();
-    world.component<EnemyState::Chasing>().child_of<EnemyState>();
-    world.component<EnemyState::Dead>().child_of<EnemyState>();
-    world.component<EnemyState::Dying>().child_of<EnemyState>();
-    world.component<EnemyState::Idle>().child_of<EnemyState>();
-    world.component<EnemyState::Wandering>().child_of<EnemyState>();
+    world.component<EnemyState>()
+        .add(flecs::Exclusive)
+        .add(flecs::OneOf)
+        .scope([&] {
+        // Register all states as children of the State relationship
+        world.component<EnemyState::Attacking>();
+        world.component<EnemyState::Chasing>();
+        world.component<EnemyState::Dead>();
+        world.component<EnemyState::Dying>();
+        world.component<EnemyState::Idle>();
+        world.component<EnemyState::Wandering>();
+    });
 
     world.component<TimeInState>("TimeInState")
         .member<float>("value");
