@@ -9,6 +9,7 @@
 - Use single-line blocks when the total line length is less than 120.
 - Add code comments only when the code is not self-explanatory.
 - Don't write defensive code (checks etc.) unless really necessary.
+- If you don't know or aren't sure of something, say so.
 
 # Validation
 - After you make modifications, run the build via `scons` to verify that the project compiles successfully.
