@@ -159,14 +159,14 @@ func _initialise_portals() -> void:
 
 
 func _instantiate_player() -> void:
-	var player_scene: PackedScene = preload("res://scenes/Player/Player.tscn")
+	var player_scene: PackedScene = preload("res://scenes/Player/player.tscn")
 	var player_instance: Node2D = player_scene.instantiate() as Node2D
 	add_child(player_instance)
 	player_instance.position = Vector2(0, 0)
 
 
 func _instantiate_camera() -> void:
-	var camera_scene: PackedScene = preload("res://scenes/Camera/Camera.tscn")
+	var camera_scene: PackedScene = preload("res://scenes/Camera/camera.tscn")
 	var camera_instance: Camera2D = camera_scene.instantiate() as Camera2D
 	add_child(camera_instance)
 	camera_instance.position = Vector2(0, 0)
