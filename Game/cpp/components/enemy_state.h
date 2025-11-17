@@ -1,30 +1,44 @@
 #pragma once
 
-#include "src/flecs_registry.h"
-
 #include <godot_cpp/variant/vector2.hpp>
+
+#include "src/flecs_registry.h"
 
 
 struct EnemyState {
-    struct Attacking {};
-    struct Chasing {};
+    struct Attacking {
+        flecs::entity value; // target
+    };
+    struct Chasing {
+        godot::Vector2 value; // subject
+    };
     struct Dead {};
     struct Dying {};
     struct Idle {};
-    struct Wandering {};
+    struct Wandering {
+        godot::Vector2 value; // destination
+    };
 };
 
 struct TimeInState {
     float value;
 };
 
-// Helper function for tag-like state transitions.
-template<typename T>
-void set_state(const flecs::entity& entity) {
-    if (!entity.has<EnemyState, T>()) {
-        entity.add<EnemyState, T>();
-        entity.set<TimeInState>({ 0.0f });
+// Helper function for state transitions.
+template<typename T, typename... Args>
+void set_state(const flecs::entity& entity, Args&&... args) {
+    if (entity.has<EnemyState, T>()) {
+        return; // Already in the requested state
     }
+
+    if constexpr (sizeof...(args) > 0) { // Check if any arguments (e.g. a StateSubject) were provided
+        entity.set<EnemyState, T>({ std::forward<Args>(args)... }); // Set the state component with the given data. This is how a state like Wandering can have its target position updated
+    }
+    else {
+        entity.add<EnemyState, T>(); // If not, fall back to entity.add<EnemyState, T>(), which is the correct way to add a tag-like state that has no data (like Idle)
+    }
+
+    entity.set<TimeInState>({ 0.0f });
 }
 
 inline FlecsRegistry register_enemy_state_components([](flecs::world& world) {
