@@ -7,12 +7,8 @@
 
 
 struct EnemyState {
-    struct Attacking {
-        flecs::entity value; // target
-    };
-    struct Chasing {
-        godot::Vector2 value; // target
-    };
+    struct AttackingThePlayer {};
+    struct ChasingThePlayer {};
     struct Dead {};
     struct Dying {};
     struct Idle {};
@@ -49,10 +45,11 @@ inline FlecsRegistry register_enemy_state_components([](flecs::world& world) {
         .add(flecs::OneOf)
         .scope([&] {
         // Register all states as children of the State relationship
-        world.component<EnemyState::Attacking>()
+        world.component<EnemyState::AttackingThePlayer>()
             .member<flecs::entity>("target")
             .add(flecs::Target);
-        world.component<EnemyState::Chasing>()
+
+        world.component<EnemyState::ChasingThePlayer>()
             .member<godot::Vector2>("target")
             .add(flecs::Target);
 

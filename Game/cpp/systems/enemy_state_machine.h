@@ -33,7 +33,7 @@ inline FlecsRegistry register_enemy_state_machine_system([](flecs::world& world)
 		const float distance_to_player_sq = godot::Vector2(position.x, position.y).distance_squared_to(player_position.value);
 
 		if (distance_to_player_sq <= player_detection_radius_sq.value) {
-			set_state<EnemyState::Chasing>(entity);
+			set_state<EnemyState::ChasingThePlayer>(entity);
 		}
 		else if (distance_to_player_sq >= lose_target_radius_sq.value) {
 			float random_angle = godot::UtilityFunctions::randf_range(0.0f, Math_TAU);
