@@ -10,7 +10,7 @@
 - Add code comments only when the code is not self-explanatory.
 - Don't write defensive code (checks etc.) unless really necessary.
 - If you don't know or aren't sure of something, say so.
+- Don't make any git commits
 
 # Validation
 - After you make modifications, run the build via `scons` to verify that the project compiles successfully.
-- Don't make any git commits

@@ -13,7 +13,7 @@ inline FlecsRegistry register_enemy_idle_system([](flecs::world& world) {
     world.system<
         const Position2D,
         const PlayerDetectionRadiusSquared,
-        const WanderRestDuration,
+        const RestDuration,
         const TimeInState,
         const PlayerPosition&>("Enemy Idle")
         .with<EnemyState, EnemyState::Idle>()
@@ -21,7 +21,7 @@ inline FlecsRegistry register_enemy_idle_system([](flecs::world& world) {
             flecs::entity entity,
             const Position2D& pos,
             const PlayerDetectionRadiusSquared& player_detection_radius_sq,
-            const WanderRestDuration& rest_duration,
+            const RestDuration& rest_duration,
             const TimeInState& time,
             const PlayerPosition& player_position) {
 

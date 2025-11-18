@@ -29,7 +29,7 @@ struct WanderMoveDuration {
     godot::real_t value;
 };
 
-struct WanderRestDuration {
+struct RestDuration {
     godot::real_t value;
 };
 
@@ -53,6 +53,6 @@ inline FlecsRegistry register_enemy_stats_components([](flecs::world& world) {
     world.component<WanderMoveDuration>("WanderMoveDuration")
         .member<godot::real_t>("value");
 
-    world.component<WanderRestDuration>("WanderRestDuration")
+    world.component<RestDuration>("RestDuration")
         .member<godot::real_t>("value");
 });

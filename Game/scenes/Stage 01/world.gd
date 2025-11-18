@@ -15,16 +15,16 @@ func _process(delta: float) -> void:
 				"prefab": prefab,
 				"count": 10,
 				"transforms": [
-					Transform2D(0, Vector2(randf_range(-100, 100), randf_range(-100, 100))),
-					Transform2D(0, Vector2(randf_range(-100, 100), randf_range(-100, 100))),
-					Transform2D(0, Vector2(randf_range(-100, 100), randf_range(-100, 100))),
-					Transform2D(0, Vector2(randf_range(-100, 100), randf_range(-100, 100))),
-					Transform2D(0, Vector2(randf_range(-100, 100), randf_range(-100, 100))),
-					Transform2D(0, Vector2(randf_range(-100, 100), randf_range(-100, 100))),
-					Transform2D(0, Vector2(randf_range(-100, 100), randf_range(-100, 100))),
-					Transform2D(0, Vector2(randf_range(-100, 100), randf_range(-100, 100))),
-					Transform2D(0, Vector2(randf_range(-100, 100), randf_range(-100, 100))),
-					Transform2D(0, Vector2(randf_range(-100, 100), randf_range(-100, 100))),
+					Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
+					Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
+					Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
+					Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
+					Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
+					Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
+					Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
+					Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
+					Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
+					Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
 				]
 			})
 		
