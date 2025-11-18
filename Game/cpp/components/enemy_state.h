@@ -13,7 +13,7 @@ struct EnemyState {
     struct Dying {};
     struct Idle {};
     struct Wandering {
-        godot::Vector2 value; // destination
+        godot::Vector2 destination;
     };
 };
 
