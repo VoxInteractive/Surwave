@@ -16,8 +16,7 @@ inline FlecsRegistry register_enemy_chase_player_system([](flecs::world& world) 
 		const MovementSpeed,
 		const LoseTargetRadiusSquared,
 		const PlayerPosition&>("Enemy Chase Player")
-		.with(world.id<EnemyState>(),
-			world.id<EnemyState::ChasingThePlayer>())
+		.with<EnemyState, EnemyState::ChasingThePlayer>()
 		.each([](
 			flecs::iter& it,
 			size_t i,
