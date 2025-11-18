@@ -13,20 +13,36 @@
 
 
 inline FlecsRegistry register_enemy_wander_system([](flecs::world& world) {
-	world.system<Position2D, const MovementSpeed, const PlayerDetectionRadiusSquared, const WanderMoveDuration, const TimeInState, const PlayerPosition&, const EnemyState::Wandering>("Enemy Wander")
-		.each([](flecs::iter& it, size_t i, Position2D& position, const MovementSpeed& movement_speed, const PlayerDetectionRadiusSquared& detect_sq, const WanderMoveDuration& move_dur, const TimeInState& time, const PlayerPosition& player_pos, const EnemyState::Wandering& wandering) {
+	world.system <
+		Position2D,
+		const MovementSpeed,
+		const PlayerDetectionRadiusSquared,
+		const WanderMoveDuration,
+		const TimeInState,
+		const PlayerPosition&,
+		const EnemyState::Wandering>("Enemy Wander")
+		.each([](
+			flecs::iter& it,
+			size_t i,
+			Position2D& position,
+			const MovementSpeed& movement_speed,
+			const PlayerDetectionRadiusSquared& player_detection_radius_sq,
+			const WanderMoveDuration& move_duration,
+			const TimeInState& time,
+			const PlayerPosition& player_position,
+			const EnemyState::Wandering& wandering) {
 
 		flecs::entity entity = it.entity(i);
 
 		// Condition to transition to Chasing
-		const float distance_to_player_sq = position.value.distance_squared_to(player_pos.value);
-		if (distance_to_player_sq <= detect_sq.value) {
+		const float distance_to_player_sq = position.value.distance_squared_to(player_position.value);
+		if (distance_to_player_sq <= player_detection_radius_sq.value) {
 			set_state<EnemyState::ChasingThePlayer>(entity);
 			return;
 		}
 
 		// Condition to transition to Idle
-		if (time.value > move_dur.value) {
+		if (time.value > move_duration.value) {
 			set_state<EnemyState::Idle>(entity);
 			return;
 		}
