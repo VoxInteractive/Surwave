@@ -1,15 +1,17 @@
 #pragma once
 
 #include <godot_cpp/core/math_defs.hpp>
+#include <godot_cpp/variant/vector2.hpp>
+#include <godot_cpp/variant/vector3.hpp>
 
 #include "src/flecs_registry.h"
 
 struct Position2D {
-    godot::real_t x, y;
+    godot::Vector2 value;
 };
 
 struct Position3D {
-    godot::real_t x, y, z;
+    godot::Vector3 value;
 };
 
 
@@ -18,47 +20,39 @@ struct Rotation2D {
 };
 
 struct Rotation3D {
-    godot::real_t x, y, z; // Euler
+    godot::Vector3 value; // Euler
 };
 
 
 struct Scale2D {
-    godot::real_t x, y;
+    godot::Vector2 value;
 };
 
 struct Scale3D {
-    godot::real_t x, y, z;
+    godot::Vector3 value;
 };
 
 
 inline FlecsRegistry register_transform_components([](flecs::world& world) {
 
     world.component<Position2D>("Position2D")
-        .member<godot::real_t>("x")
-        .member<godot::real_t>("y");
+        .member<godot::Vector2>("value");
 
     world.component<Position3D>("Position3D")
-        .member<godot::real_t>("x")
-        .member<godot::real_t>("y")
-        .member<godot::real_t>("z");
+        .member<godot::Vector3>("value");
 
 
     world.component<Rotation2D>("Rotation2D")
         .member<godot::real_t>("value");
 
     world.component<Rotation3D>("Rotation3D")
-        .member<godot::real_t>("x")
-        .member<godot::real_t>("y")
-        .member<godot::real_t>("z");
+        .member<godot::Vector3>("value");
 
 
     world.component<Scale2D>("Scale2D")
-        .member<godot::real_t>("x")
-        .member<godot::real_t>("y");
+        .member<godot::Vector2>("value");
 
     world.component<Scale3D>("Scale3D")
-        .member<godot::real_t>("x")
-        .member<godot::real_t>("y")
-        .member<godot::real_t>("z");
+        .member<godot::Vector3>("value");
 
 });

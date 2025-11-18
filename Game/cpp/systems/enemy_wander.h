@@ -19,7 +19,6 @@ inline FlecsRegistry register_enemy_wander_system([](flecs::world& world) {
 		const godot::Vector2& random_direction = wandering.value;
 		godot::Vector2 velocity = random_direction * movement_speed.value;
 
-		position.x += velocity.x * it.delta_time();
-		position.y += velocity.y * it.delta_time();
+		position.value += velocity * it.delta_time();
 	});
 });

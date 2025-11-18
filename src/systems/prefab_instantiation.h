@@ -124,9 +124,9 @@ inline FlecsRegistry register_prefab_instantiation_system([](flecs::world& world
                     godot::real_t rotation = transform.get_rotation();
                     godot::Vector2 scale = transform.get_scale();
 
-                    instance.set<Position2D>({ position.x, position.y });
+                    instance.set<Position2D>({ position });
                     instance.set<Rotation2D>({ rotation });
-                    instance.set<Scale2D>({ scale.x, scale.y });
+                    instance.set<Scale2D>({ scale });
                 }
                 else {
                     godot::Transform3D transform = transforms_array[instance_idx];
@@ -134,9 +134,9 @@ inline FlecsRegistry register_prefab_instantiation_system([](flecs::world& world
                     godot::Vector3 rotation = transform.get_basis().get_euler();
                     godot::Vector3 scale = transform.get_basis().get_scale();
 
-                    instance.set<Position3D>({ position.x, position.y, position.z });
-                    instance.set<Rotation3D>({ rotation.x, rotation.y, rotation.z });
-                    instance.set<Scale3D>({ scale.x, scale.y, scale.z });
+                    instance.set<Position3D>({ position });
+                    instance.set<Rotation3D>({ rotation });
+                    instance.set<Scale3D>({ scale });
                 }
             }
         }

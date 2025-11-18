@@ -30,7 +30,7 @@ inline FlecsRegistry register_enemy_state_machine_system([](flecs::world& world)
 		flecs::entity entity = it.entity(i);
 		entity.set<TimeInState>({ entity.get<TimeInState>().value + it.delta_time() });
 
-		const float distance_to_player_sq = godot::Vector2(position.x, position.y).distance_squared_to(player_position.value);
+		const float distance_to_player_sq = position.value.distance_squared_to(player_position.value);
 
 		if (distance_to_player_sq <= player_detection_radius_sq.value) {
 			set_state<EnemyState::ChasingThePlayer>(entity);
