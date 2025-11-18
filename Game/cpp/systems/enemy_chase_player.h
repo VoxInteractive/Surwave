@@ -6,8 +6,9 @@
 #include "src/components/player.h"
 #include "src/components/transform.h"
 
-#include "components/enemy_attributes.h"
+#include "components/enemy.h"
 #include "components/enemy_state.h"
+#include "components/singletons.h"
 
 
 inline FlecsRegistry register_enemy_chase_player_system([](flecs::world& world) {
@@ -15,7 +16,8 @@ inline FlecsRegistry register_enemy_chase_player_system([](flecs::world& world) 
 		Position2D,
 		const MovementSpeed,
 		const LoseTargetRadiusSquared,
-		const PlayerPosition&>("Enemy Chase Player")
+		const PlayerPosition&,
+		const CharacterContactBeginDistanceSquared&>("Enemy Chase Player")
 		.with<EnemyState, EnemyState::ChasingThePlayer>()
 		.each([](
 			flecs::iter& it,
@@ -23,13 +25,20 @@ inline FlecsRegistry register_enemy_chase_player_system([](flecs::world& world) 
 			Position2D& position,
 			const MovementSpeed& movement_speed,
 			const LoseTargetRadiusSquared& lose_target_radius_sq,
-			const PlayerPosition& player_position) {
+			const PlayerPosition& player_position,
+			const CharacterContactBeginDistanceSquared& contact_begin_dist_sq) {
 
 		// Condition to transition to Idle
 		const float distance_to_player_sq = position.value.distance_squared_to(player_position.value);
 		if (distance_to_player_sq > lose_target_radius_sq.value) {
 			set_state<EnemyState::Idle>(it.entity(i));
 			return; // Stop processing this entity for this frame
+		}
+
+		// Enter Attacking when close enough
+		if (distance_to_player_sq < contact_begin_dist_sq.value) {
+			set_state<EnemyState::AttackingThePlayer>(it.entity(i));
+			return;
 		}
 
 		// Behavior: Chase the player

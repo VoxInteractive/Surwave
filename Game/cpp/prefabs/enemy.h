@@ -2,7 +2,7 @@
 
 #include "src/flecs_registry.h"
 
-#include "components/enemy_attributes.h"
+#include "components/enemy.h"
 #include "components/enemy_state.h"
 
 

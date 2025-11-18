@@ -1,6 +1,6 @@
 extends FlecsWorld
 
-var spawn_iterations: int = 10
+var spawn_iterations: int = 1
 var spawn_iteration_counter: int = 0
 
 func _ready() -> void:
@@ -13,18 +13,18 @@ func _process(delta: float) -> void:
 		for prefab in ["BugSmall", "BugHumanoid", "BugLarge"]:
 			run_system("Prefab Instantiation", {
 				"prefab": prefab,
-				"count": 10,
+				"count": 1,
 				"transforms": [
 					Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
-					Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
-					Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
-					Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
-					Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
-					Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
-					Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
-					Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
-					Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
-					Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
+					# Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
+					# Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
+					# Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
+					# Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
+					# Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
+					# Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
+					# Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
+					# Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
+					# Transform2D(0, Vector2(randf_range(-200, 200), randf_range(-200, 200))),
 				]
 			})
 		

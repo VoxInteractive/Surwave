@@ -1,5 +1,6 @@
-#include "components/enemy_attributes.h"
+#include "components/enemy.h"
 #include "components/enemy_state.h"
+#include "components/singletons.h"
 
 #include "prefabs/character2d.h"
 #include "prefabs/enemy.h"
@@ -8,3 +9,4 @@
 #include "systems/enemy_idle.h"
 #include "systems/enemy_wander.h"
 #include "systems/enemy_chase_player.h"
+#include "systems/enemy_attack_player.h"

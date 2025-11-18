@@ -8,7 +8,7 @@
 #include "src/components/player.h"
 #include "src/components/transform.h"
 
-#include "components/enemy_attributes.h"
+#include "components/enemy.h"
 #include "components/enemy_state.h"
 
 

@@ -6,7 +6,7 @@
 #include "src/components/player.h"
 #include "src/components/transform.h"
 
-#include "components/enemy_attributes.h"
+#include "components/enemy.h"
 #include "components/enemy_state.h"
 
 inline FlecsRegistry register_enemy_idle_system([](flecs::world& world) {
