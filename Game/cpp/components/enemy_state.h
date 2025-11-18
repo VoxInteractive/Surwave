@@ -46,11 +46,9 @@ inline FlecsRegistry register_enemy_state_components([](flecs::world& world) {
         .scope([&] {
         // Register all states as children of the State relationship
         world.component<EnemyState::AttackingThePlayer>()
-            .member<flecs::entity>("target")
             .add(flecs::Target);
 
         world.component<EnemyState::ChasingThePlayer>()
-            .member<godot::Vector2>("target")
             .add(flecs::Target);
 
         world.component<EnemyState::Dead>()
