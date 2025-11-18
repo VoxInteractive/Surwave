@@ -13,7 +13,7 @@ struct EnemyState {
     struct Dying {};
     struct Idle {};
     struct Wandering {
-        godot::Vector2 destination;
+        godot::Vector2 direction;
     };
 };
 
@@ -61,7 +61,7 @@ inline FlecsRegistry register_enemy_state_components([](flecs::world& world) {
             .add(flecs::Target);
 
         world.component<EnemyState::Wandering>()
-            .member<godot::Vector2>("destination")
+            .member<godot::Vector2>("direction")
             .add(flecs::Target);
     });
 

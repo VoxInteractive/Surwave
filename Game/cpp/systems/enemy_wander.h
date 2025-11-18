@@ -19,8 +19,7 @@ inline FlecsRegistry register_enemy_wander_system([](flecs::world& world) {
 		const PlayerDetectionRadiusSquared,
 		const WanderMoveDuration,
 		const TimeInState,
-		const PlayerPosition&,
-		const EnemyState::Wandering>("Enemy Wander")
+		const PlayerPosition&>("Enemy Wander")
 		.with<EnemyState, EnemyState::Wandering>()
 		.each([](
 			flecs::iter& it,
@@ -30,10 +29,18 @@ inline FlecsRegistry register_enemy_wander_system([](flecs::world& world) {
 			const PlayerDetectionRadiusSquared& player_detection_radius_sq,
 			const WanderMoveDuration& move_duration,
 			const TimeInState& time,
-			const PlayerPosition& player_position,
-			const EnemyState::Wandering& wandering) {
+			const PlayerPosition& player_position) {
 
 		flecs::entity entity = it.entity(i);
+		const EnemyState::Wandering& wandering = entity.get<EnemyState, EnemyState::Wandering>();
+
+		// Ensure a direction exists; if missing, set and use it immediately.
+		godot::Vector2 move_direction = wandering.direction;
+		if (move_direction.length_squared() == 0.0f) {
+			float random_angle = godot::UtilityFunctions::randf_range(0.0f, Math_TAU);
+			move_direction = godot::Vector2(cos(random_angle), sin(random_angle));
+			set_state<EnemyState::Wandering>(entity, move_direction);
+		}
 
 		// Condition to transition to Chasing
 		const float distance_to_player_sq = position.value.distance_squared_to(player_position.value);
@@ -48,8 +55,7 @@ inline FlecsRegistry register_enemy_wander_system([](flecs::world& world) {
 			return;
 		}
 
-		const godot::Vector2& random_direction = wandering.destination;
-		godot::Vector2 velocity = random_direction * movement_speed.value;
+		godot::Vector2 velocity = move_direction * movement_speed.value;
 
 		position.value += velocity * it.delta_time();
 	});
