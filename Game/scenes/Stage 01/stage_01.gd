@@ -2,6 +2,7 @@ extends Stage
 
 @export var spawn_outer_margin: float = 96.0
 @export var spawn_inner_margin: float = 10.0
+@export var spawn_corner_bias: float = 3.0
 @export var spawn_radial_exponent: float = 1.2
 
 var spawn_iteration_counter: int = 0
@@ -47,10 +48,17 @@ func _get_random_spawn_transform() -> Transform2D:
 	var valid_pos: bool = false
 	
 	var spawn_area_max: Vector2 = terrain_size / 2.0 - Vector2(spawn_outer_margin, spawn_outer_margin)
+	var bias_strength: float = spawn_corner_bias if spawn_corner_bias > 0.0 else 0.0
+	var max_weight: float = 1.0 + bias_strength
 	# Choose angles uniformly so directions are equally likely, compute angle-specific max radius inside the rectangular spawn area,
 	# then sample radius using an inverse CDF so radial density increases outward while remaining normalized per-angle.
 	while not valid_pos:
 		var angle: float = randf_range(0.0, TAU) # Sample angle uniformly to ensure equal directional counts
+
+		if bias_strength > 0.0: # Apply corner bias
+			var weight: float = 1.0 + bias_strength * ((1.0 - cos(4.0 * angle)) * 0.5)
+			if randf() > (weight / max_weight):
+				continue
 
 		var cos_angle: float = cos(angle)
 		var sin_angle: float = sin(angle)
