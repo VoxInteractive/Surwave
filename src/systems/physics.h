@@ -17,7 +17,7 @@ namespace
         BodyStateT body_state)
     {
         world.system<const TransformT, const InstanceT>(system_name)
-            .kind(flecs::OnStore)
+            .kind(flecs::PostUpdate)
             .each([body_state](const TransformT& transform, const InstanceT& instance)
         {
             ServerT* physics_server = ServerT::get_singleton();
