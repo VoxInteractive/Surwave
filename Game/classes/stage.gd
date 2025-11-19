@@ -48,6 +48,7 @@ func _ready() -> void:
 	_instantiate_player()
 	_instantiate_camera()
 	_set_camera_limits()
+	_set_world_singletons()
 	_spawn_initial_enemy_population()
 
 
@@ -194,6 +195,12 @@ func _set_camera_limits() -> void:
 		camera.set_limits(terrain.mesh.size)
 	else:
 		push_warning("Stage: Camera node not found, couldn't set limits.")
+
+
+func _set_world_singletons() -> void:
+	world.set_singleton_component("StageData", {
+		"landmark_occupied_areas": landmark_occupied_areas}
+	)
 
 
 func _spawn_initial_enemy_population() -> void:

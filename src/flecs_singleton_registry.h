@@ -5,6 +5,7 @@
 #include <unordered_map>
 
 #include <godot_cpp/variant/variant.hpp>
+#include <godot_cpp/variant/utility_functions.hpp>
 
 #include <flecs.h>
 
@@ -47,7 +48,16 @@ inline std::unordered_map<std::string, FlecsSingletonSetter>& get_singleton_sett
 template <typename T>
 void register_singleton_setter(const std::string& name, std::function<void(flecs::world&, const T&)> setter)
 {
-    get_singleton_setters()[name] = [setter](flecs::world& world, const godot::Variant& v) {
-        setter(world, v.operator T());
+    get_singleton_setters()[name] = [setter, name](flecs::world& world, const godot::Variant& v) {
+        const auto expected_type = static_cast<godot::Variant::Type>(godot::GetTypeInfo<T>::VARIANT_TYPE);
+        if (godot::Variant::can_convert(v.get_type(), expected_type))
+        {
+            setter(world, v.operator T());
+        }
+        else
+        {
+            godot::String warning_message = "Failed to set singleton component '{0}'. Cannot convert provided data from type '{1}' to the expected type '{2}'.";
+            godot::UtilityFunctions::push_warning(warning_message.format(godot::Array::make(name.c_str(), godot::Variant::get_type_name(v.get_type()), godot::Variant::get_type_name(expected_type))));
+        }
     };
 }

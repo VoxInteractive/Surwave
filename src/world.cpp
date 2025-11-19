@@ -227,10 +227,14 @@ void FlecsWorld::set_singleton_component(const godot::String& component_name, co
     }
 
     std::string name = component_name.utf8().get_data();
-    auto singleton_setter = singleton_setters.find(name);
-    if (singleton_setter != singleton_setters.end())
+    auto setter = singleton_setters.find(name);
+    if (setter != singleton_setters.end())
     {
-        singleton_setter->second(data);
+        setter->second(data);
+    }
+    else
+    {
+        godot::UtilityFunctions::push_warning(godot::String("No setter for singleton component '") + component_name + "' found.");
     }
 }
 
