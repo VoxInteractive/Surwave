@@ -1,6 +1,7 @@
 #include "components/enemy.h"
 #include "components/enemy_state.h"
 #include "components/singletons.h"
+#include "components/stage.h"
 
 #include "prefabs/character2d.h"
 #include "prefabs/enemy.h"
