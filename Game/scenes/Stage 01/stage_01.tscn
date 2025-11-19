@@ -196,6 +196,10 @@ sources/0 = SubResource("TileSetAtlasSource_oji7v")
 
 [node name="Stage01" type="Node"]
 script = ExtResource("1_eml3u")
+spawn_outer_margin = null
+spawn_inner_margin = null
+terrain_margin = null
+object_count = null
 
 [node name="World" type="FlecsWorld" parent="."]
 script = ExtResource("2_u0n13")
