@@ -9,10 +9,20 @@
 #include <godot_cpp/classes/rendering_server.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-#include "world.h"
-#include "utilities/platform.h"
-#include "flecs_registry.h"
-#include "scripts_loader.h"
+#include "src/world.h"
+#include "src/utilities/platform.h"
+#include "src/flecs_registry.h"
+#include "src/flecs_singleton_registry.h"
+#include "src/scripts_loader.h"
+
+#include "src/components/godot_variants.h"
+#include "src/components/entity_rendering.h"
+#include "src/components/transform.h"
+#include "src/components/player.h"
+
+#include "src/systems/prefab_instantiation.h"
+#include "src/systems/transform_update.h"
+#include "src/systems/entity_rendering.h"
 
 // Define the global buffer cache that is declared in entity_rendering.h
 std::unordered_map<godot::RID, godot::PackedFloat32Array> g_multimesh_buffer_cache;
@@ -50,6 +60,21 @@ FlecsWorld::FlecsWorld()
 
     register_components_and_systems_with_world(world);
 
+    // Populate the instance's singleton setters from the global registry
+    for (const auto& pair : get_singleton_setters())
+    {
+        const std::string& component_name = pair.first;
+        const FlecsSingletonSetter& global_setter = pair.second;
+        singleton_setters[component_name] = [this, global_setter](const godot::Variant& data) { global_setter(this->world, data); };
+    }
+
+    // Populate the instance's singleton getters from the global registry
+    for (const auto& pair : get_singleton_getters())
+    {
+        const std::string& component_name = pair.first;
+        const FlecsSingletonGetter& global_getter = pair.second;
+        singleton_getters[component_name] = [this, global_getter]() { return global_getter(this->world); };
+    }
     // Load Flecs script files that live in the project's flecs_scripts folder.
     // Use a Godot resource path so the loader can resolve it via ProjectSettings.
     FlecsScriptsLoader loader;
@@ -193,7 +218,7 @@ const flecs::world* FlecsWorld::get_world() const
     return &world;
 }
 
-void FlecsWorld::set_singleton_component(const godot::String& component_name, const Dictionary& data)
+void FlecsWorld::set_singleton_component(const godot::String& component_name, const godot::Variant& data)
 {
     if (!is_initialised)
     {
@@ -202,7 +227,34 @@ void FlecsWorld::set_singleton_component(const godot::String& component_name, co
     }
 
     std::string name = component_name.utf8().get_data();
-    // TODO: Implement actual data assignment
+    auto setter = singleton_setters.find(name);
+    if (setter != singleton_setters.end())
+    {
+        setter->second(data);
+    }
+    else
+    {
+        godot::UtilityFunctions::push_warning(godot::String("No setter for singleton component '") + component_name + "' found.");
+    }
+}
+
+godot::Variant FlecsWorld::get_singleton_component(const godot::String& component_name)
+{
+    if (!is_initialised)
+    {
+        UtilityFunctions::push_warning(godot::String("FlecsWorld::get_singleton_component was called before world was initialised"));
+        return godot::Variant();
+    }
+
+    std::string name = component_name.utf8().get_data();
+    auto it = singleton_getters.find(name);
+    if (it == singleton_getters.end())
+    {
+        UtilityFunctions::push_warning(godot::String("No getter for singleton component '") + component_name + "' found.");
+        return godot::Variant();
+    }
+
+    return it->second();
 }
 
 void FlecsWorld::progress(double delta)
@@ -262,5 +314,6 @@ void FlecsWorld::_bind_methods()
 {
     ClassDB::bind_method(D_METHOD("progress", "delta"), &FlecsWorld::progress);
     ClassDB::bind_method(D_METHOD("set_singleton_component", "component_name", "data"), &FlecsWorld::set_singleton_component);
+    ClassDB::bind_method(D_METHOD("get_singleton_component", "component_name"), &FlecsWorld::get_singleton_component);
     ClassDB::bind_method(D_METHOD("run_system", "system_name", "data"), &FlecsWorld::run_system, DEFVAL(godot::Dictionary()));
 }

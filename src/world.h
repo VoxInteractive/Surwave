@@ -1,17 +1,13 @@
 #pragma once
 
+#include <string>
+#include <unordered_map>
+#include <functional>
+
 #include <godot_cpp/classes/node.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
 
 #include <flecs.h>
-
-#include "components/godot_variants.h"
-#include "components/entity_rendering.h"
-#include "components/transform.h"
-
-#include "systems/prefab_instantiation.h"
-#include "systems/transform_update.h"
-#include "systems/entity_rendering.h"
 
 using godot::Dictionary;
 using godot::Node;
@@ -25,9 +21,11 @@ public:
 
     // GDScript-visible methods that we'll bind
     void progress(double delta); // To be called every frame from GDScript attached to the FlecsWorld node. Make sure ecs_ftime_t matches the type of delta.
-    void set_singleton_component(const godot::String& component_name, const Dictionary& data);
+    void set_singleton_component(const godot::String& component_name, const godot::Variant& data);
+    godot::Variant get_singleton_component(const godot::String& component_name);
     bool run_system(const godot::String& system_name, const godot::Dictionary& parameters); // For triggering on-demand (kind: 0) Flecs systems from GDScript
 
+    // Virtual methods overridden from Node
     void _exit_tree() override;
 
     ~FlecsWorld();
@@ -40,5 +38,7 @@ protected:
 private:
     flecs::world world;
     bool is_initialised = false;
+    std::unordered_map<std::string, std::function<void(const godot::Variant&)>> singleton_setters;
+    std::unordered_map<std::string, std::function<godot::Variant(void)>> singleton_getters;
     void setup_entity_renderers();
 };

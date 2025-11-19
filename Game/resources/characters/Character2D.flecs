@@ -1,9 +1,0 @@
-prefab Character2D {
-	Position2D: { x: 0, y: 0 }
-	Rotation2D: { value: 0 }
-	Scale2D: { x: 1, y: 1 }
-	Transform2D: { columns: [{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }] }
-	
-	RenderingColor: { r: 1, g: 1, b: 1, a: 1 }
-	RenderingCustomData: { r: 0, g: 0, b: 0, a: 0 }
-}

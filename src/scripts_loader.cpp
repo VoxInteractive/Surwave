@@ -1,103 +1,112 @@
 #include <algorithm>
-#include <filesystem>
 #include <vector>
+#include <functional>
 
 #include <godot_cpp/variant/utility_functions.hpp>
 #include <godot_cpp/classes/project_settings.hpp>
 #include <godot_cpp/classes/file_access.hpp>
+#include <godot_cpp/classes/dir_access.hpp>
 
-#include "scripts_loader.h"
+#include "src/scripts_loader.h"
 
 using godot::UtilityFunctions;
 
 void FlecsScriptsLoader::load(flecs::world& world) const
 {
-    namespace fs = std::filesystem;
-
-    std::error_code ec;
-    std::string resolved_path = root_path;
-
-    // If a resource path was provided (res://) prefer to globalize it so the filesystem iterator can operate on a real path.
-    // ProjectSettings may not be available in all contexts, but in the engine it will be.
     const std::string res_prefix = "res://";
-    if (root_path.rfind(res_prefix, 0) == 0)
+
+    // We'll collect resource-style paths (res://...) using Godot's DirAccess so exported
+    // builds work. If the configured `root_path` isn't already a resource path, treat it
+    // as relative to `res://` (purely resource-based loading).
+    std::string res_root = root_path;
+    if (res_root.rfind(res_prefix, 0) != 0)
     {
-        godot::ProjectSettings* ps = godot::ProjectSettings::get_singleton();
-        if (ps)
+        // Ensure we don't end up with a double slash when combining.
+        if (!res_root.empty() && res_root[0] == '/') { res_root = res_root.substr(1); }
+        res_root = res_prefix + res_root;
+    }
+
+    // Collect resource paths by recursively walking the Godot virtual filesystem.
+    std::vector<std::string> resource_paths;
+    std::function<void(const godot::String&)> walk;
+    walk = [&](const godot::String& base) {
+        godot::Ref<godot::DirAccess> dir = godot::DirAccess::open(base);
+        if (dir.is_null())
         {
-            godot::String g = ps->globalize_path(godot::String(root_path.c_str()));
-            resolved_path = g.utf8().get_data();
-        }
-        else
-        {
-            // Can't resolve res:// to filesystem here; report and return.
-            UtilityFunctions::push_error(godot::String("Flecs scripts: ProjectSettings not available to resolve resource path: ") + godot::String(root_path.c_str()));
+            UtilityFunctions::push_warning(godot::String("Flecs scripts path does not exist: ") + base);
             return;
         }
-    }
 
-    fs::path root(resolved_path);
-    if (!fs::exists(root, ec))
-    {
-        UtilityFunctions::push_warning(godot::String("Flecs scripts path does not exist: ") + godot::String(resolved_path.c_str()));
-        return;
-    }
-
-    // Collect .flecs files (non-recursive entries are filtered by extension).
-    std::vector<fs::path> files;
-    for (auto it = fs::recursive_directory_iterator(root, fs::directory_options::skip_permission_denied, ec);
-        it != fs::recursive_directory_iterator(); it.increment(ec))
-    {
-        if (ec)
+        dir->list_dir_begin();
+        for (godot::String name = dir->get_next(); !name.is_empty(); name = dir->get_next())
         {
-            UtilityFunctions::push_error(godot::String("Error iterating flecs scripts directory: ") + godot::String(ec.message().c_str()));
-            break;
-        }
-        const fs::directory_entry& entry = *it;
-        if (!entry.is_regular_file())
-            continue;
-        if (entry.path().extension() == ".flecs")
-            files.emplace_back(entry.path());
-    }
+            if (name == "." || name == "..") { continue; }
 
-    // Sort files by directory depth, then alphabetically. This ensures that scripts in parent directories
-    // (which often define common components) are loaded before scripts in subdirectories.
-    std::sort(files.begin(), files.end(), [](const fs::path& a, const fs::path& b) {
-        size_t a_depth = std::distance(a.begin(), a.end());
-        size_t b_depth = std::distance(b.begin(), b.end());
-        if (a_depth != b_depth) {
-            return a_depth < b_depth;
+            bool is_dir = dir->current_is_dir();
+            // Avoid ambiguous operator+ overloads with godot::String by constructing the
+            // child path explicitly.
+            godot::String child = base;
+            if (!base.ends_with("/")) { child += godot::String("/"); }
+            child += name;
+            if (is_dir)
+            {
+                walk(child);
+            }
+            else if (name.get_extension() == "flecs")
+            {
+                resource_paths.push_back(child.utf8().get_data());
+            }
         }
+        dir->list_dir_end();
+    };
+
+    walk(godot::String(res_root.c_str()));
+
+    // Sort resource paths by directory depth (count of '/') then alphabetically to mimic previous ordering
+    std::sort(resource_paths.begin(), resource_paths.end(), [](const std::string& a, const std::string& b) {
+        auto depth = [](const std::string& s) {
+            return static_cast<size_t>(std::count(s.begin(), s.end(), '/'));
+        };
+        size_t da = depth(a);
+        size_t db = depth(b);
+        if (da != db) { return da < db; }
         return a < b;
     });
 
     std::vector<std::string> loaded_scripts;
-    for (const fs::path& p : files)
+    for (const std::string& path_str : resource_paths)
     {
-        std::string path_str = p.string();
         godot::String godot_path(path_str.c_str());
         godot::String file_contents = godot::FileAccess::get_file_as_string(godot_path);
         std::string script_str = file_contents.utf8().get_data();
         // Normalize CRLF to LF to prevent parsing issues with flecs scripts.
-        // https://discord.com/channels/633826290415435777/1437044505185615882/1437229465183715500
         script_str.erase(std::remove(script_str.begin(), script_str.end(), '\r'), script_str.end());
 
         if (script_str.empty())
         {
-            UtilityFunctions::push_error(godot::String("Failed to read flecs script file: ") + godot::String(path_str.c_str()));
+            UtilityFunctions::push_error(godot::String("Failed to read flecs script file: ") + godot_path);
             continue;
         }
 
-        // Run the script from the in-memory string. Pass the absolute path for better error reporting.
+        // Run the script from the in-memory string; pass the resource path for error reporting.
         int result = world.script_run(path_str.c_str(), script_str.c_str());
         if (result != 0)
         {
-            UtilityFunctions::push_error(godot::String("Error running flecs script: ") + godot::String(path_str.c_str()));
+            UtilityFunctions::push_error(godot::String("Error running flecs script: ") + godot_path);
         }
         else
         {
-            fs::path relative_path = fs::relative(p, root);
-            loaded_scripts.push_back(relative_path.string());
+            // Report path relative to the configured root when it's a resource path.
+            if (path_str.rfind(res_prefix, 0) == 0 && root_path.rfind(res_prefix, 0) == 0)
+            {
+                std::string rel = path_str.substr(root_path.size());
+                if (!rel.empty() && rel[0] == '/') { rel.erase(0, 1); }
+                loaded_scripts.push_back(rel);
+            }
+            else
+            {
+                loaded_scripts.push_back(path_str);
+            }
         }
     }
 
@@ -106,12 +115,8 @@ void FlecsScriptsLoader::load(flecs::world& world) const
         godot::String output = godot::String::num_int64(loaded_scripts.size()) + " Flecs scripts loaded: ";
         for (size_t i = 0; i < loaded_scripts.size(); ++i) {
             output += loaded_scripts[i].c_str();
-            if (i < loaded_scripts.size() - 1) {
-                output += ", ";
-            }
-            else {
-                output += ".";
-            }
+            if (i < loaded_scripts.size() - 1) { output += ", "; }
+            else { output += "."; }
         }
         UtilityFunctions::print(output);
     }

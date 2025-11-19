@@ -1,6 +1,6 @@
 #include <mutex>
 
-#include "flecs_registry.h"
+#include "src/flecs_registry.h"
 
 namespace
 {

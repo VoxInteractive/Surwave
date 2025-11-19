@@ -4,8 +4,8 @@
 #include <godot_cpp/variant/transform2d.hpp>
 #include <godot_cpp/variant/transform3d.hpp>
 
-#include "../components/transform.h"
-#include "flecs_registry.h"
+#include "src/components/transform.h"
+#include "src/flecs_registry.h"
 
 inline FlecsRegistry register_transform_update_systems([](flecs::world& world)
 {
@@ -16,8 +16,8 @@ inline FlecsRegistry register_transform_update_systems([](flecs::world& world)
         .term_at(4).out() // Mark godot::Transform2D as [out]
         .each([](const Position2D& position, const Rotation2D& rotation, const Scale2D& scale, godot::Transform2D& transform)
     {
-        transform.set_origin({ position.x, position.y });
-        transform.set_rotation_and_scale(rotation.value, { scale.x, scale.y });
+        transform.set_origin(position.value);
+        transform.set_rotation_and_scale(rotation.value, scale.value);
     });
 
     // This system updates the Transform3D component for entities that have Position3D, Rotation3D, and Scale3D.
@@ -31,10 +31,10 @@ inline FlecsRegistry register_transform_update_systems([](flecs::world& world)
         // it avoids the multiple matrix multiplications that Basis::set_euler_scale performs internally.
         transform = {
             godot::Basis(
-                godot::Quaternion::from_euler({ rotation.x, rotation.y, rotation.z }),
-                { scale.x, scale.y, scale.z }
+                godot::Quaternion::from_euler(rotation.value),
+                scale.value
             ),
-            { position.x, position.y, position.z }
+            position.value
         };
     });
 });

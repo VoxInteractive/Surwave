@@ -62,6 +62,7 @@ func _get_animation_mode(p_state: PlayerState):
 
 @onready var character_body: CharacterBody2D = $CharacterBody2D
 @onready var _sprite: Sprite2D = $CharacterBody2D/Sprite2D
+@onready var world: FlecsWorld = get_node("../World")
 
 func _ready() -> void:
 	set_state(PlayerState.IDLE)
@@ -78,7 +79,9 @@ func _physics_process(delta: float) -> void:
 
 	input_movement_vector = Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	character_body.velocity = input_movement_vector * adjusted_movement_speed
+
 	is_colliding = character_body.move_and_slide()
+	world.set_singleton_component("PlayerPosition", character_body.global_position)
 
 	movement_in_frame = character_body.global_position - position_at_frame_start
 	has_moved_this_frame = movement_in_frame.length() > 0.01

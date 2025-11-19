@@ -1,7 +1,7 @@
 prefab BugLarge : Enemy {
 	HitPoints: {value: 8}
 	MovementSpeed: {value: 3}
-	Damage: {value: 5}
+	MeleeDamage: {value: 5}
 
-	RenderingCustomData: { r: 12, g: 3, b: 3, a: 0 }
+	RenderingCustomData: { r: 60, g: 0, b: 0, a: 0 }
 }
