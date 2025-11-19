@@ -14,7 +14,7 @@ inline const PhysicsBodyShapes2D& get_character2d_physics_shapes()
 {
     static const PhysicsBodyShapes2D shapes = []() {
         PhysicsBodyShapes2D data;
-        data.body_mode = godot::PhysicsServer2D::BODY_MODE_RIGID;
+        data.body_mode = godot::PhysicsServer2D::BODY_MODE_KINEMATIC;
         data.collision_layer = 16; // Monsters layer
         data.collision_mask = 1 | 2 | 4 | 8 | 16; // Borders, objects, players, portals, monsters
 
@@ -34,6 +34,7 @@ inline FlecsRegistry register_character2d_prefab([](flecs::world& world) {
         .set_auto_override<Rotation2D>({ 0.0f })
         .set_auto_override<Scale2D>({ godot::Vector2(1.0f, 1.0f) })
         .set_auto_override<godot::Transform2D>(godot::Transform2D())
+        .set_auto_override<Velocity2D>({ godot::Vector2(0.0f, 0.0f) })
         .set_auto_override<PhysicsBodyShapes2D>(get_character2d_physics_shapes())
         .set_auto_override<RenderingColor>({ 1.0f, 1.0f, 1.0f, 1.0f })
         .set_auto_override<RenderingCustomData>({ 0.0f, 0.0f, 0.0f, 0.0f });
