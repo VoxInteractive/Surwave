@@ -29,8 +29,7 @@ namespace
         const SpaceT* physics_space,
         ServerT* physics_server,
         const TransformT& transform,
-        BodyStateT transform_state,
-        const char* invalid_shape_warning)
+        BodyStateT transform_state)
     {
         if (!physics_server) { return false; }
         if (!physics_space) { return false; }
@@ -43,22 +42,9 @@ namespace
         physics_server->body_set_collision_layer(body_rid, body_definition.collision_layer);
         physics_server->body_set_collision_mask(body_rid, body_definition.collision_mask);
 
-        int added_shapes = 0;
         for (const ShapeDefinitionT& shape_def : body_definition.shapes)
         {
-            if (shape_def.shape.is_null())
-            {
-                UtilityFunctions::push_warning(invalid_shape_warning);
-                continue;
-            }
             physics_server->body_add_shape(body_rid, shape_def.shape->get_rid(), shape_def.local_transform);
-            added_shapes++;
-        }
-
-        if (added_shapes == 0)
-        {
-            physics_server->free_rid(body_rid);
-            return false;
         }
 
         physics_server->body_set_state(body_rid, transform_state, transform);
@@ -97,10 +83,20 @@ namespace
             {
                 if (!warned_missing_physics)
                 {
-                    UtilityFunctions::push_warning(godot::String("Prefab Instantiation: ") + PhysicsBodyShapesT::get_class_static() + " present but physics space is unavailable.");
+                    UtilityFunctions::push_warning(godot::String("Prefab Instantiation: ") + it.world().template component<PhysicsBodyShapesT>().name().c_str() + " present but physics space is unavailable.");
                     warned_missing_physics = true;
                 }
                 return;
+            }
+
+            // Validate shapes before creating a body
+            for (const auto& shape_def : body_shapes->shapes)
+            {
+                if (shape_def.shape.is_null())
+                {
+                    UtilityFunctions::push_warning(godot::String("Prefab Instantiation: ") + it.world().template component<PhysicsBodyShapesT>().name().c_str() + " contains an invalid shape reference.");
+                    return; // Abort for this instance if any shape is invalid
+                }
             }
 
             const TransformT* transform_component = has_spawn_transform ? &spawn_transform : instance.template try_get<TransformT>();
@@ -112,8 +108,7 @@ namespace
                 physics_space,
                 physics_server,
                 final_transform,
-                static_cast<BodyStateT>(PhysicsServerT::BODY_STATE_TRANSFORM),
-                godot::String("Prefab Instantiation: ") + PhysicsBodyShapesT::get_class_static() + " contains an invalid shape reference."))
+                static_cast<BodyStateT>(PhysicsServerT::BODY_STATE_TRANSFORM)))
             {
                 UtilityFunctions::push_warning(godot::String("Prefab Instantiation: Failed to create physics body for prefab '") + prefab_name + "'.");
             }
