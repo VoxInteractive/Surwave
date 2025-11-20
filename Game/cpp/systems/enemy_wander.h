@@ -5,7 +5,6 @@
 #include <godot_cpp/variant/vector2.hpp>
 
 #include "src/flecs_registry.h"
-#include "src/components/physics.h"
 #include "src/components/player.h"
 #include "src/components/transform.h"
 
@@ -15,8 +14,7 @@
 
 inline FlecsRegistry register_enemy_wander_system([](flecs::world& world) {
 	world.system <
-		Velocity2D,
-		const Position2D,
+		Position2D,
 		const MovementSpeed,
 		const PlayerDetectionRadiusSquared,
 		const WanderMoveDuration,
@@ -26,8 +24,7 @@ inline FlecsRegistry register_enemy_wander_system([](flecs::world& world) {
 		.each([](
 			flecs::iter& it,
 			size_t i,
-			Velocity2D& velocity,
-			const Position2D& position,
+			Position2D& position,
 			const MovementSpeed& movement_speed,
 			const PlayerDetectionRadiusSquared& player_detection_radius_sq,
 			const WanderMoveDuration& move_duration,
@@ -70,18 +67,18 @@ inline FlecsRegistry register_enemy_wander_system([](flecs::world& world) {
 		// Condition to transition to Chasing
 		const float distance_to_player_sq = position.value.distance_squared_to(player_position.value);
 		if (distance_to_player_sq <= player_detection_radius_sq.value) {
-			velocity.value = godot::Vector2(0.0f, 0.0f);
 			set_state<EnemyState::ChasingThePlayer>(entity);
 			return;
 		}
 
 		// Condition to transition to Idle
 		if (time.value > move_duration.value) {
-			velocity.value = godot::Vector2(0.0f, 0.0f);
 			set_state<EnemyState::Idle>(entity);
 			return;
 		}
 
-		velocity.value = move_direction * movement_speed.value;
+		godot::Vector2 velocity = move_direction * movement_speed.value;
+
+		position.value += velocity * it.delta_time();
 	});
 });
