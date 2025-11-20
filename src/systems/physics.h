@@ -13,14 +13,23 @@
 
 namespace
 {
-    inline bool try_create_physics_body_2d(
+    template<
+        typename ShapesT,
+        typename ShapeDefinitionT,
+        typename SpaceT,
+        typename ServerT,
+        typename TransformT,
+        typename InstanceT,
+        typename BodyStateT>
+    inline bool try_create_physics_body(
         flecs::world& world,
         flecs::entity entity,
-        const PhysicsBodyShapes2D& body_definition,
-        const godot::Transform2D& transform)
+        const ShapesT& body_definition,
+        const TransformT& transform,
+        BodyStateT transform_state)
     {
-        godot::PhysicsServer2D* physics_server = godot::PhysicsServer2D::get_singleton();
-        const PhysicsSpace2D* physics_space = world.try_get<PhysicsSpace2D>();
+        ServerT* physics_server = ServerT::get_singleton();
+        const SpaceT* physics_space = world.try_get<SpaceT>();
         if (!physics_server) { return false; }
         if (!physics_space) { return false; }
         if (!physics_space->space_rid.is_valid()) { return false; }
@@ -33,7 +42,7 @@ namespace
         physics_server->body_set_collision_mask(body_rid, body_definition.collision_mask);
 
         int added_shapes = 0;
-        for (const PhysicsBodyShape2DDefinition& shape_def : body_definition.shapes)
+        for (const ShapeDefinitionT& shape_def : body_definition.shapes)
         {
             if (shape_def.shape.is_null()) { continue; }
             physics_server->body_add_shape(body_rid, shape_def.shape->get_rid(), shape_def.local_transform);
@@ -46,46 +55,8 @@ namespace
             return false;
         }
 
-        physics_server->body_set_state(body_rid, godot::PhysicsServer2D::BODY_STATE_TRANSFORM, transform);
-        entity.set<PhysicsBodyInstance2D>({ body_rid });
-        return true;
-    }
-
-    inline bool try_create_physics_body_3d(
-        flecs::world& world,
-        flecs::entity entity,
-        const PhysicsBodyShapes3D& body_definition,
-        const godot::Transform3D& transform)
-    {
-        godot::PhysicsServer3D* physics_server = godot::PhysicsServer3D::get_singleton();
-        const PhysicsSpace3D* physics_space = world.try_get<PhysicsSpace3D>();
-        if (!physics_server) { return false; }
-        if (!physics_space) { return false; }
-        if (!physics_space->space_rid.is_valid()) { return false; }
-        if (body_definition.shapes.empty()) { return false; }
-
-        godot::RID body_rid = physics_server->body_create();
-        physics_server->body_set_mode(body_rid, body_definition.body_mode);
-        physics_server->body_set_space(body_rid, physics_space->space_rid);
-        physics_server->body_set_collision_layer(body_rid, body_definition.collision_layer);
-        physics_server->body_set_collision_mask(body_rid, body_definition.collision_mask);
-
-        int added_shapes = 0;
-        for (const PhysicsBodyShape3DDefinition& shape_def : body_definition.shapes)
-        {
-            if (shape_def.shape.is_null()) { continue; }
-            physics_server->body_add_shape(body_rid, shape_def.shape->get_rid(), shape_def.local_transform);
-            added_shapes++;
-        }
-
-        if (added_shapes == 0)
-        {
-            physics_server->free_rid(body_rid);
-            return false;
-        }
-
-        physics_server->body_set_state(body_rid, godot::PhysicsServer3D::BODY_STATE_TRANSFORM, transform);
-        entity.set<PhysicsBodyInstance3D>({ body_rid });
+        physics_server->body_set_state(body_rid, transform_state, transform);
+        entity.set<InstanceT>({ body_rid });
         return true;
     }
 
@@ -141,7 +112,18 @@ inline FlecsRegistry register_physics_systems([](flecs::world& world)
         flecs::entity entity = it.entity(i);
         const godot::Transform2D* transform = entity.try_get<godot::Transform2D>();
         godot::Transform2D initial_transform = transform ? *transform : godot::Transform2D();
-        try_create_physics_body_2d(it.world(), entity, body_shapes, initial_transform);
+        try_create_physics_body<
+            PhysicsBodyShapes2D,
+            PhysicsBodyShape2DDefinition,
+            PhysicsSpace2D,
+            godot::PhysicsServer2D,
+            godot::Transform2D,
+            PhysicsBodyInstance2D>(
+                it.world(),
+                entity,
+                body_shapes,
+                initial_transform,
+                godot::PhysicsServer2D::BODY_STATE_TRANSFORM);
     });
 
     world.system<const Velocity2D, const PhysicsBodyInstance2D>("Physics Body 2D Apply Velocity")
@@ -220,6 +202,17 @@ inline FlecsRegistry register_physics_systems([](flecs::world& world)
         flecs::entity entity = it.entity(i);
         const godot::Transform3D* transform = entity.try_get<godot::Transform3D>();
         godot::Transform3D initial_transform = transform ? *transform : godot::Transform3D();
-        try_create_physics_body_3d(it.world(), entity, body_shapes, initial_transform);
+        try_create_physics_body<
+            PhysicsBodyShapes3D,
+            PhysicsBodyShape3DDefinition,
+            PhysicsSpace3D,
+            godot::PhysicsServer3D,
+            godot::Transform3D,
+            PhysicsBodyInstance3D>(
+                it.world(),
+                entity,
+                body_shapes,
+                initial_transform,
+                godot::PhysicsServer3D::BODY_STATE_TRANSFORM);
     });
 });
