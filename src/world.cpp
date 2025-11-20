@@ -157,41 +157,51 @@ void FlecsWorld::setup_entity_renderers()
         }
         MultiMeshRenderer* mm_renderer = &it->second;
 
-        // For each prefab in this MultiMeshInstance, create a query and append it to this renderer's queries
-        for (int j = 0; j < prefabs.size(); ++j)
+        // Build a single query for all prefabs associated with this renderer.
+        // This ensures that entities from different prefabs are sorted together.
+        auto qb = world.query_builder();
+        // Y-sorting
+        if (multimesh->get_transform_format() == godot::MultiMesh::TRANSFORM_2D)
+        {
+            qb.with<const godot::Transform2D>().order_by<godot::Transform2D>(
+                [](flecs::entity_t, const godot::Transform2D* t1, flecs::entity_t, const godot::Transform2D* t2) {
+                if (t1->get_origin().y > t2->get_origin().y) return 1;
+                if (t1->get_origin().y < t2->get_origin().y) return -1;
+                return 0;
+            });
+        }
+        else
+        {
+            qb.with<const godot::Transform3D>().order_by<godot::Transform3D>(
+                [](flecs::entity_t, const godot::Transform3D* t1, flecs::entity_t, const godot::Transform3D* t2) {
+                if (t1->origin.y > t2->origin.y) return 1;
+                if (t1->origin.y < t2->origin.y) return -1;
+                return 0;
+            });
+        }
+
+        if (multimesh->is_using_colors())
+        {
+            qb.with<const RenderingColor>();
+        }
+        if (multimesh->is_using_custom_data())
+        {
+            qb.with<const RenderingCustomData>();
+        }
+
+        // Chain prefabs with the OR operator. The logic is to add `.or_()` to all but the last term.
+        int prefab_count = prefabs.size();
+        for (int j = 0; j < prefab_count; ++j)
         {
             godot::String prefab_name = prefabs[j];
             std::string prefab_name_str = prefab_name.utf8().get_data();
-
-            if (!world.lookup(prefab_name_str.c_str()).is_valid())
-            {
-                UtilityFunctions::push_warning(godot::String("Prefab '") + prefab_name + "' referenced in node '" + child->get_name() + "' does not exist in the Flecs world.");
-                continue;
-            }
-
-            // Build a query for this renderer configuration.
-            auto qb = world.query_builder();
-            if (multimesh->get_transform_format() == godot::MultiMesh::TRANSFORM_2D)
-            {
-                qb.with<const godot::Transform2D>();
-            }
-            else
-            {
-                qb.with<const godot::Transform3D>();
-            }
-
-            if (multimesh->is_using_colors())
-            {
-                qb.with<const RenderingColor>();
-            }
-            if (multimesh->is_using_custom_data())
-            {
-                qb.with<const RenderingCustomData>();
-            }
             qb.with(flecs::IsA, world.lookup(prefab_name_str.c_str()));
-
-            mm_renderer->queries.push_back(qb.build());
+            if (j < prefab_count - 1) {
+                qb.or_();
+            }
         }
+
+        mm_renderer->queries.push_back(qb.build());
     }
 
     if (renderer_count > 0)
