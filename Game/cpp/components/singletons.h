@@ -139,4 +139,12 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
         .member<godot::real_t>("value")
         .add(flecs::Singleton)
         .set<CharacterContactEndDistanceSquared>({ godot::Math::pow(enemy_radius + contact_margin + hysteresis, 2.0f) });
+
+    world.component<EnemySeparationDistanceSquared>("EnemySeparationDistanceSquared")
+        .member<godot::real_t>("value")
+        .add(flecs::Singleton)
+        .set<EnemySeparationDistanceSquared>({ godot::Math::pow(enemy_radius, 2.0f) });
+
+    world.component<EnemySpatialHashGrid>("EnemySpatialHashGrid")
+        .add(flecs::Singleton);
 });
