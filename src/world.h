@@ -41,4 +41,5 @@ private:
     std::unordered_map<std::string, std::function<void(const godot::Variant&)>> singleton_setters;
     std::unordered_map<std::string, std::function<godot::Variant(void)>> singleton_getters;
     void setup_entity_renderers();
+    void update_physics_spaces();
 };

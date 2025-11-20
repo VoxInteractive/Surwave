@@ -7,6 +7,9 @@
 #include <godot_cpp/classes/multi_mesh_instance2d.hpp>
 #include <godot_cpp/classes/multi_mesh_instance3d.hpp>
 #include <godot_cpp/classes/rendering_server.hpp>
+#include <godot_cpp/classes/viewport.hpp>
+#include <godot_cpp/classes/world2d.hpp>
+#include <godot_cpp/classes/world3d.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
 #include "src/world.h"
@@ -18,11 +21,13 @@
 #include "src/components/godot_variants.h"
 #include "src/components/entity_rendering.h"
 #include "src/components/transform.h"
+#include "src/components/physics.h"
 #include "src/components/player.h"
 
 #include "src/systems/prefab_instantiation.h"
 #include "src/systems/transform_update.h"
 #include "src/systems/entity_rendering.h"
+#include "src/systems/physics.h"
 
 // Define the global buffer cache that is declared in entity_rendering.h
 std::unordered_map<godot::RID, godot::PackedFloat32Array> g_multimesh_buffer_cache;
@@ -199,11 +204,40 @@ void FlecsWorld::setup_entity_renderers()
     }
 }
 
+void FlecsWorld::update_physics_spaces()
+{
+    if (!is_inside_tree()) { return; }
+
+    godot::Viewport* viewport = get_viewport();
+    if (!viewport) { return; }
+
+    godot::Ref<godot::World2D> world_2d = viewport->find_world_2d();
+    if (world_2d.is_valid())
+    {
+        godot::RID space = world_2d->get_space();
+        if (space.is_valid())
+        {
+            world.set<PhysicsSpace2D>({ space });
+        }
+    }
+
+    godot::Ref<godot::World3D> world_3d = viewport->find_world_3d();
+    if (world_3d.is_valid())
+    {
+        godot::RID space = world_3d->get_space();
+        if (space.is_valid())
+        {
+            world.set<PhysicsSpace3D>({ space });
+        }
+    }
+}
+
 void FlecsWorld::_notification(const int p_what)
 {
     if (p_what == NOTIFICATION_READY)
     {
         setup_entity_renderers();
+        update_physics_spaces();
     }
 }
 
