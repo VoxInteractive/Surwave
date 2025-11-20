@@ -14,7 +14,7 @@ inline const PhysicsBodyShapes2D& get_character2d_physics_shapes()
 {
     static const PhysicsBodyShapes2D shapes = []() {
         PhysicsBodyShapes2D data;
-        data.body_mode = godot::PhysicsServer2D::BODY_MODE_KINEMATIC;
+        data.body_mode = godot::PhysicsServer2D::BODY_MODE_RIGID;
         data.collision_layer = 16; // Monsters layer
         data.collision_mask = 1 | 2 | 4 | 8 | 16; // Borders, objects, players, portals, monsters
 

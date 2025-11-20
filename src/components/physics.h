@@ -37,7 +37,7 @@ struct PhysicsBodyShape2DDefinition
 struct PhysicsBodyShapes2D
 {
     std::vector<PhysicsBodyShape2DDefinition> shapes;
-    godot::PhysicsServer2D::BodyMode body_mode = godot::PhysicsServer2D::BODY_MODE_KINEMATIC;
+    godot::PhysicsServer2D::BodyMode body_mode = godot::PhysicsServer2D::BODY_MODE_RIGID;
     int64_t collision_layer = 1;
     int64_t collision_mask = 1;
 };
@@ -81,8 +81,12 @@ struct PhysicsSpace3D
 };
 
 inline FlecsRegistry register_physics_components([](flecs::world& world) {
-    world.component<Velocity2D>("Velocity2D");
-    world.component<Velocity3D>("Velocity3D");
+    world.component<Velocity2D>("Velocity2D")
+        .member<godot::Vector2>("value");
+
+    world.component<Velocity3D>("Velocity3D")
+        .member<godot::Vector3>("value");
+
     world.component<PhysicsBodyShapes2D>("PhysicsBodyShapes2D");
     world.component<PhysicsBodyInstance2D>("PhysicsBodyInstance2D");
     world.component<PhysicsSpace2D>("PhysicsSpace2D").add(flecs::Singleton);
