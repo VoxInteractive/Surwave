@@ -23,6 +23,7 @@ inline FlecsRegistry register_enemy_wander_system([](flecs::world& world) {
 		const TimeInState,
 		const PlayerPosition&>("Enemy Wander")
 		.with<EnemyState, EnemyState::Wandering>()
+		.multi_threaded()
 		.each([](
 			flecs::iter& it,
 			size_t i,

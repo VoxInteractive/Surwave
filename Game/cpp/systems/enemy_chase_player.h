@@ -21,6 +21,7 @@ inline FlecsRegistry register_enemy_chase_player_system([](flecs::world& world) 
 		const PlayerPosition&,
 		const CharacterContactBeginDistanceSquared&>("Enemy Chase Player")
 		.with<EnemyState, EnemyState::ChasingThePlayer>()
+		.multi_threaded()
 		.each([](
 			flecs::iter& it,
 			size_t i,

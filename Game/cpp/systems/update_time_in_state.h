@@ -8,6 +8,7 @@ inline FlecsRegistry register_update_time_in_state_system([](flecs::world& world
     world.system<TimeInState>("Update Time In State")
         .kind(flecs::PreUpdate)
         .with(flecs::IsA, world.lookup("Enemy"))
+        .multi_threaded()
         .each([](flecs::iter& it, size_t i, TimeInState& time) {
         time.value += it.delta_time();
     });
