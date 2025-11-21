@@ -1,4 +1,5 @@
 #include <thread>
+#include <cctype>
 
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/core/defs.hpp>
@@ -160,30 +161,67 @@ void FlecsWorld::setup_entity_renderers()
         // Build a single query for all prefabs associated with this renderer.
         // This ensures that entities from different prefabs are sorted together.
         auto qb = world.query_builder();
-        // Y-sorting - very expensive! (measured 11x with 40k ent.)
-        const bool y_sorting_enabled = false; // TODO: make this configurable per renderer
+
+        // If a draw order sorting axis is specified in metadata, set up the ordering.
+        // Warning: This is expensive. Measured 11x slowdown when sorting 40k entities vs no sorting.
+        char sort_axis = '\0';
+        if (child->has_meta("draw_order")) {
+            godot::Variant meta_val = child->get_meta("draw_order");
+            if (meta_val.get_type() == godot::Variant::STRING || meta_val.get_type() == godot::Variant::STRING_NAME) {
+                godot::String sort_axis_str = meta_val;
+                if (sort_axis_str.length() == 1) {
+                    sort_axis = std::tolower(sort_axis_str.utf8().get_data()[0]);
+                }
+            }
+        }
+
         if (multimesh->get_transform_format() == godot::MultiMesh::TRANSFORM_2D)
         {
             qb.with<const godot::Transform2D>();
-            if (y_sorting_enabled) {
-                qb.order_by<godot::Transform2D>(
-                    [](flecs::entity_t, const godot::Transform2D* t1, flecs::entity_t, const godot::Transform2D* t2) {
-                    if (t1->get_origin().y > t2->get_origin().y) return 1;
-                    if (t1->get_origin().y < t2->get_origin().y) return -1;
-                    return 0;
-                });
+            if (sort_axis != '\0') {
+                switch (sort_axis) {
+                case 'x':
+                    qb.order_by<godot::Transform2D>(
+                        [](flecs::entity_t, const godot::Transform2D* t1, flecs::entity_t, const godot::Transform2D* t2) {
+                        if (t1->get_origin().x > t2->get_origin().x) return 1; if (t1->get_origin().x < t2->get_origin().x) return -1; return 0;
+                    });
+                    break;
+                case 'y':
+                    qb.order_by<godot::Transform2D>(
+                        [](flecs::entity_t, const godot::Transform2D* t1, flecs::entity_t, const godot::Transform2D* t2) {
+                        if (t1->get_origin().y > t2->get_origin().y) return 1; if (t1->get_origin().y < t2->get_origin().y) return -1; return 0;
+                    });
+                    break;
+                default:
+                    // z-axis is not applicable for 2D, so we ignore it.
+                    break;
+                }
             }
         }
         else
         {
             qb.with<const godot::Transform3D>();
-            if (y_sorting_enabled) {
-                qb.order_by<godot::Transform3D>(
-                    [](flecs::entity_t, const godot::Transform3D* t1, flecs::entity_t, const godot::Transform3D* t2) {
-                    if (t1->origin.y > t2->origin.y) return 1;
-                    if (t1->origin.y < t2->origin.y) return -1;
-                    return 0;
-                });
+            if (sort_axis != '\0') {
+                switch (sort_axis) {
+                case 'x':
+                    qb.order_by<godot::Transform3D>(
+                        [](flecs::entity_t, const godot::Transform3D* t1, flecs::entity_t, const godot::Transform3D* t2) {
+                        if (t1->origin.x > t2->origin.x) return 1; if (t1->origin.x < t2->origin.x) return -1; return 0;
+                    });
+                    break;
+                case 'y':
+                    qb.order_by<godot::Transform3D>(
+                        [](flecs::entity_t, const godot::Transform3D* t1, flecs::entity_t, const godot::Transform3D* t2) {
+                        if (t1->origin.y > t2->origin.y) return 1; if (t1->origin.y < t2->origin.y) return -1; return 0;
+                    });
+                    break;
+                case 'z':
+                    qb.order_by<godot::Transform3D>(
+                        [](flecs::entity_t, const godot::Transform3D* t1, flecs::entity_t, const godot::Transform3D* t2) {
+                        if (t1->origin.z > t2->origin.z) return 1; if (t1->origin.z < t2->origin.z) return -1; return 0;
+                    });
+                    break;
+                }
             }
         }
 
