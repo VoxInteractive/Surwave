@@ -205,7 +205,6 @@ material = SubResource("ShaderMaterial_1m5sl")
 multimesh = SubResource("MultiMesh_c1wav")
 texture = ExtResource("4_qgwcv")
 metadata/prefabs_rendered = ["BugSmall", "BugHumanoid", "BugLarge"]
-metadata/draw_order = &"Y"
 
 [node name="Terrain" type="MeshInstance2D" parent="."]
 z_index = -99
