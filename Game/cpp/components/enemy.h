@@ -4,6 +4,9 @@
 
 #include "src/flecs_registry.h"
 
+struct RadiusSquared {
+    godot::real_t value;
+};
 
 struct HitPoints {
     godot::real_t value;
@@ -35,6 +38,9 @@ struct RestDuration {
 
 
 inline FlecsRegistry register_enemy_stats_components([](flecs::world& world) {
+    world.component<RadiusSquared>("RadiusSquared")
+        .member<godot::real_t>("value");
+
     world.component<HitPoints>("HitPoints")
         .member<godot::real_t>("value");
 
