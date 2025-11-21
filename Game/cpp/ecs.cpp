@@ -7,6 +7,7 @@
 #include "prefabs/enemy.h"
 
 #include "systems/update_time_in_state.h"
+#include "systems/velocity_to_position.h"
 #include "systems/enemy_idle.h"
 #include "systems/enemy_wander.h"
 #include "systems/enemy_chase_player.h"

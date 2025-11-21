@@ -4,6 +4,7 @@
 
 #include "src/flecs_registry.h"
 #include "src/components/player.h"
+#include "src/components/physics.h"
 #include "src/components/transform.h"
 
 #include "components/enemy.h"
@@ -13,7 +14,8 @@
 
 inline FlecsRegistry register_enemy_chase_player_system([](flecs::world& world) {
 	world.system<
-		Position2D,
+		Velocity2D,
+		const Position2D,
 		const MovementSpeed,
 		const LoseTargetRadiusSquared,
 		const PlayerPosition&,
@@ -22,7 +24,8 @@ inline FlecsRegistry register_enemy_chase_player_system([](flecs::world& world) 
 		.each([](
 			flecs::iter& it,
 			size_t i,
-			Position2D& position,
+			Velocity2D& velocity,
+			const Position2D& position,
 			const MovementSpeed& movement_speed,
 			const LoseTargetRadiusSquared& lose_target_radius_sq,
 			const PlayerPosition& player_position,
@@ -31,12 +34,14 @@ inline FlecsRegistry register_enemy_chase_player_system([](flecs::world& world) 
 		// Condition to transition to Idle
 		const float distance_to_player_sq = position.value.distance_squared_to(player_position.value);
 		if (distance_to_player_sq > lose_target_radius_sq.value) {
+			velocity.value = godot::Vector2(0.0f, 0.0f);
 			set_state<EnemyState::Idle>(it.entity(i));
 			return; // Stop processing this entity for this frame
 		}
 
 		// Enter Attacking when close enough
 		if (distance_to_player_sq < contact_begin_dist_sq.value) {
+			velocity.value = godot::Vector2(0.0f, 0.0f);
 			set_state<EnemyState::AttackingThePlayer>(it.entity(i));
 			return;
 		}
@@ -47,7 +52,6 @@ inline FlecsRegistry register_enemy_chase_player_system([](flecs::world& world) 
 			direction = direction.normalized();
 		}
 
-		godot::Vector2 velocity = direction * movement_speed.value;
-		position.value += velocity * it.delta_time();
+		velocity.value = direction * movement_speed.value;
 	});
 });
