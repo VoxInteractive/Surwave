@@ -9,6 +9,7 @@
 inline FlecsRegistry register_enemy_prefab([](flecs::world& world) {
     world.prefab("Enemy")
         .is_a(world.lookup("Character2D"))
+        .set<Radius>({ 8.0f })
         .set<PlayerDetectionRadiusSquared>({ 20000.0f })
         .set<LoseTargetRadiusSquared>({ 24000.0f })
         .set<WanderMoveDuration>({ 3.0f })
