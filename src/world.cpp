@@ -160,24 +160,31 @@ void FlecsWorld::setup_entity_renderers()
         // Build a single query for all prefabs associated with this renderer.
         // This ensures that entities from different prefabs are sorted together.
         auto qb = world.query_builder();
-        // Y-sorting
+        // Y-sorting - very expensive! (measured 11x with 40k ent.)
+        const bool y_sorting_enabled = false; // TODO: make this configurable per renderer
         if (multimesh->get_transform_format() == godot::MultiMesh::TRANSFORM_2D)
         {
-            qb.with<const godot::Transform2D>().order_by<godot::Transform2D>(
-                [](flecs::entity_t, const godot::Transform2D* t1, flecs::entity_t, const godot::Transform2D* t2) {
-                if (t1->get_origin().y > t2->get_origin().y) return 1;
-                if (t1->get_origin().y < t2->get_origin().y) return -1;
-                return 0;
-            });
+            qb.with<const godot::Transform2D>();
+            if (y_sorting_enabled) {
+                qb.order_by<godot::Transform2D>(
+                    [](flecs::entity_t, const godot::Transform2D* t1, flecs::entity_t, const godot::Transform2D* t2) {
+                    if (t1->get_origin().y > t2->get_origin().y) return 1;
+                    if (t1->get_origin().y < t2->get_origin().y) return -1;
+                    return 0;
+                });
+            }
         }
         else
         {
-            qb.with<const godot::Transform3D>().order_by<godot::Transform3D>(
-                [](flecs::entity_t, const godot::Transform3D* t1, flecs::entity_t, const godot::Transform3D* t2) {
-                if (t1->origin.y > t2->origin.y) return 1;
-                if (t1->origin.y < t2->origin.y) return -1;
-                return 0;
-            });
+            qb.with<const godot::Transform3D>();
+            if (y_sorting_enabled) {
+                qb.order_by<godot::Transform3D>(
+                    [](flecs::entity_t, const godot::Transform3D* t1, flecs::entity_t, const godot::Transform3D* t2) {
+                    if (t1->origin.y > t2->origin.y) return 1;
+                    if (t1->origin.y < t2->origin.y) return -1;
+                    return 0;
+                });
+            }
         }
 
         if (multimesh->is_using_colors())
