@@ -17,7 +17,6 @@ inline FlecsRegistry register_enemy_idle_system([](flecs::world& world) {
         const TimeInState,
         const PlayerPosition&>("Enemy Idle")
         .with<EnemyState, EnemyState::Idle>()
-        .multi_threaded()
         .each([](
             flecs::entity entity,
             const Position2D& pos,

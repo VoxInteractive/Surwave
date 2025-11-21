@@ -17,7 +17,6 @@ inline FlecsRegistry register_enemy_attack_player_system([](flecs::world& world)
         const PlayerPosition&,
         const CharacterContactEndDistanceSquared&>("Enemy Attack Player")
         .with<EnemyState, EnemyState::AttackingThePlayer>()
-        .multi_threaded()
         .each([](
             flecs::entity entity,
             const Position2D& position,
