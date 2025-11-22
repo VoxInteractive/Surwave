@@ -17,8 +17,9 @@ var position_at_frame_start: Vector2
 var movement_in_frame: Vector2
 var has_moved_this_frame: bool = false
 
-var shoot_weapon_timer: float = 0.0
+var shoot_weapon_timer: float
 var can_shoot_weapon: bool = false
+var just_fired_weapon: bool = false
 
 var shockwave_timer: float = 0.0
 var can_fire_shockwave: bool = false
@@ -34,7 +35,7 @@ enum PlayerState {
 	RUNNING_AND_SHOOTING_DOWN,
 	SHOOTING_RIGHT,
 	RUNNING_AND_SHOOTING_RIGHT,
-	DEAD
+	DYING
 }
 
 const PlayerAnimationFrames: Dictionary[PlayerState, Array] = {
@@ -42,31 +43,38 @@ const PlayerAnimationFrames: Dictionary[PlayerState, Array] = {
 	PlayerState.TALKING: [9], # unused
 	PlayerState.RELOADING: [16, 17, 18, 19, 20], # unused
 	PlayerState.RUNNING: [24, 25, 26, 27],
+	PlayerState.SHOOTING_RIGHT: [32, 35],
 	PlayerState.SHOOTING_UP: [33, 34],
 	PlayerState.SHOOTING_DOWN: [37, 38],
+	PlayerState.RUNNING_AND_SHOOTING_RIGHT: [48, 51],
 	PlayerState.RUNNING_AND_SHOOTING_UP: [49, 50],
 	PlayerState.RUNNING_AND_SHOOTING_DOWN: [52, 53],
-	PlayerState.SHOOTING_RIGHT: [32, 35],
-	PlayerState.RUNNING_AND_SHOOTING_RIGHT: [48, 51],
-	PlayerState.DEAD: [40, 41, 42, 43, 44, 45, 46]
+	PlayerState.DYING: [40, 41, 42, 43, 44, 45, 46]
 }
 const PlayerAnimationModes: Dictionary[PlayerState, Game.AnimationMode] = {
 	PlayerState.IDLE: Game.AnimationMode.LOOP,
 	PlayerState.TALKING: Game.AnimationMode.ONCE,
 	PlayerState.RELOADING: Game.AnimationMode.ONCE,
 	PlayerState.RUNNING: Game.AnimationMode.LOOP,
+	PlayerState.SHOOTING_RIGHT: Game.AnimationMode.LOOP,
 	PlayerState.SHOOTING_UP: Game.AnimationMode.LOOP,
 	PlayerState.SHOOTING_DOWN: Game.AnimationMode.LOOP,
+	PlayerState.RUNNING_AND_SHOOTING_RIGHT: Game.AnimationMode.LOOP,
 	PlayerState.RUNNING_AND_SHOOTING_UP: Game.AnimationMode.LOOP,
 	PlayerState.RUNNING_AND_SHOOTING_DOWN: Game.AnimationMode.LOOP,
-	PlayerState.SHOOTING_RIGHT: Game.AnimationMode.LOOP,
-	PlayerState.RUNNING_AND_SHOOTING_RIGHT: Game.AnimationMode.LOOP,
-	PlayerState.DEAD: Game.AnimationMode.ONCE
+	PlayerState.DYING: Game.AnimationMode.ONCE
 }
+const first_shooting_animation_frames: Array[int] = [
+	PlayerAnimationFrames[PlayerState.SHOOTING_RIGHT][0],
+	PlayerAnimationFrames[PlayerState.SHOOTING_UP][0],
+	PlayerAnimationFrames[PlayerState.SHOOTING_DOWN][0],
+	PlayerAnimationFrames[PlayerState.RUNNING_AND_SHOOTING_RIGHT][0],
+	PlayerAnimationFrames[PlayerState.RUNNING_AND_SHOOTING_UP][0],
+	PlayerAnimationFrames[PlayerState.RUNNING_AND_SHOOTING_DOWN][0]
+]
 
 func _get_animation_frames(p_state: PlayerState) -> Array:
 	return PlayerAnimationFrames[p_state]
-
 
 func _get_animation_mode(p_state: PlayerState):
 	return PlayerAnimationModes[p_state]
@@ -77,35 +85,44 @@ func _get_animation_mode(p_state: PlayerState):
 @onready var action_vfx_animation_player: AnimationPlayer = $CharacterBody2D/ActionVFX/AnimationPlayer
 
 func _ready() -> void:
+	animation_frame_changed.connect(_on_animation_frame_changed)
 	set_state(PlayerState.IDLE)
+	shoot_weapon_timer = animation_interval
+	can_shoot_weapon = true
 
 
 func _process(delta: float) -> void:
+	just_fired_weapon = false # Reset at the beginning of every frame
 	_tick_cooldowns(delta)
 	_handle_input(delta)
 	super._process(delta);
 
 
+func _on_animation_frame_changed(frame: int) -> void:
+	if first_shooting_animation_frames.has(frame):
+		just_fired_weapon = true
+		print("just_fired_weapon is true")
+
+
 func _tick_cooldowns(delta: float) -> void:
 	shoot_weapon_timer += delta
-	if can_shoot_weapon == false and shoot_weapon_timer >= animation_interval:
+	if not can_shoot_weapon and shoot_weapon_timer >= animation_interval:
 		can_shoot_weapon = true
-	else:
-		can_shoot_weapon = false
 
 	shockwave_timer += delta
-	if can_fire_shockwave == false and shockwave_timer >= shockwave_cooldown:
+	if not can_fire_shockwave and shockwave_timer >= shockwave_cooldown:
 		can_fire_shockwave = true
-	else:
-		can_fire_shockwave = false
 
 
 func _handle_input(delta: float) -> void:
 	position_at_frame_start = character_body.global_position
 
-	var is_shooting = Input.is_action_pressed("shoot_weapon") # Don't check for can_shoot_weapon here because unlike shockwave, this is a continuous action
-	if is_shooting: shoot_weapon_timer += delta
-	else: shoot_weapon_timer = 0.0
+	var is_shooting_input = Input.is_action_pressed("shoot_weapon")
+	if is_shooting_input and can_shoot_weapon:
+		can_shoot_weapon = false
+		shoot_weapon_timer = 0.0
+
+	var is_shooting = is_shooting_input or shoot_weapon_timer < animation_interval
 
 	adjusted_movement_speed = movement_speed * (1 - movement_speed_penalty_when_shooting) if is_shooting else movement_speed
 	var aim_direction = (get_global_mouse_position() - character_body.global_position).normalized()
@@ -120,6 +137,8 @@ func _handle_input(delta: float) -> void:
 
 	movement_in_frame = character_body.global_position - position_at_frame_start
 	has_moved_this_frame = movement_in_frame.length() > 0.01
+
+	var new_state = state
 
 	# Sprite Animations
 	if is_shooting:
@@ -136,26 +155,29 @@ func _handle_input(delta: float) -> void:
 	if has_moved_this_frame:
 		if is_shooting:
 			if is_aiming_up:
-				set_state(PlayerState.RUNNING_AND_SHOOTING_UP)
+				new_state = PlayerState.RUNNING_AND_SHOOTING_UP
 			elif is_aiming_down:
-				set_state(PlayerState.RUNNING_AND_SHOOTING_DOWN)
+				new_state = PlayerState.RUNNING_AND_SHOOTING_DOWN
 			else:
-				set_state(PlayerState.RUNNING_AND_SHOOTING_RIGHT)
+				new_state = PlayerState.RUNNING_AND_SHOOTING_RIGHT
 		else:
 			if not is_colliding:
-				set_state(PlayerState.RUNNING)
+				new_state = PlayerState.RUNNING
 	else:
 		if is_shooting:
 			if is_aiming_up:
-				set_state(PlayerState.SHOOTING_UP)
+				new_state = PlayerState.SHOOTING_UP
 			elif is_aiming_down:
-				set_state(PlayerState.SHOOTING_DOWN)
+				new_state = PlayerState.SHOOTING_DOWN
 			else:
-				set_state(PlayerState.SHOOTING_RIGHT)
+				new_state = PlayerState.SHOOTING_RIGHT
 		else:
-			set_state(PlayerState.IDLE)
+			new_state = PlayerState.IDLE
+	
+	set_state(new_state)
 
 	# Action VFX
 	if Input.is_action_just_pressed("shockwave") && can_fire_shockwave:
 		action_vfx_animation_player.play("Shockwave")
+		can_fire_shockwave = false
 		shockwave_timer = 0.0
