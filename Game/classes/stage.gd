@@ -4,15 +4,15 @@ class_name Stage extends Node
 ## The terrain margin in terms of tile count of the Borders tile map layer.
 @export var terrain_margin: int = 3
 ## The number of objects to place. The actual number of total objects placed may be lower due to skip logic
-@export var object_count: int = 200
+@export var object_count: int = 30
 
 @export_category("Initial Enemy Population Spawning")
 ## The number of times the spawning logic will run. Each iteration spawns a batch of enemies.
-@export var spawn_iterations: int = 2000
+@export var spawn_iterations: int = 50
 ## The margin from the terrain edge, creating an outer boundary for enemy spawning.
-@export var spawn_outer_margin: float = 96.0
+@export var spawn_outer_margin: float = 0.0
 ## The margin from the center of the map, creating an inner boundary to keep the center clear of initial enemies.
-@export var spawn_inner_margin: float = 10.0
+@export var spawn_inner_margin: float = 100.0
 ## A value greater than 0 biases enemy spawns towards the corners of the spawn area. A value of 0 disables the bias.
 @export var spawn_corner_bias: float = 3.0
 ## Controls the radial distribution of spawns. > 1.0 pushes spawns outward, < 1.0 pulls them inward.
