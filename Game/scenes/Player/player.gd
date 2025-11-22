@@ -1,16 +1,27 @@
 class_name Player extends AnimatedObject
 
-@export_range(1.0, 1000.0, 1.0)
+@export_category("Movement")
+@export_range(1.0, 200.0, 1.0)
 var movement_speed: float = 70.0
 var adjusted_movement_speed := movement_speed
 @export_range(0.0, 1.0, 0.01)
 var movement_speed_penalty_when_shooting: float = 0.4
+
+@export_category("Cooldowns")
+@export_range(0.5, 10.0, 0.1)
+var shockwave_cooldown: float = 2.0
 
 var input_movement_vector: Vector2
 var is_colliding: bool = false
 var position_at_frame_start: Vector2
 var movement_in_frame: Vector2
 var has_moved_this_frame: bool = false
+
+var shoot_weapon_timer: float = 0.0
+var can_shoot_weapon: bool = false
+
+var shockwave_timer: float = 0.0
+var can_fire_shockwave: bool = false
 
 enum PlayerState {
 	IDLE,
@@ -70,14 +81,32 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	_handle_input()
+	_tick_cooldowns(delta)
+	_handle_input(delta)
 	super._process(delta);
 
 
-func _handle_input() -> void:
+func _tick_cooldowns(delta: float) -> void:
+	shoot_weapon_timer += delta
+	if can_shoot_weapon == false and shoot_weapon_timer >= animation_interval:
+		can_shoot_weapon = true
+	else:
+		can_shoot_weapon = false
+
+	shockwave_timer += delta
+	if can_fire_shockwave == false and shockwave_timer >= shockwave_cooldown:
+		can_fire_shockwave = true
+	else:
+		can_fire_shockwave = false
+
+
+func _handle_input(delta: float) -> void:
 	position_at_frame_start = character_body.global_position
 
-	var is_shooting = Input.is_action_pressed("shoot_weapon")
+	var is_shooting = Input.is_action_pressed("shoot_weapon") # Don't check for can_shoot_weapon here because unlike shockwave, this is a continuous action
+	if is_shooting: shoot_weapon_timer += delta
+	else: shoot_weapon_timer = 0.0
+
 	adjusted_movement_speed = movement_speed * (1 - movement_speed_penalty_when_shooting) if is_shooting else movement_speed
 	var aim_direction = (get_global_mouse_position() - character_body.global_position).normalized()
 	var is_aiming_up = abs(aim_direction.y) > abs(aim_direction.x) and aim_direction.y < 0
@@ -127,5 +156,6 @@ func _handle_input() -> void:
 			set_state(PlayerState.IDLE)
 
 	# Action VFX
-	if Input.is_action_just_pressed("shockwave"):
+	if Input.is_action_just_pressed("shockwave") && can_fire_shockwave:
 		action_vfx_animation_player.play("Shockwave")
+		shockwave_timer = 0.0
