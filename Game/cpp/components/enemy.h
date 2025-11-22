@@ -16,14 +16,24 @@ struct MeleeDamage {
     godot::real_t value;
 };
 
+struct AnimationFrameOffset {
+    size_t value;
+};
+
 
 inline FlecsRegistry register_enemy_stats_components([](flecs::world& world) {
     world.component<HitPoints>("HitPoints")
         .member<godot::real_t>("value");
 
     world.component<MovementSpeed>("MovementSpeed")
-        .member<godot::real_t>("value");
+        .member<godot::real_t>("value")
+        .add(flecs::OnInstantiate, flecs::Inherit);
 
     world.component<MeleeDamage>("MeleeDamage")
-        .member<godot::real_t>("value");
+        .member<godot::real_t>("value")
+        .add(flecs::OnInstantiate, flecs::Inherit);
+
+    world.component<AnimationFrameOffset>("AnimationFrameOffset")
+        .member<size_t>("value")
+        .add(flecs::OnInstantiate, flecs::Inherit);
 });

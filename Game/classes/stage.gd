@@ -12,7 +12,7 @@ class_name Stage extends Node
 ## The margin from the terrain edge, creating an outer boundary for enemy spawning.
 @export var spawn_outer_margin: float = 0.0
 ## The margin from the center of the map, creating an inner boundary to keep the center clear of initial enemies.
-@export var spawn_inner_margin: float = 320.0
+@export var spawn_inner_margin: float = 220.0
 ## A value greater than 0 biases enemy spawns towards the corners of the spawn area. A value of 0 disables the bias.
 @export var spawn_corner_bias: float = 3.0
 ## Controls the radial distribution of spawns. > 1.0 pushes spawns outward, < 1.0 pulls them inward.

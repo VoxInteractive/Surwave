@@ -1,7 +1,6 @@
 prefab BugHumanoid : Enemy {
+	AnimationFrameOffset: {value: 24}
 	HitPoints: {value: 3}
-	MovementSpeed: {value: 4}
 	MeleeDamage: {value: 2}
-
-	RenderingCustomData: { r: 36, g: 0, b: 0, a: 0 }
+	MovementSpeed: {value: 4}
 }

@@ -84,6 +84,7 @@ func _get_animation_mode(p_state: PlayerState):
 @onready var _sprite: Sprite2D = $CharacterBody2D/Sprite2D
 @onready var action_vfx_animation_player: AnimationPlayer = $CharacterBody2D/ActionVFX/AnimationPlayer
 
+
 func _ready() -> void:
 	animation_frame_changed.connect(_on_animation_frame_changed)
 	set_state(PlayerState.IDLE)
