@@ -1,7 +1,5 @@
 shader_type canvas_item;
 
-uniform sampler2D SCREEN_TEXTURE : hint_screen_texture, filter_linear_mipmap;
-
 uniform float force = 0.5;
 uniform float radius = 0.3;
 uniform float inner_ring = 0.1;
@@ -13,11 +11,11 @@ void vertex() {
 }
 
 void fragment() {
-	float mask =	(1.0 - smoothstep(radius - outer_ring, radius, length(UV - uv_center)))
+	float mask =	 (1.0 - smoothstep(radius - outer_ring, radius, length(UV - uv_center)))
 		* smoothstep(radius - outer_ring - inner_ring, radius - inner_ring, length(UV - uv_center));
 	vec2 displacement = normalize(SCREEN_UV - uv_center) * force * mask;
-	COLOR = texture(SCREEN_TEXTURE, UV - displacement);
-	//COLOR.rgb = vec3(mask);
+	//COLOR = vec4(mask);
+	COLOR.rgb = vec3(mask);
 }
 
 //void light() {

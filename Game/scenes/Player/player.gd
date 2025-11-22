@@ -1,7 +1,7 @@
 class_name Player extends AnimatedObject
 
 @export_range(1.0, 1000.0, 1.0)
-var movement_speed: float = 60.0
+var movement_speed: float = 70.0
 var adjusted_movement_speed := movement_speed
 @export_range(0.0, 1.0, 0.01)
 var movement_speed_penalty_when_shooting: float = 0.4
