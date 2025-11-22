@@ -17,7 +17,7 @@ struct MeleeDamage {
 };
 
 struct AnimationFrameOffset {
-    size_t value;
+    float value; // Even though this is an integer value, using float to avoid casting when used in shaders
 };
 
 
@@ -26,14 +26,11 @@ inline FlecsRegistry register_enemy_stats_components([](flecs::world& world) {
         .member<godot::real_t>("value");
 
     world.component<MovementSpeed>("MovementSpeed")
-        .member<godot::real_t>("value")
-        .add(flecs::OnInstantiate, flecs::Inherit);
+        .member<godot::real_t>("value");
 
     world.component<MeleeDamage>("MeleeDamage")
-        .member<godot::real_t>("value")
-        .add(flecs::OnInstantiate, flecs::Inherit);
+        .member<godot::real_t>("value");
 
     world.component<AnimationFrameOffset>("AnimationFrameOffset")
-        .member<size_t>("value")
-        .add(flecs::OnInstantiate, flecs::Inherit);
+        .member<float>("value");
 });

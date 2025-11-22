@@ -44,16 +44,17 @@ inline FlecsRegistry register_enemy_animation_system([](flecs::world& world) {
             flecs::field<const AnimationFrameOffset> frame_offsets = it.field<const AnimationFrameOffset>(1);
             flecs::field<RenderingCustomData> custom_data_field = it.field<RenderingCustomData>(2);
 
-            for (int32_t row_index : it) {
-                const godot::Vector2 velocity_value = velocities[static_cast<size_t>(row_index)].value;
+            const size_t count = it.count();
+            for (size_t i = 0; i < count; ++i) {
+                const godot::Vector2 velocity_value = velocities[i].value;
                 const bool moving_north = velocity_value.y < 0.0f;
                 const bool moving_left = velocity_value.x < 0.0f;
 
-                const size_t base_offset = frame_offsets[static_cast<size_t>(row_index)].value;
-                const size_t directional_offset = moving_north ? up_direction_frame_offset : 0U;
-                const float base_frame = static_cast<float>(base_offset + directional_offset);
+                const float base_offset = frame_offsets[i].value;
+                const float directional_offset = (moving_north ? 1.0f : 0.0f) * static_cast<float>(up_direction_frame_offset) + 12.0f;
+                const float base_frame = base_offset + directional_offset;
 
-                RenderingCustomData& custom_data = custom_data_field[static_cast<size_t>(row_index)];
+                RenderingCustomData& custom_data = custom_data_field[i];
                 custom_data.r = base_frame;
                 custom_data.g = animation_range;
                 custom_data.b = static_cast<float>(animation_speed);
