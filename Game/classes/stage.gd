@@ -4,15 +4,15 @@ class_name Stage extends Node
 ## The terrain margin in terms of tile count of the Borders tile map layer.
 @export var terrain_margin: int = 3
 ## The number of objects to place. The actual number of total objects placed may be lower due to skip logic
-@export var object_count: int = 200
+@export var object_count: int = 30
 
 @export_category("Initial Enemy Population Spawning")
 ## The number of times the spawning logic will run. Each iteration spawns a batch of enemies.
-@export var spawn_iterations: int = 2000
+@export var spawn_iterations: int = 50
 ## The margin from the terrain edge, creating an outer boundary for enemy spawning.
-@export var spawn_outer_margin: float = 96.0
+@export var spawn_outer_margin: float = 0.0
 ## The margin from the center of the map, creating an inner boundary to keep the center clear of initial enemies.
-@export var spawn_inner_margin: float = 10.0
+@export var spawn_inner_margin: float = 640.0
 ## A value greater than 0 biases enemy spawns towards the corners of the spawn area. A value of 0 disables the bias.
 @export var spawn_corner_bias: float = 3.0
 ## Controls the radial distribution of spawns. > 1.0 pushes spawns outward, < 1.0 pulls them inward.
@@ -28,8 +28,7 @@ var landmark_occupied_areas: Array[Rect2]
 var spawn_iteration_counter: int = 0
 
 @onready var terrain: MeshInstance2D = $Terrain
-@onready var foliage: Node2D = $Terrain/Foliage
-@onready var objects: TileMapLayer = $Terrain/Objects
+@onready var terrain_object_multimesh_parents: Array[Node2D] = [$Terrain/Foliage]
 @onready var borders: TileMapLayer = $Terrain/Borders
 @onready var landmarks: Node = $Landmarks
 
@@ -41,8 +40,7 @@ func _ready() -> void:
 	half_outer_boundary = (terrain.mesh.size.x - (borders.tile_set.tile_size.x * terrain_margin)) / 2.0
 
 	_mark_landmark_occupied_areas()
-	_place_foliage()
-	_place_objects()
+	_place_terrain_objects()
 	_initialise_altars()
 	_initialise_portals()
 	_instantiate_player()
@@ -88,83 +86,17 @@ func _mark_landmark_occupied_areas() -> void:
 			landmark_occupied_areas.append(Rect2(landmark_position, landmark_size))
 
 
-func _place_foliage() -> void:
-	if foliage == null: return
+func _place_terrain_objects() -> void:
+	for mm_parent in terrain_object_multimesh_parents:
+		if mm_parent == null: continue
 
-	var half_terrain_size = terrain.mesh.size / 2.0
-	for multimesh_instance in foliage.get_children():
-		if multimesh_instance.multimesh == null or not multimesh_instance is MultiMeshInstance2D: continue
+		var half_terrain_size = terrain.mesh.size / 2.0
+		for multimesh_instance in mm_parent.get_children():
+			if multimesh_instance.multimesh == null or not multimesh_instance is MultiMeshInstance2D: continue
 
-		for i in multimesh_instance.multimesh.instance_count:
-			var random_position = Vector2(randf_range(-half_terrain_size.x, half_terrain_size.x), randf_range(-half_terrain_size.y, half_terrain_size.y))
-			multimesh_instance.multimesh.set_instance_transform_2d(i, Transform2D(randf_range(0, TAU), random_position))
-
-
-func _place_objects(inner_boundary: float = 100.0) -> int:
-	if objects == null: return 0
-	var available_tiles = []
-	for i in range(objects.tile_set.get_source_count()):
-		var source_id = objects.tile_set.get_source_id(i)
-		var source = objects.tile_set.get_source(source_id)
-		if source is TileSetAtlasSource:
-			for tile_index in range(source.get_tiles_count()):
-				var atlas_coords = source.get_tile_id(tile_index)
-				available_tiles.append({"source_id": source_id, "atlas_coords": atlas_coords})
-
-	if available_tiles.is_empty():
-		return 0
-
-	var placed_count = 0
-	var max_attempts = object_count * 5 # To avoid an infinite loop
-	var attempts = 0
-
-	while placed_count < object_count and attempts < max_attempts:
-		attempts += 1
-		var random_pos = Vector2(randf_range(-half_outer_boundary, half_outer_boundary), randf_range(-half_outer_boundary, half_outer_boundary))
-
-		# Discard points inside the inner square. The outer square is already handled by the random range.
-		if abs(random_pos.x) < inner_boundary and abs(random_pos.y) < inner_boundary:
-			continue
-		
-		var tile_size = objects.tile_set.tile_size.x
-		var is_occupied = false
-		for rect in landmark_occupied_areas:
-			# Grow the landmark rect to create a one-cell gap
-			if rect.grow(tile_size).has_point(random_pos):
-				is_occupied = true
-				break
-		if is_occupied:
-			continue
-		
-		var map_coords = objects.local_to_map(random_pos)
-		var can_place = true
-		# Check the 3x3 area around the target cell to prevent adjacent placements
-		for y in range(map_coords.y - 1, map_coords.y + 2):
-			for x in range(map_coords.x - 1, map_coords.x + 2):
-				if objects.get_cell_source_id(Vector2i(x, y)) != -1:
-					can_place = false
-					break
-			if not can_place:
-				break
-		
-		if can_place:
-			var transforms = [
-				0, # No transform
-				TileSetAtlasSource.TRANSFORM_FLIP_H,
-				TileSetAtlasSource.TRANSFORM_FLIP_V,
-				# ROTATE_90
-				TileSetAtlasSource.TRANSFORM_TRANSPOSE | TileSetAtlasSource.TRANSFORM_FLIP_H,
-				# ROTATE_180
-				TileSetAtlasSource.TRANSFORM_FLIP_H | TileSetAtlasSource.TRANSFORM_FLIP_V,
-				# ROTATE_270
-				TileSetAtlasSource.TRANSFORM_TRANSPOSE | TileSetAtlasSource.TRANSFORM_FLIP_V,
-			]
-			var random_transform = transforms.pick_random()
-			var random_tile = available_tiles.pick_random()
-			objects.set_cell(map_coords, random_tile.source_id, random_tile.atlas_coords, random_transform)
-			placed_count += 1
-
-	return placed_count
+			for i in multimesh_instance.multimesh.instance_count:
+				var random_position = Vector2(randf_range(-half_terrain_size.x, half_terrain_size.x), randf_range(-half_terrain_size.y, half_terrain_size.y))
+				multimesh_instance.multimesh.set_instance_transform_2d(i, Transform2D(randf_range(0, TAU), random_position))
 
 
 func _initialise_altars() -> void:
@@ -206,9 +138,9 @@ func _set_world_singletons() -> void:
 func _spawn_initial_enemy_population() -> void:
 	while spawn_iteration_counter < spawn_iterations:
 		var prefabs_to_spawn: Dictionary = {
-			"BugSmall": 15,
-			"BugHumanoid": 3,
-			"BugLarge": 2,
+			"BugSmall": 17,
+			"BugHumanoid": 2,
+			"BugLarge": 1,
 		}
 		
 		for prefab in prefabs_to_spawn:
