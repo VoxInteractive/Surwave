@@ -60,15 +60,21 @@ func _get_animation_frames(p_state: PlayerState) -> Array:
 func _get_animation_mode(p_state: PlayerState):
 	return PlayerAnimationModes[p_state]
 
+@onready var world: FlecsWorld = get_node("../World")
 @onready var character_body: CharacterBody2D = $CharacterBody2D
 @onready var _sprite: Sprite2D = $CharacterBody2D/Sprite2D
-@onready var world: FlecsWorld = get_node("../World")
+@onready var action_vfx_animation_player: AnimationPlayer = $CharacterBody2D/ActionVFX/AnimationPlayer
 
 func _ready() -> void:
 	set_state(PlayerState.IDLE)
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _physics_process(delta: float) -> void:
+
+func _process(delta: float) -> void:
+	_handle_input()
+	super._process(delta);
+
+
+func _handle_input() -> void:
 	position_at_frame_start = character_body.global_position
 
 	var is_shooting = Input.is_action_pressed("shoot_weapon")
@@ -86,6 +92,7 @@ func _physics_process(delta: float) -> void:
 	movement_in_frame = character_body.global_position - position_at_frame_start
 	has_moved_this_frame = movement_in_frame.length() > 0.01
 
+	# Sprite Animations
 	if is_shooting:
 		if aim_direction.x > 0:
 			_sprite.flip_h = false
@@ -118,3 +125,7 @@ func _physics_process(delta: float) -> void:
 				set_state(PlayerState.SHOOTING_RIGHT)
 		else:
 			set_state(PlayerState.IDLE)
+
+	# Action VFX
+	if Input.is_action_just_pressed("shockwave"):
+		action_vfx_animation_player.play("Shockwave")

@@ -15,7 +15,7 @@ void fragment() {
 		* smoothstep(radius - outer_ring - inner_ring, radius - inner_ring, length(UV - uv_center));
 	vec2 displacement = normalize(SCREEN_UV - uv_center) * force * mask;
 	//COLOR = vec4(mask);
-	COLOR.rgb = vec3(mask);
+	COLOR = vec4(mask);
 }
 
 //void light() {
