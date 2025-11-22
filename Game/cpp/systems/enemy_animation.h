@@ -10,6 +10,21 @@
 #include "components/enemy.h"
 #include "components/singletons.h"
 
+// The spritesheet contains 6 columns and 12 rows, with the death animations consisting of only the
+// leftmost 4 frames and walk animations using all 6 columns in their rows. Row by row layout:
+// BugSmall death(down)
+// BugSmall death(up)
+// BugSmall walk(down)
+// BugSmall walk(up)
+// BugHumanoid death(down)
+// BugHumanoid death(up)
+// BugHumanoid walk(down)
+// BugHumanoid walk(up)
+// BugLarge death(down)
+// BugLarge death(up)
+// BugLarge walk(down)
+// BugLarge walk(up)
+
 inline FlecsRegistry register_enemy_animation_system([](flecs::world& world) {
     world.system<const Velocity2D, const AnimationFrameOffset, RenderingCustomData>("Enemy Animation")
         .with(flecs::IsA, world.lookup("Enemy"))
