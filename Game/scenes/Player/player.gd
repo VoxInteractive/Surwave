@@ -73,6 +73,8 @@ const first_shooting_animation_frames: Array[int] = [
 	PlayerAnimationFrames[PlayerState.RUNNING_AND_SHOOTING_DOWN][0]
 ]
 
+const PROJECTILE = preload("uid://cdgbhqr7en0pv")
+
 func _get_animation_frames(p_state: PlayerState) -> Array:
 	return PlayerAnimationFrames[p_state]
 
@@ -83,7 +85,6 @@ func _get_animation_mode(p_state: PlayerState):
 @onready var character_body: CharacterBody2D = $CharacterBody2D
 @onready var _sprite: Sprite2D = $CharacterBody2D/Sprite2D
 @onready var action_vfx_animation_player: AnimationPlayer = $CharacterBody2D/ActionVFX/AnimationPlayer
-
 
 func _ready() -> void:
 	animation_frame_changed.connect(_on_animation_frame_changed)
@@ -120,6 +121,10 @@ func _handle_input(delta: float) -> void:
 
 	var is_shooting_input = Input.is_action_pressed("shoot_weapon")
 	if is_shooting_input and can_shoot_weapon:
+		var projectile :Node2D = PROJECTILE.instantiate()
+		projectile.global_position = character_body.global_position
+		add_child(projectile)
+		
 		can_shoot_weapon = false
 		shoot_weapon_timer = 0.0
 
