@@ -1,4 +1,4 @@
-extends Node2D
+class_name Projectile extends Node2D
 
 @export_category("General")
 @export var damage: float = 1.0;
@@ -26,11 +26,7 @@ func _ready() -> void:
 		direction = direction.rotated(random_radians);
 
 
-func _process(delta: float) -> void:
-	age += delta;;
-	var amplitude: float = oscillation_amplitude_increment * age;
-	var sideways_offset: Vector2 = right * sin(age * oscillation_frequency) * amplitude;
-	global_position += forward_offset + sideways_offset;
-
-	if age > lifetime:
-		queue_free()
+func _process(_delta: float) -> void:
+	var amplitude: float = oscillation_amplitude_increment * age
+	var sideways_offset: Vector2 = right * sin(age * oscillation_frequency) * amplitude
+	global_position += forward_offset + sideways_offset

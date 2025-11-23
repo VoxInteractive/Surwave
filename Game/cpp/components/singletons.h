@@ -1,8 +1,10 @@
 #pragma once
 
 #include <godot_cpp/core/math_defs.hpp>
+#include <godot_cpp/variant/dictionary.hpp>
 
 #include "src/flecs_registry.h"
+#include "src/flecs_singleton_registry.h"
 
 struct EnemyBoidForceWeights {
     godot::real_t alignment_weight;
@@ -23,6 +25,11 @@ struct EnemyBoidMovementSettings {
 struct EnemyAnimationSettings {
     godot::real_t animation_interval;
 };
+
+struct ProjectileData {
+    godot::Dictionary value;
+};
+
 
 inline FlecsRegistry register_game_singleton_components([](flecs::world& world) {
     world.component<EnemyBoidForceWeights>("EnemyBoidForceWeights")
@@ -47,4 +54,14 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
         .member<godot::real_t>("animation_interval")
         .add(flecs::Singleton)
         .set<EnemyAnimationSettings>({ 0.25f });
+
+
+    world.component<ProjectileData>("ProjectileData")
+        .add(flecs::Singleton);
+
+    register_singleton_setter<godot::Dictionary>("ProjectileData", [](flecs::world& world, const godot::Dictionary& projectile_data) {
+        world.set<ProjectileData>({ projectile_data });
+    });
+
+    register_singleton_getter<godot::Dictionary>("ProjectileData");
 });

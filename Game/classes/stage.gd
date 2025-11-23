@@ -33,7 +33,7 @@ var spawn_iteration_counter: int = 0
 @onready var landmarks: Node = $Landmarks
 
 @onready var world: FlecsWorld = $World
-
+var projectile_manager: ProjectileManager
 
 func _ready() -> void:
 	_validate_terrain()
@@ -48,6 +48,7 @@ func _ready() -> void:
 	_set_camera_limits()
 	_set_world_singletons()
 	_spawn_initial_enemy_population()
+	_initialise_projectile_manager()
 
 
 func _validate_terrain() -> void:
@@ -231,6 +232,14 @@ func _sample_radius_for_angle(max_radius: float, inner_margin: float, exponent: 
 		else:
 			higher_bound = mid
 	return (lower_bound + higher_bound) * 0.5
+
+
+func _initialise_projectile_manager() -> void:
+	# Instantiate ProjectileManager as a child so its processing and node-paths work correctly.
+	projectile_manager = ProjectileManager.new()
+	add_child(projectile_manager)
+	if world != null:
+		projectile_manager.world = world
 
 
 func _process(delta: float) -> void:
