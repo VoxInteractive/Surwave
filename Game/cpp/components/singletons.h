@@ -27,6 +27,8 @@ struct EnemyAnimationSettings {
     float walk_animation_range;
     float death_animation_frame_count;
     float up_direction_frame_offset;
+    float horizontal_flip_cooldown;
+    float vertical_flip_cooldown;
 };
 
 struct ProjectileData {
@@ -63,7 +65,7 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
             1.2f,   // player_attraction_weight
             28.0f,  // player_engage_distance
             110.0f, // neighbor_radius
-            30.0f,  // separation_radius
+            40.0f,  // separation_radius
             1.1f,   // max_speed_multiplier
             220.0f, // max_force
             96.0f   // grid_cell_size
@@ -74,12 +76,16 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
         .member<float>("walk_animation_range")
         .member<float>("death_animation_frame_count")
         .member<float>("up_direction_frame_offset")
+        .member<float>("horizontal_flip_cooldown")
+        .member<float>("vertical_flip_cooldown")
         .add(flecs::Singleton)
         .set<EnemyAnimationSettings>({
             0.25f, // animation_interval
             5.0f,  // walk_animation_range
             4.0f,  // death_animation_frame_count
-            6.0f   // up_direction_frame_offset
+            6.0f,  // up_direction_frame_offset
+            0.5f,  // horizontal_flip_cooldown
+            0.5f   // vertical_flip_cooldown
             });
 
 

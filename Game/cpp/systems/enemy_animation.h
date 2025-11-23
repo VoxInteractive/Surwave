@@ -12,6 +12,26 @@
 #include "components/enemy.h"
 #include "components/singletons.h"
 
+namespace enemy_animation_detail {
+
+    inline bool try_get_previous_walk_orientation(const RenderingCustomData& custom_data, float base_offset, float walk_animation_range, float up_direction_frame_offset, bool& is_facing_up) {
+        if (!godot::Math::is_equal_approx(custom_data.g, walk_animation_range)) {
+            return false;
+        }
+
+        if (up_direction_frame_offset <= 0.0f) {
+            is_facing_up = false;
+            return true;
+        }
+
+        const float stored_walk_offset = custom_data.r - base_offset - 12.0f;
+        const float threshold = up_direction_frame_offset * 0.5f;
+        is_facing_up = stored_walk_offset > threshold;
+        return true;
+    }
+
+} // namespace enemy_animation_detail
+
 // The spritesheet contains 6 columns and 12 rows, with the death animations consisting of only the
 // leftmost 4 frames and walk animations using all 6 columns in their rows. Row by row layout:
 // BugSmall death(down)
@@ -28,7 +48,7 @@
 // BugLarge walk(up)
 
 inline FlecsRegistry register_enemy_animation_system([](flecs::world& world) {
-    world.system<const Velocity2D, const AnimationFrameOffset, const DeathTimer, RenderingCustomData>("Enemy Animation")
+    world.system<const Velocity2D, const AnimationFrameOffset, const DeathTimer, HFlipTimer, VFlipTimer, RenderingCustomData>("Enemy Animation")
         .with(flecs::IsA, world.lookup("Enemy"))
         .kind(flecs::PostUpdate)
         .run([](flecs::iter& it) {
@@ -44,26 +64,72 @@ inline FlecsRegistry register_enemy_animation_system([](flecs::world& world) {
         const float death_animation_range = death_animation_frame_count - 1.0f;
         const float frame_interval = animation_interval > 0.0f ? animation_interval : 0.001f;
         const float up_direction_frame_offset = animation_settings->up_direction_frame_offset;
+        const float horizontal_flip_cooldown = godot::Math::max(animation_settings->horizontal_flip_cooldown, 0.0f);
+        const float vertical_flip_cooldown = godot::Math::max(animation_settings->vertical_flip_cooldown, 0.0f);
 
         while (it.next()) {
+            float delta_time = static_cast<float>(it.delta_time());
+            if (delta_time < 0.0f) {
+                delta_time = 0.0f;
+            }
+
             flecs::field<const Velocity2D> velocities = it.field<const Velocity2D>(0);
             flecs::field<const AnimationFrameOffset> frame_offsets = it.field<const AnimationFrameOffset>(1);
             flecs::field<const DeathTimer> death_timer = it.field<const DeathTimer>(2);
-            flecs::field<RenderingCustomData> custom_data_field = it.field<RenderingCustomData>(3);
+            flecs::field<HFlipTimer> horizontal_flip_timers = it.field<HFlipTimer>(3);
+            flecs::field<VFlipTimer> vertical_flip_timers = it.field<VFlipTimer>(4);
+            flecs::field<RenderingCustomData> custom_data_field = it.field<RenderingCustomData>(5);
 
             const size_t count = it.count();
             for (size_t i = 0; i < count; ++i) {
                 const godot::Vector2 velocity_value = velocities[i].value;
-                const bool moving_north = velocity_value.y < 0.0f;
-                const bool moving_left = velocity_value.x < 0.0f;
+                const bool wants_vertical_up = velocity_value.y < 0.0f;
+                const bool wants_horizontal_flip = velocity_value.x < 0.0f;
 
                 const float death_timer_value = death_timer[i].value;
-
                 const float base_offset = frame_offsets[i].value;
-                const float walk_directional_offset = (moving_north ? 1.0f : 0.0f) * up_direction_frame_offset + 12.0f;
-                const float death_directional_offset = (moving_north ? 1.0f : 0.0f) * up_direction_frame_offset;
 
                 RenderingCustomData& custom_data = custom_data_field[i];
+                HFlipTimer& horizontal_timer = horizontal_flip_timers[i];
+                VFlipTimer& vertical_timer = vertical_flip_timers[i];
+
+                if (delta_time > 0.0f) {
+                    horizontal_timer.value += delta_time;
+                    vertical_timer.value += delta_time;
+                }
+
+                uint32_t animation_flags = static_cast<uint32_t>(custom_data.a);
+                bool current_horizontal_flip = (animation_flags & 1U) != 0U;
+
+                if (horizontal_flip_cooldown <= 0.0f) {
+                    current_horizontal_flip = wants_horizontal_flip;
+                    horizontal_timer.value = 0.0f;
+                }
+                else if (wants_horizontal_flip != current_horizontal_flip && horizontal_timer.value >= horizontal_flip_cooldown) {
+                    current_horizontal_flip = wants_horizontal_flip;
+                    horizontal_timer.value = 0.0f;
+                }
+
+                bool resolved_vertical_up = wants_vertical_up;
+                if (death_timer_value <= 0.0f) {
+                    bool previous_vertical_up = wants_vertical_up;
+                    if (!enemy_animation_detail::try_get_previous_walk_orientation(custom_data, base_offset, animation_range, up_direction_frame_offset, previous_vertical_up)) {
+                        previous_vertical_up = wants_vertical_up;
+                    }
+
+                    resolved_vertical_up = previous_vertical_up;
+                    if (vertical_flip_cooldown <= 0.0f) {
+                        resolved_vertical_up = wants_vertical_up;
+                        vertical_timer.value = 0.0f;
+                    }
+                    else if (wants_vertical_up != previous_vertical_up && vertical_timer.value >= vertical_flip_cooldown) {
+                        resolved_vertical_up = wants_vertical_up;
+                        vertical_timer.value = 0.0f;
+                    }
+                }
+
+                const float walk_directional_offset = (resolved_vertical_up ? 1.0f : 0.0f) * up_direction_frame_offset + 12.0f;
+                const float death_directional_offset = (resolved_vertical_up ? 1.0f : 0.0f) * up_direction_frame_offset;
 
                 if (death_timer_value > 0.0f) { // Dying
                     const float frames_remaining = godot::Math::ceil(death_timer_value / frame_interval);
@@ -80,10 +146,7 @@ inline FlecsRegistry register_enemy_animation_system([](flecs::world& world) {
                     custom_data.b = static_cast<float>(animation_speed);
                 }
 
-                uint32_t animation_flags = 0U;
-                if (moving_left) {
-                    animation_flags |= 1U;
-                }
+                animation_flags = current_horizontal_flip ? 1U : 0U;
                 custom_data.a = static_cast<float>(animation_flags);
             }
         }

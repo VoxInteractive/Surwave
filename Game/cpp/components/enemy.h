@@ -28,6 +28,14 @@ struct DeathTimer {
     float value;
 };
 
+struct HFlipTimer {
+    float value;
+};
+
+struct VFlipTimer {
+    float value;
+};
+
 // struct IsDying {};
 
 
@@ -48,5 +56,11 @@ inline FlecsRegistry register_enemy_stats_components([](flecs::world& world) {
         .member<float>("value");
 
     world.component<DeathTimer>("DeathTimer")
+        .member<float>("value");
+
+    world.component<HFlipTimer>("HFlipTimer")
+        .member<float>("value");
+
+    world.component<VFlipTimer>("VFlipTimer")
         .member<float>("value");
 });
