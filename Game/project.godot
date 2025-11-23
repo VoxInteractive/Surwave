@@ -26,6 +26,7 @@ window/stretch/mode="viewport"
 [global_group]
 
 Players="root nodes of Player scenes belong to this group"
+Projectiles="root nodes of Projectile scenes belong to this group"
 
 [input]
 
