@@ -22,4 +22,6 @@ inline FlecsRegistry register_player_components([](flecs::world& world) {
     register_singleton_setter<godot::Vector2>("PlayerPosition", [](flecs::world& world, const godot::Vector2& player_position) {
         world.set<PlayerPosition>({ player_position });
     });
+
+    register_singleton_getter<PlayerPosition>("PlayerPosition");
 });
