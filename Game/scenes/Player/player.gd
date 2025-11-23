@@ -121,8 +121,9 @@ func _handle_input(delta: float) -> void:
 
 	var is_shooting_input = Input.is_action_pressed("shoot_weapon")
 	if is_shooting_input and can_shoot_weapon:
-		var projectile :Node2D = PROJECTILE.instantiate()
+		var projectile: Node2D = PROJECTILE.instantiate()
 		projectile.global_position = character_body.global_position
+		projectile.direction = (get_global_mouse_position() - character_body.global_position).normalized()
 		add_child(projectile)
 		
 		can_shoot_weapon = false
