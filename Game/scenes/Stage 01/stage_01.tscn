@@ -44,13 +44,14 @@ colors = PackedColorArray(0.44313726, 0.2509804, 0.34509805, 1, 0.56078434, 0.34
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_oji7v"]
 noise_type = 3
-frequency = 0.1
+frequency = 0.03
 domain_warp_enabled = true
 domain_warp_fractal_octaves = 3
 
 [sub_resource type="NoiseTexture2D" id="NoiseTexture2D_eml3u"]
-width = 1024
-height = 1024
+width = 2048
+height = 2048
+generate_mipmaps = false
 noise = SubResource("FastNoiseLite_oji7v")
 color_ramp = SubResource("Gradient_2lrbc")
 
@@ -184,6 +185,7 @@ material = SubResource("ShaderMaterial_1m5sl")
 multimesh = SubResource("MultiMesh_c1wav")
 texture = ExtResource("4_qgwcv")
 metadata/prefabs_rendered = ["BugSmall", "BugHumanoid", "BugLarge"]
+metadata/draw_order = "Y"
 
 [node name="Terrain" type="MeshInstance2D" parent="."]
 z_index = -99

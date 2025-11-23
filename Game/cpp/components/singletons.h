@@ -20,6 +20,9 @@ struct EnemyBoidMovementSettings {
     godot::real_t grid_cell_size;
 };
 
+struct EnemyAnimationSettings {
+    godot::real_t animation_interval;
+};
 
 inline FlecsRegistry register_game_singleton_components([](flecs::world& world) {
     world.component<EnemyBoidForceWeights>("EnemyBoidForceWeights")
@@ -39,4 +42,9 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
         .member<godot::real_t>("grid_cell_size")
         .add(flecs::Singleton)
         .set<EnemyBoidMovementSettings>({ 1.6f, 28.0f, 110.0f, 40.0f, 1.1f, 320.0f, 96.0f });
+
+    world.component<EnemyAnimationSettings>("EnemyAnimationSettings")
+        .member<godot::real_t>("animation_interval")
+        .add(flecs::Singleton)
+        .set<EnemyAnimationSettings>({ 0.25f });
 });

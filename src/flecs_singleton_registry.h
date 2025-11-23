@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_map>
 
+#include <godot_cpp/core/type_info.hpp>
 #include <godot_cpp/variant/variant.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 

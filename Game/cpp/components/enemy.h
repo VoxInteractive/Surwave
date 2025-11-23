@@ -16,6 +16,10 @@ struct MeleeDamage {
     godot::real_t value;
 };
 
+struct AnimationFrameOffset {
+    float value; // Even though this is an integer value, using float to avoid casting when used in shaders
+};
+
 
 inline FlecsRegistry register_enemy_stats_components([](flecs::world& world) {
     world.component<HitPoints>("HitPoints")
@@ -26,4 +30,7 @@ inline FlecsRegistry register_enemy_stats_components([](flecs::world& world) {
 
     world.component<MeleeDamage>("MeleeDamage")
         .member<godot::real_t>("value");
+
+    world.component<AnimationFrameOffset>("AnimationFrameOffset")
+        .member<float>("value");
 });

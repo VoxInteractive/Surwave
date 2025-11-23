@@ -23,7 +23,7 @@ namespace
         typename InstanceT,
         typename BodyStateT>
     inline bool try_create_physics_body(
-        flecs::world& world,
+        flecs::world world,
         flecs::entity entity,
         const ShapesT& body_definition,
         const TransformT& transform,
@@ -109,7 +109,7 @@ namespace
     {
         world.system<const ShapesT>(system_name)
             .kind(flecs::OnUpdate)
-            .without<InstanceT>()
+            .template without<InstanceT>()
             .each([transform_state](flecs::iter& it, size_t index, const ShapesT& body_shapes)
         {
             flecs::entity entity = it.entity(index);

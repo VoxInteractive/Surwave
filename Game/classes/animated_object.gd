@@ -9,6 +9,8 @@ var _animation_current_frame: int = 0
 
 @export var sprite: Sprite2D
 
+signal animation_frame_changed(frame: int)
+
 func _process(delta: float) -> void:
 	_animate(delta)
 
@@ -25,6 +27,7 @@ func set_state(new_state) -> void:
 	_animation_timer = 0.0
 	if not _animation_frames.is_empty():
 		sprite.frame = _animation_frames[0]
+		animation_frame_changed.emit(sprite.frame)
 
 
 func _animate(delta: float) -> void:
@@ -37,3 +40,4 @@ func _animate(delta: float) -> void:
 		_animation_timer = 0.0
 		_animation_current_frame = (_animation_current_frame + 1) % _animation_frames.size()
 		sprite.frame = _animation_frames[_animation_current_frame]
+		animation_frame_changed.emit(sprite.frame)

@@ -19,6 +19,5 @@ inline FlecsRegistry register_character2d_prefab([](flecs::world& world) {
         .set_auto_override<Scale2D>({ godot::Vector2(1.0f, 1.0f) })
         .set_auto_override<godot::Transform2D>(godot::Transform2D())
 
-        .set_auto_override<RenderingColor>({ 1.0f, 1.0f, 1.0f, 1.0f })
         .set_auto_override<RenderingCustomData>({ 0.0f, 0.0f, 0.0f, 0.0f });
 });
