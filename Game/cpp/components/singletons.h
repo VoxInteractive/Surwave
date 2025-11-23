@@ -44,7 +44,11 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
         .member<float>("cohesion_weight")
         .member<float>("separation_weight")
         .add(flecs::Singleton)
-        .set<EnemyBoidForceWeights>({ 0.8f, 0.45f, 1.25f });
+        .set<EnemyBoidForceWeights>({
+            0.8f,   // alignment_weight
+            0.45f,  // cohesion_weight
+            1.25f   // separation_weight
+            });
 
     world.component<EnemyBoidMovementSettings>("EnemyBoidMovementSettings")
         .member<float>("player_attraction_weight")
@@ -55,7 +59,15 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
         .member<float>("max_force")
         .member<float>("grid_cell_size")
         .add(flecs::Singleton)
-        .set<EnemyBoidMovementSettings>({ 1.6f, 28.0f, 110.0f, 40.0f, 1.1f, 320.0f, 96.0f });
+        .set<EnemyBoidMovementSettings>({
+            1.6f,   // player_attraction_weight
+            28.0f,  // player_engage_distance
+            110.0f, // neighbor_radius
+            40.0f,  // separation_radius
+            1.1f,   // max_speed_multiplier
+            320.0f, // max_force
+            96.0f   // grid_cell_size
+            });
 
     world.component<EnemyAnimationSettings>("EnemyAnimationSettings")
         .member<float>("animation_interval")
@@ -63,7 +75,12 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
         .member<float>("death_animation_frame_count")
         .member<float>("up_direction_frame_offset")
         .add(flecs::Singleton)
-        .set<EnemyAnimationSettings>({ 0.25f, 5.0f, 4.0f, 6.0f });
+        .set<EnemyAnimationSettings>({
+            0.25f, // animation_interval
+            5.0f,  // walk_animation_range
+            4.0f,  // death_animation_frame_count
+            6.0f   // up_direction_frame_offset
+            });
 
 
     world.component<ProjectileData>("ProjectileData")
