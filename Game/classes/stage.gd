@@ -8,7 +8,7 @@ class_name Stage extends Node
 
 @export_category("Initial Enemy Population Spawning")
 ## The number of times the spawning logic will run. Each iteration spawns a batch of enemies.
-@export var spawn_iterations: int = 50
+@export var spawn_iterations: int = 100
 ## The margin from the terrain edge, creating an outer boundary for enemy spawning.
 @export var spawn_outer_margin: float = 0.0
 ## The margin from the center of the map, creating an inner boundary to keep the center clear of initial enemies.

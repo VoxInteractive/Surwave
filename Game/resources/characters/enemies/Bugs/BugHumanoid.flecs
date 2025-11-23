@@ -3,5 +3,5 @@ prefab BugHumanoid : Enemy {
 	HitRadius: {value: 14}
 	HitPoints: {value: 4}
 	MeleeDamage: {value: 2}
-	MovementSpeed: {value: 6}
+	MovementSpeed: {value: 8}
 }
