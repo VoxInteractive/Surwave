@@ -30,6 +30,10 @@ struct ProjectileData {
     godot::Dictionary value;
 };
 
+struct ShockwaveData {
+    godot::Dictionary value;
+};
+
 
 inline FlecsRegistry register_game_singleton_components([](flecs::world& world) {
     world.component<EnemyBoidForceWeights>("EnemyBoidForceWeights")
@@ -63,5 +67,11 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
         world.set<ProjectileData>({ projectile_data });
     });
 
-    register_singleton_getter<godot::Dictionary>("ProjectileData");
+
+    world.component<ShockwaveData>("ShockwaveData")
+        .add(flecs::Singleton);
+
+    register_singleton_setter<godot::Dictionary>("ShockwaveData", [](flecs::world& world, const godot::Dictionary& shockwave_data) {
+        world.set<ShockwaveData>({ shockwave_data });
+    });
 });
