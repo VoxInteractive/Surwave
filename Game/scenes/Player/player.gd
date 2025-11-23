@@ -9,7 +9,7 @@ var movement_speed_penalty_when_shooting: float = 0.4
 
 @export_category("Cooldowns")
 @export_range(0.5, 10.0, 0.1)
-var shockwave_cooldown: float = 2.0
+var shockwave_cooldown: float = 5.0
 
 var input_movement_vector: Vector2
 var is_colliding: bool = false
