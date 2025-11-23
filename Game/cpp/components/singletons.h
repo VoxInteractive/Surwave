@@ -7,23 +7,26 @@
 #include "src/flecs_singleton_registry.h"
 
 struct EnemyBoidForceWeights {
-    godot::real_t alignment_weight;
-    godot::real_t cohesion_weight;
-    godot::real_t separation_weight;
+    float alignment_weight;
+    float cohesion_weight;
+    float separation_weight;
 };
 
 struct EnemyBoidMovementSettings {
-    godot::real_t player_attraction_weight;
-    godot::real_t player_engage_distance;
-    godot::real_t neighbor_radius;
-    godot::real_t separation_radius;
-    godot::real_t max_speed_multiplier;
-    godot::real_t max_force;
-    godot::real_t grid_cell_size;
+    float player_attraction_weight;
+    float player_engage_distance;
+    float neighbor_radius;
+    float separation_radius;
+    float max_speed_multiplier;
+    float max_force;
+    float grid_cell_size;
 };
 
 struct EnemyAnimationSettings {
-    godot::real_t animation_interval;
+    float animation_interval;
+    float walk_animation_range;
+    float death_animation_frame_count;
+    float up_direction_frame_offset;
 };
 
 struct ProjectileData {
@@ -37,27 +40,30 @@ struct ShockwaveData {
 
 inline FlecsRegistry register_game_singleton_components([](flecs::world& world) {
     world.component<EnemyBoidForceWeights>("EnemyBoidForceWeights")
-        .member<godot::real_t>("alignment_weight")
-        .member<godot::real_t>("cohesion_weight")
-        .member<godot::real_t>("separation_weight")
+        .member<float>("alignment_weight")
+        .member<float>("cohesion_weight")
+        .member<float>("separation_weight")
         .add(flecs::Singleton)
         .set<EnemyBoidForceWeights>({ 0.8f, 0.45f, 1.25f });
 
     world.component<EnemyBoidMovementSettings>("EnemyBoidMovementSettings")
-        .member<godot::real_t>("player_attraction_weight")
-        .member<godot::real_t>("player_engage_distance")
-        .member<godot::real_t>("neighbor_radius")
-        .member<godot::real_t>("separation_radius")
-        .member<godot::real_t>("max_speed_multiplier")
-        .member<godot::real_t>("max_force")
-        .member<godot::real_t>("grid_cell_size")
+        .member<float>("player_attraction_weight")
+        .member<float>("player_engage_distance")
+        .member<float>("neighbor_radius")
+        .member<float>("separation_radius")
+        .member<float>("max_speed_multiplier")
+        .member<float>("max_force")
+        .member<float>("grid_cell_size")
         .add(flecs::Singleton)
         .set<EnemyBoidMovementSettings>({ 1.6f, 28.0f, 110.0f, 40.0f, 1.1f, 320.0f, 96.0f });
 
     world.component<EnemyAnimationSettings>("EnemyAnimationSettings")
-        .member<godot::real_t>("animation_interval")
+        .member<float>("animation_interval")
+        .member<float>("walk_animation_range")
+        .member<float>("death_animation_frame_count")
+        .member<float>("up_direction_frame_offset")
         .add(flecs::Singleton)
-        .set<EnemyAnimationSettings>({ 0.25f });
+        .set<EnemyAnimationSettings>({ 0.25f, 5.0f, 4.0f, 6.0f });
 
 
     world.component<ProjectileData>("ProjectileData")

@@ -21,7 +21,7 @@ struct AnimationFrameOffset {
 };
 
 struct DeathTimer {
-    godot::real_t value;
+    float value;
 };
 
 
@@ -39,6 +39,5 @@ inline FlecsRegistry register_enemy_stats_components([](flecs::world& world) {
         .member<float>("value");
 
     world.component<DeathTimer>("DeathTimer")
-        .member<godot::real_t>("value")
-        .add(flecs::CanToggle);
+        .member<float>("value");
 });
