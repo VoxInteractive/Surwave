@@ -1,8 +1,12 @@
 #pragma once
 
+#include <limits>
+
 #include <godot_cpp/core/math_defs.hpp>
 
 #include "src/flecs_registry.h"
+
+inline constexpr float kEnemyDeathInvulnerableHitPoints = std::numeric_limits<float>::max();
 
 struct HitPoints {
     float value;

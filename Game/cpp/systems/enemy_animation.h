@@ -48,7 +48,7 @@ namespace enemy_animation_detail {
 // BugLarge walk(up)
 
 inline FlecsRegistry register_enemy_animation_system([](flecs::world& world) {
-    world.system<const Velocity2D, const AnimationFrameOffset, const DeathTimer, HFlipTimer, VFlipTimer, RenderingCustomData>("Enemy Animation")
+    world.system<const HitPoints, const Velocity2D, const AnimationFrameOffset, const DeathTimer, HFlipTimer, VFlipTimer, RenderingCustomData>("Enemy Animation")
         .with(flecs::IsA, world.lookup("Enemy"))
         .kind(flecs::PostUpdate)
         .run([](flecs::iter& it) {
@@ -73,12 +73,13 @@ inline FlecsRegistry register_enemy_animation_system([](flecs::world& world) {
                 delta_time = 0.0f;
             }
 
-            flecs::field<const Velocity2D> velocities = it.field<const Velocity2D>(0);
-            flecs::field<const AnimationFrameOffset> frame_offsets = it.field<const AnimationFrameOffset>(1);
-            flecs::field<const DeathTimer> death_timer = it.field<const DeathTimer>(2);
-            flecs::field<HFlipTimer> horizontal_flip_timers = it.field<HFlipTimer>(3);
-            flecs::field<VFlipTimer> vertical_flip_timers = it.field<VFlipTimer>(4);
-            flecs::field<RenderingCustomData> custom_data_field = it.field<RenderingCustomData>(5);
+            flecs::field<const HitPoints> hit_points = it.field<const HitPoints>(0);
+            flecs::field<const Velocity2D> velocities = it.field<const Velocity2D>(1);
+            flecs::field<const AnimationFrameOffset> frame_offsets = it.field<const AnimationFrameOffset>(2);
+            flecs::field<const DeathTimer> death_timer = it.field<const DeathTimer>(3);
+            flecs::field<HFlipTimer> horizontal_flip_timers = it.field<HFlipTimer>(4);
+            flecs::field<VFlipTimer> vertical_flip_timers = it.field<VFlipTimer>(5);
+            flecs::field<RenderingCustomData> custom_data_field = it.field<RenderingCustomData>(6);
 
             const size_t count = it.count();
             for (size_t i = 0; i < count; ++i) {
@@ -87,7 +88,10 @@ inline FlecsRegistry register_enemy_animation_system([](flecs::world& world) {
                 const bool wants_horizontal_flip = velocity_value.x < 0.0f;
 
                 const float death_timer_value = death_timer[i].value;
+                const float hit_points_value = hit_points[i].value;
                 const float base_offset = frame_offsets[i].value;
+                const bool has_invulnerable_hit_points = hit_points_value >= kEnemyDeathInvulnerableHitPoints;
+                const bool is_dying_state = death_timer_value > 0.0f || has_invulnerable_hit_points;
 
                 RenderingCustomData& custom_data = custom_data_field[i];
                 HFlipTimer& horizontal_timer = horizontal_flip_timers[i];
@@ -111,7 +115,7 @@ inline FlecsRegistry register_enemy_animation_system([](flecs::world& world) {
                 }
 
                 bool resolved_vertical_up = wants_vertical_up;
-                if (death_timer_value <= 0.0f) {
+                if (!is_dying_state) {
                     bool previous_vertical_up = wants_vertical_up;
                     if (!enemy_animation_detail::try_get_previous_walk_orientation(custom_data, base_offset, animation_range, up_direction_frame_offset, previous_vertical_up)) {
                         previous_vertical_up = wants_vertical_up;
@@ -131,8 +135,9 @@ inline FlecsRegistry register_enemy_animation_system([](flecs::world& world) {
                 const float walk_directional_offset = (resolved_vertical_up ? 1.0f : 0.0f) * up_direction_frame_offset + 12.0f;
                 const float death_directional_offset = (resolved_vertical_up ? 1.0f : 0.0f) * up_direction_frame_offset;
 
-                if (death_timer_value > 0.0f) { // Dying
-                    const float frames_remaining = godot::Math::ceil(death_timer_value / frame_interval);
+                if (is_dying_state) {
+                    const float timer_for_frame_selection = godot::Math::max(death_timer_value, 0.0f);
+                    const float frames_remaining = godot::Math::ceil(timer_for_frame_selection / frame_interval);
                     const float frames_elapsed = death_animation_frame_count - frames_remaining;
                     const float clamped_frames_elapsed = godot::Math::clamp(frames_elapsed, 0.0f, death_animation_range);
                     const float clamped_frame_offset = godot::Math::floor(clamped_frames_elapsed);

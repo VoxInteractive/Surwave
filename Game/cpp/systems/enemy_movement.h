@@ -53,7 +53,7 @@ namespace enemy_movement_detail {
 } // namespace enemy_movement_detail
 
 inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
-    world.system<Position2D, Velocity2D, const MovementSpeed>("Enemy Movement")
+    world.system<Position2D, Velocity2D, const MovementSpeed, const DeathTimer>("Enemy Movement")
         .with(flecs::IsA, world.lookup("Enemy"))
         .run([](flecs::iter& it) {
         flecs::world stage_world = it.world();
@@ -80,9 +80,13 @@ inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
             flecs::field<Position2D> positions = it.field<Position2D>(0);
             flecs::field<Velocity2D> velocities = it.field<Velocity2D>(1);
             flecs::field<const MovementSpeed> movement_speeds = it.field<const MovementSpeed>(2);
+            flecs::field<const DeathTimer> death_timers = it.field<const DeathTimer>(3);
 
             const std::int32_t row_count = static_cast<std::int32_t>(it.count());
             for (std::int32_t row_index = 0; row_index < row_count; ++row_index) {
+                if (death_timers[static_cast<std::size_t>(row_index)].value > 0.0f) {
+                    continue;
+                }
                 enemy_movement_detail::BoidAccessor accessor{
                     &positions[static_cast<std::size_t>(row_index)],
                     &velocities[static_cast<std::size_t>(row_index)],
@@ -165,13 +169,11 @@ inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
             }
 
             godot::Vector2 alignment_force = godot::Vector2(0.0f, 0.0f);
+            godot::Vector2 cohesion_force = godot::Vector2(0.0f, 0.0f);
             if (neighbor_count > 0) {
                 const godot::Vector2 average_velocity = alignment_sum / static_cast<godot::real_t>(neighbor_count);
                 alignment_force = enemy_movement_detail::steer_towards(average_velocity, current_velocity, max_speed);
-            }
 
-            godot::Vector2 cohesion_force = godot::Vector2(0.0f, 0.0f);
-            if (neighbor_count > 0) {
                 const godot::Vector2 average_position = cohesion_sum / static_cast<godot::real_t>(neighbor_count);
                 const godot::Vector2 direction_to_center = average_position - position_value;
                 cohesion_force = enemy_movement_detail::steer_towards(direction_to_center, current_velocity, max_speed);
