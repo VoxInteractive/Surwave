@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <unordered_map>
 #include <vector>
 
 #include <godot_cpp/core/math.hpp>
@@ -14,40 +13,15 @@
 
 #include "components/enemy.h"
 #include "components/singletons.h"
+#include "systems/enemy_spatial_hash.h"
 
 namespace enemy_movement_detail {
-
-    struct GridCellKey {
-        std::int32_t x;
-        std::int32_t y;
-
-        bool operator==(const GridCellKey& other) const {
-            return x == other.x && y == other.y;
-        }
-    };
-
-    struct GridCellKeyHasher {
-        std::size_t operator()(const GridCellKey& key) const {
-            const std::uint64_t packed_x = static_cast<std::uint64_t>(static_cast<std::uint32_t>(key.x));
-            const std::uint64_t packed_y = static_cast<std::uint64_t>(static_cast<std::uint32_t>(key.y));
-            return static_cast<std::size_t>((packed_x << 32U) ^ packed_y);
-        }
-    };
-
-    using CellOccupants = std::vector<std::int32_t>;
-    using SpatialHash = std::unordered_map<GridCellKey, CellOccupants, GridCellKeyHasher>;
 
     struct BoidAccessor {
         Position2D* position;
         Velocity2D* velocity;
         const MovementSpeed* movement_speed;
     };
-
-    inline GridCellKey make_key(const godot::Vector2& position, godot::real_t cell_size) {
-        const godot::real_t cell_x = godot::Math::floor(position.x / cell_size);
-        const godot::real_t cell_y = godot::Math::floor(position.y / cell_size);
-        return GridCellKey{ static_cast<std::int32_t>(cell_x), static_cast<std::int32_t>(cell_y) };
-    }
 
     inline godot::Vector2 steer_towards(const godot::Vector2& desired_direction, const godot::Vector2& current_velocity, godot::real_t max_speed) {
         if (desired_direction.length_squared() == 0.0f) {
@@ -132,16 +106,17 @@ inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
         const godot::real_t normalized_span = movement_settings->neighbor_radius / clamped_cell_size;
         const std::int32_t cell_span = static_cast<std::int32_t>(godot::Math::ceil(normalized_span));
 
-        std::vector<enemy_movement_detail::GridCellKey> entity_cells(static_cast<std::size_t>(enemy_count));
-        enemy_movement_detail::SpatialHash spatial_hash;
-        spatial_hash.reserve(static_cast<std::size_t>(enemy_count) * 2U);
-
-        for (std::int32_t entity_index = 0; entity_index < enemy_count; ++entity_index) {
-            const godot::Vector2 position_value = boids[entity_index].position->value;
-            const enemy_movement_detail::GridCellKey key = enemy_movement_detail::make_key(position_value, clamped_cell_size);
-            entity_cells[static_cast<std::size_t>(entity_index)] = key;
-            spatial_hash[key].push_back(entity_index);
-        }
+        std::vector<enemy_spatial_hash::GridCellKey> entity_cells;
+        enemy_spatial_hash::SpatialHash spatial_hash;
+        enemy_spatial_hash::populate_spatial_hash(
+            enemy_count,
+            clamped_cell_size,
+            [&boids](std::int32_t entity_index) {
+            const std::size_t boid_index = static_cast<std::size_t>(entity_index);
+            return boids[boid_index].position->value;
+        },
+            entity_cells,
+            spatial_hash);
 
         for (std::int32_t entity_index = 0; entity_index < enemy_count; ++entity_index) {
             const godot::Vector2 position_value = boids[entity_index].position->value;
@@ -154,12 +129,12 @@ inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
             std::int32_t neighbor_count = 0;
             std::int32_t separation_count = 0;
 
-            const enemy_movement_detail::GridCellKey origin_cell = entity_cells[static_cast<std::size_t>(entity_index)];
+            const enemy_spatial_hash::GridCellKey origin_cell = entity_cells[static_cast<std::size_t>(entity_index)];
 
             for (std::int32_t offset_x = -cell_span; offset_x <= cell_span; ++offset_x) {
                 for (std::int32_t offset_y = -cell_span; offset_y <= cell_span; ++offset_y) {
-                    const enemy_movement_detail::GridCellKey neighbor_cell{ origin_cell.x + offset_x, origin_cell.y + offset_y };
-                    const enemy_movement_detail::SpatialHash::const_iterator found = spatial_hash.find(neighbor_cell);
+                    const enemy_spatial_hash::GridCellKey neighbor_cell{ origin_cell.x + offset_x, origin_cell.y + offset_y };
+                    const enemy_spatial_hash::SpatialHash::const_iterator found = spatial_hash.find(neighbor_cell);
                     if (found == spatial_hash.end()) {
                         continue;
                     }

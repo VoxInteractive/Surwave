@@ -30,6 +30,7 @@
 inline FlecsRegistry register_enemy_animation_system([](flecs::world& world) {
     world.system<const Velocity2D, const AnimationFrameOffset, const DeathTimer, RenderingCustomData>("Enemy Animation")
         .with(flecs::IsA, world.lookup("Enemy"))
+        .kind(flecs::PostUpdate)
         .run([](flecs::iter& it) {
         const EnemyAnimationSettings* animation_settings = it.world().try_get<EnemyAnimationSettings>();
         if (animation_settings == nullptr) {

@@ -5,15 +5,15 @@
 #include "src/flecs_registry.h"
 
 struct HitPoints {
-    godot::real_t value;
+    float value;
 };
 
 struct MovementSpeed {
-    godot::real_t value;
+    float value;
 };
 
 struct MeleeDamage {
-    godot::real_t value;
+    float value;
 };
 
 struct AnimationFrameOffset {
@@ -24,16 +24,18 @@ struct DeathTimer {
     float value;
 };
 
+// struct IsDying {};
+
 
 inline FlecsRegistry register_enemy_stats_components([](flecs::world& world) {
     world.component<HitPoints>("HitPoints")
-        .member<godot::real_t>("value");
+        .member<float>("value");
 
     world.component<MeleeDamage>("MeleeDamage")
-        .member<godot::real_t>("value");
+        .member<float>("value");
 
     world.component<MovementSpeed>("MovementSpeed")
-        .member<godot::real_t>("value");
+        .member<float>("value");
 
     world.component<AnimationFrameOffset>("AnimationFrameOffset")
         .member<float>("value");
