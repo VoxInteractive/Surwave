@@ -8,6 +8,10 @@ struct HitPoints {
     float value;
 };
 
+struct HitRadius {
+    float value;
+};
+
 struct MovementSpeed {
     float value;
 };
@@ -29,6 +33,9 @@ struct DeathTimer {
 
 inline FlecsRegistry register_enemy_stats_components([](flecs::world& world) {
     world.component<HitPoints>("HitPoints")
+        .member<float>("value");
+
+    world.component<HitRadius>("HitRadius")
         .member<float>("value");
 
     world.component<MeleeDamage>("MeleeDamage")

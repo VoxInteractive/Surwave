@@ -1,6 +1,7 @@
 prefab BugHumanoid : Enemy {
 	AnimationFrameOffset: {value: 24}
-	HitPoints: {value: 3}
+	HitRadius: {value: 14}
+	HitPoints: {value: 4}
 	MeleeDamage: {value: 2}
-	MovementSpeed: {value: 4}
+	MovementSpeed: {value: 6}
 }

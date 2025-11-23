@@ -1,6 +1,7 @@
 prefab BugSmall : Enemy {
 	AnimationFrameOffset: {value: 0}
-	HitPoints: {value: 1}
+	HitRadius: {value: 10}
+	HitPoints: {value: 2}
 	MeleeDamage: {value: 1}
-	MovementSpeed: {value: 5}
+	MovementSpeed: {value: 9}
 }

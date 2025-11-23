@@ -13,7 +13,7 @@
 
 #include "components/enemy.h"
 #include "components/singletons.h"
-#include "systems/enemy_spatial_hash.h"
+#include "utilities/enemy_spatial_hash.h"
 
 namespace enemy_movement_detail {
 

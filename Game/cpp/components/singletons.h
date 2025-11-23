@@ -47,7 +47,7 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
         .set<EnemyBoidForceWeights>({
             0.8f,   // alignment_weight
             0.45f,  // cohesion_weight
-            1.25f   // separation_weight
+            0.8f   // separation_weight
             });
 
     world.component<EnemyBoidMovementSettings>("EnemyBoidMovementSettings")
@@ -60,12 +60,12 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
         .member<float>("grid_cell_size")
         .add(flecs::Singleton)
         .set<EnemyBoidMovementSettings>({
-            1.6f,   // player_attraction_weight
+            1.2f,   // player_attraction_weight
             28.0f,  // player_engage_distance
             110.0f, // neighbor_radius
-            40.0f,  // separation_radius
+            30.0f,  // separation_radius
             1.1f,   // max_speed_multiplier
-            320.0f, // max_force
+            220.0f, // max_force
             96.0f   // grid_cell_size
             });
 

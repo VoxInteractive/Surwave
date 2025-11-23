@@ -14,13 +14,14 @@
 
 #include "components/enemy.h"
 #include "components/singletons.h"
-#include "systems/enemy_spatial_hash.h"
+#include "utilities/enemy_spatial_hash.h"
 
 namespace enemy_take_damage_detail {
 
     struct DamageTargetAccessor {
         Position2D* position;
         HitPoints* hit_points;
+        const HitRadius* hit_radius;
     };
 
     inline godot::Array get_projectile_positions(const ProjectileData* projectile_data) {
@@ -45,7 +46,7 @@ namespace enemy_take_damage_detail {
 } // namespace enemy_take_damage_detail
 
 inline FlecsRegistry register_enemy_take_damage_system([](flecs::world& world) {
-    world.system<Position2D, HitPoints>("Enemy Take Damage")
+    world.system<Position2D, HitPoints, const HitRadius>("Enemy Take Damage")
         .with(flecs::IsA, world.lookup("Enemy"))
         .run([](flecs::iter& it) {
         flecs::world stage_world = it.world();
@@ -63,17 +64,21 @@ inline FlecsRegistry register_enemy_take_damage_system([](flecs::world& world) {
 
         std::vector<enemy_take_damage_detail::DamageTargetAccessor> targets;
         targets.reserve(128U);
+        godot::real_t max_hit_radius = 0.0f;
 
         while (it.next()) {
             flecs::field<Position2D> positions = it.field<Position2D>(0);
             flecs::field<HitPoints> hit_points = it.field<HitPoints>(1);
+            flecs::field<const HitRadius> hit_radii = it.field<const HitRadius>(2);
             const std::int32_t row_count = static_cast<std::int32_t>(it.count());
             for (std::int32_t row_index = 0; row_index < row_count; ++row_index) {
                 enemy_take_damage_detail::DamageTargetAccessor accessor{
                     &positions[static_cast<std::size_t>(row_index)],
-                    &hit_points[static_cast<std::size_t>(row_index)]
+                    &hit_points[static_cast<std::size_t>(row_index)],
+                    &hit_radii[static_cast<std::size_t>(row_index)]
                 };
                 targets.push_back(accessor);
+                max_hit_radius = godot::Math::max(max_hit_radius, hit_radii[static_cast<std::size_t>(row_index)].value);
             }
         }
 
@@ -82,10 +87,9 @@ inline FlecsRegistry register_enemy_take_damage_system([](flecs::world& world) {
             return;
         }
 
-        const godot::real_t hit_radius = godot::Math::max(movement_settings->separation_radius, 1.0f);
-        const godot::real_t hit_radius_sq = hit_radius * hit_radius;
         const godot::real_t clamped_cell_size = godot::Math::max(movement_settings->grid_cell_size, 1.0f);
-        const godot::real_t normalized_span = hit_radius / clamped_cell_size;
+        const godot::real_t max_query_radius = godot::Math::max(max_hit_radius, 1.0f);
+        const godot::real_t normalized_span = max_query_radius / clamped_cell_size;
         const std::int32_t cell_span = static_cast<std::int32_t>(godot::Math::ceil(normalized_span));
 
         std::vector<enemy_spatial_hash::GridCellKey> entity_cells;
@@ -126,7 +130,9 @@ inline FlecsRegistry register_enemy_take_damage_system([](flecs::world& world) {
                         const godot::Vector2 enemy_position = targets[static_cast<std::size_t>(enemy_index)].position->value;
                         const godot::Vector2 delta = enemy_position - projectile_position;
                         const godot::real_t distance_squared = delta.length_squared();
-                        if (distance_squared <= hit_radius_sq) {
+                        const godot::real_t entity_hit_radius = godot::Math::max(targets[static_cast<std::size_t>(enemy_index)].hit_radius->value, 1.0f);
+                        const godot::real_t entity_hit_radius_sq = entity_hit_radius * entity_hit_radius;
+                        if (distance_squared <= entity_hit_radius_sq) {
                             accumulated_damage[static_cast<std::size_t>(enemy_index)] += 1.0f;
                         }
                     }
