@@ -20,17 +20,25 @@ struct AnimationFrameOffset {
     float value; // Even though this is an integer value, using float to avoid casting when used in shaders
 };
 
+struct DeathTimer {
+    godot::real_t value;
+};
+
 
 inline FlecsRegistry register_enemy_stats_components([](flecs::world& world) {
     world.component<HitPoints>("HitPoints")
         .member<godot::real_t>("value");
 
-    world.component<MovementSpeed>("MovementSpeed")
+    world.component<MeleeDamage>("MeleeDamage")
         .member<godot::real_t>("value");
 
-    world.component<MeleeDamage>("MeleeDamage")
+    world.component<MovementSpeed>("MovementSpeed")
         .member<godot::real_t>("value");
 
     world.component<AnimationFrameOffset>("AnimationFrameOffset")
         .member<float>("value");
+
+    world.component<DeathTimer>("DeathTimer")
+        .member<godot::real_t>("value")
+        .add(flecs::CanToggle);
 });
