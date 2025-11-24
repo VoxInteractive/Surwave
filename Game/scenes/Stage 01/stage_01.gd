@@ -3,7 +3,6 @@ extends Stage
 
 func _ready() -> void:
 	super._ready()
-	$World.flecs_signal_emitted.connect(_on_flecs_signal)
 	# print("landmark_occupied_areas: ", landmark_occupied_areas)
 
 
