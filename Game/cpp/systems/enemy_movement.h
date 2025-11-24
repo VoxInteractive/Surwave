@@ -1,10 +1,13 @@
 #pragma once
 
+#include <algorithm>
+#include <cstddef>
 #include <cstdint>
 #include <vector>
 
 #include <godot_cpp/core/math.hpp>
 #include <godot_cpp/variant/vector2.hpp>
+#include <godot_cpp/variant/utility_functions.hpp>
 
 #include "src/flecs_registry.h"
 #include "src/components/player.h"
@@ -13,32 +16,46 @@
 
 #include "components/enemy.h"
 #include "components/singletons.h"
-#include "utilities/enemy_spatial_hash.h"
+#include "utilities/enemy_kd_tree.h"
 
 namespace enemy_movement {
 
     struct BoidAccessor {
-        Position2D* position;
-        Velocity2D* velocity;
-        const MovementSpeed* movement_speed;
+        flecs::entity_t entity_id;
+        godot::Vector2* position;
+        godot::Vector2* velocity;
+        godot::real_t max_speed;
     };
 
+    struct KdTreeCache {
+        enemy_kd_tree::KdTree2D tree;
+        std::vector<godot::Vector2> cached_positions;
+        std::vector<flecs::entity_t> cached_entity_ids;
+        std::size_t cached_count = 0;
+        std::uint32_t frames_since_rebuild = 0;
+    };
+
+    inline KdTreeCache& get_kd_tree_cache() {
+        static KdTreeCache cache;
+        return cache;
+    }
+
     inline godot::Vector2 steer_towards(const godot::Vector2& desired_direction, const godot::Vector2& current_velocity, godot::real_t max_speed) {
-        if (desired_direction.length_squared() == 0.0f) {
+        const godot::real_t desired_length_sq = desired_direction.length_squared();
+        if (desired_length_sq == 0.0f) {
             return godot::Vector2(0.0f, 0.0f);
         }
 
-        const godot::Vector2 desired_velocity = desired_direction.normalized() * max_speed;
+        const godot::Vector2 desired_velocity = (desired_direction / godot::Math::sqrt(desired_length_sq)) * max_speed;
         return desired_velocity - current_velocity;
     }
 
-    inline godot::Vector2 limit_vector(const godot::Vector2& value, godot::real_t max_length) {
-        if (max_length <= 0.0f) {
+    inline godot::Vector2 limit_vector_squared(const godot::Vector2& value, godot::real_t max_length_sq) {
+        if (max_length_sq <= 0.0f) {
             return godot::Vector2(0.0f, 0.0f);
         }
 
         const godot::real_t current_length_sq = value.length_squared();
-        const godot::real_t max_length_sq = max_length * max_length;
         if (current_length_sq <= max_length_sq) {
             return value;
         }
@@ -47,7 +64,7 @@ namespace enemy_movement {
             return godot::Vector2(0.0f, 0.0f);
         }
 
-        return value.normalized() * max_length;
+        return value * (godot::Math::sqrt(max_length_sq / current_length_sq));
     }
 
 } // namespace enemy_movement
@@ -65,8 +82,11 @@ inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
             return;
         }
 
+        enemy_movement::KdTreeCache& kd_cache = enemy_movement::get_kd_tree_cache();
+
         std::vector<enemy_movement::BoidAccessor> boids;
-        boids.reserve(128U);
+        const std::size_t suggested_capacity = kd_cache.cached_count > 0 ? kd_cache.cached_count : static_cast<std::size_t>(256U);
+        boids.reserve(suggested_capacity);
 
         godot::real_t delta_time = 0.0f;
         bool delta_time_initialized = false;
@@ -82,50 +102,108 @@ inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
             flecs::field<const MovementSpeed> movement_speeds = it.field<const MovementSpeed>(2);
             flecs::field<const DeathTimer> death_timers = it.field<const DeathTimer>(3);
 
-            const std::int32_t row_count = static_cast<std::int32_t>(it.count());
-            for (std::int32_t row_index = 0; row_index < row_count; ++row_index) {
-                if (death_timers[static_cast<std::size_t>(row_index)].value > 0.0f) {
+            const godot::real_t max_speed_multiplier = movement_settings->max_speed_multiplier;
+
+            for (size_t row_index = 0; row_index < it.count(); ++row_index) {
+                if (death_timers[row_index].value > 0.0f) {
                     continue;
                 }
+                const flecs::entity current_entity = it.entity(static_cast<int32_t>(row_index));
                 enemy_movement::BoidAccessor accessor{
-                    &positions[static_cast<std::size_t>(row_index)],
-                    &velocities[static_cast<std::size_t>(row_index)],
-                    &movement_speeds[static_cast<std::size_t>(row_index)]
+                    current_entity.id(),
+                    &positions[row_index].value,
+                    &velocities[row_index].value,
+                    godot::Math::max(movement_speeds[row_index].value * max_speed_multiplier, 1.0f)
                 };
                 boids.push_back(accessor);
             }
         }
 
-        const std::int32_t enemy_count = static_cast<std::int32_t>(boids.size());
+        const size_t enemy_count = boids.size();
         if (enemy_count == 0) {
             return;
         }
 
-        const godot::real_t clamped_cell_size = godot::Math::max(movement_settings->grid_cell_size, 1.0f);
+        std::sort(boids.begin(), boids.end(), [](const enemy_movement::BoidAccessor& lhs, const enemy_movement::BoidAccessor& rhs) {
+            return lhs.entity_id < rhs.entity_id;
+        });
+
         const godot::real_t neighbor_radius_sq = movement_settings->neighbor_radius * movement_settings->neighbor_radius;
         const godot::real_t separation_radius_sq = movement_settings->separation_radius * movement_settings->separation_radius;
-        const godot::real_t max_force_sq = movement_settings->max_force * movement_settings->max_force;
+        const godot::real_t max_force = movement_settings->max_force;
         const godot::real_t player_engage_radius_sq = movement_settings->player_engage_distance * movement_settings->player_engage_distance;
+        const std::int32_t neighbor_sample_limit = movement_settings->max_neighbor_sample_count <= godot::real_t(0.0)
+            ? -1
+            : static_cast<std::int32_t>(movement_settings->max_neighbor_sample_count);
 
-        const godot::real_t normalized_span = movement_settings->neighbor_radius / clamped_cell_size;
-        const std::int32_t cell_span = static_cast<std::int32_t>(godot::Math::ceil(normalized_span));
+        struct BoidPositionAccessor {
+            const std::vector<enemy_movement::BoidAccessor>* boid_array;
 
-        std::vector<enemy_spatial_hash::GridCellKey> entity_cells;
-        enemy_spatial_hash::SpatialHash spatial_hash;
-        enemy_spatial_hash::populate_spatial_hash(
-            enemy_count,
-            clamped_cell_size,
-            [&boids](std::int32_t entity_index) {
-            const std::size_t boid_index = static_cast<std::size_t>(entity_index);
-            return boids[boid_index].position->value;
-        },
-            entity_cells,
-            spatial_hash);
+            godot::Vector2 operator()(std::int32_t entity_index) const {
+                const std::size_t offset = static_cast<std::size_t>(entity_index);
+                return *(*boid_array)[offset].position;
+            }
+        };
 
-        for (std::int32_t entity_index = 0; entity_index < enemy_count; ++entity_index) {
-            const godot::Vector2 position_value = boids[entity_index].position->value;
-            const godot::Vector2 current_velocity = boids[entity_index].velocity->value;
-            const godot::real_t max_speed = godot::Math::max(boids[entity_index].movement_speed->value * movement_settings->max_speed_multiplier, 1.0f);
+        BoidPositionAccessor position_accessor{ &boids };
+
+        const godot::real_t rebuild_distance = godot::Math::max(movement_settings->kd_tree_rebuild_distance, godot::real_t(0.0));
+        const godot::real_t rebuild_distance_sq = rebuild_distance * rebuild_distance;
+        const std::uint32_t stale_frame_limit = movement_settings->kd_tree_max_stale_frames <= godot::real_t(0.0)
+            ? 0U
+            : static_cast<std::uint32_t>(movement_settings->kd_tree_max_stale_frames);
+
+        bool force_rebuild = kd_cache.tree.empty();
+        force_rebuild = force_rebuild || kd_cache.cached_count != enemy_count;
+        force_rebuild = force_rebuild || kd_cache.cached_positions.size() != enemy_count;
+        force_rebuild = force_rebuild || kd_cache.cached_entity_ids.size() != enemy_count;
+
+        if (!force_rebuild && enemy_count > 0) {
+            for (size_t index = 0; index < enemy_count; ++index) {
+                if (kd_cache.cached_entity_ids[index] != boids[index].entity_id) {
+                    force_rebuild = true;
+                    break;
+                }
+            }
+        }
+
+        if (!force_rebuild && rebuild_distance_sq > godot::real_t(0.0) && !kd_cache.cached_positions.empty()) {
+            godot::real_t max_displacement_sq = godot::real_t(0.0);
+            for (size_t index = 0; index < enemy_count; ++index) {
+                const godot::Vector2 delta = *boids[index].position - kd_cache.cached_positions[index];
+                max_displacement_sq = godot::Math::max(max_displacement_sq, delta.length_squared());
+                if (max_displacement_sq >= rebuild_distance_sq) {
+                    force_rebuild = true;
+                    break;
+                }
+            }
+        }
+
+        if (!force_rebuild && stale_frame_limit > 0U && kd_cache.frames_since_rebuild >= stale_frame_limit) {
+            force_rebuild = true;
+        }
+
+        if (force_rebuild) {
+            kd_cache.tree.build(static_cast<std::int32_t>(enemy_count), position_accessor);
+            kd_cache.frames_since_rebuild = 0;
+        }
+        else {
+            kd_cache.tree.refresh_points(static_cast<std::int32_t>(enemy_count), position_accessor);
+            kd_cache.frames_since_rebuild += 1;
+        }
+
+        kd_cache.cached_positions.resize(enemy_count);
+        kd_cache.cached_entity_ids.resize(enemy_count);
+        for (size_t index = 0; index < enemy_count; ++index) {
+            kd_cache.cached_positions[index] = *boids[index].position;
+            kd_cache.cached_entity_ids[index] = boids[index].entity_id;
+        }
+        kd_cache.cached_count = enemy_count;
+
+        for (size_t entity_index = 0; entity_index < enemy_count; ++entity_index) {
+            const godot::Vector2 position_value = *boids[entity_index].position;
+            const godot::Vector2 current_velocity = *boids[entity_index].velocity;
+            const godot::real_t max_speed = boids[entity_index].max_speed;
 
             godot::Vector2 alignment_sum = godot::Vector2(0.0f, 0.0f);
             godot::Vector2 cohesion_sum = godot::Vector2(0.0f, 0.0f);
@@ -133,40 +211,48 @@ inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
             std::int32_t neighbor_count = 0;
             std::int32_t separation_count = 0;
 
-            const enemy_spatial_hash::GridCellKey origin_cell = entity_cells[static_cast<std::size_t>(entity_index)];
+            struct NeighborAccumulator {
+                const std::vector<enemy_movement::BoidAccessor>* boid_array;
+                const godot::Vector2& origin;
+                std::size_t self_index;
+                godot::real_t separation_radius_squared;
+                godot::Vector2& alignment_sum_ref;
+                godot::Vector2& cohesion_sum_ref;
+                godot::Vector2& separation_sum_ref;
+                std::int32_t& neighbor_count_ref;
+                std::int32_t& separation_count_ref;
 
-            for (std::int32_t offset_x = -cell_span; offset_x <= cell_span; ++offset_x) {
-                for (std::int32_t offset_y = -cell_span; offset_y <= cell_span; ++offset_y) {
-                    const enemy_spatial_hash::GridCellKey neighbor_cell{ origin_cell.x + offset_x, origin_cell.y + offset_y };
-                    const enemy_spatial_hash::SpatialHash::const_iterator found = spatial_hash.find(neighbor_cell);
-                    if (found == spatial_hash.end()) {
-                        continue;
+                void operator()(std::int32_t other_index, const godot::Vector2& other_position, godot::real_t distance_squared) const {
+                    const std::size_t other_offset = static_cast<std::size_t>(other_index);
+                    if (other_offset == self_index || distance_squared == 0.0f) {
+                        return;
                     }
 
-                    const std::vector<std::int32_t>& occupants = found->second;
-                    for (std::size_t occupant_index = 0; occupant_index < occupants.size(); ++occupant_index) {
-                        const std::int32_t other_index = occupants[occupant_index];
-                        if (other_index == entity_index) {
-                            continue;
-                        }
+                    neighbor_count_ref += 1;
+                    alignment_sum_ref += *(*boid_array)[other_offset].velocity;
+                    cohesion_sum_ref += other_position;
 
-                        const godot::Vector2 offset = boids[other_index].position->value - position_value;
-                        const godot::real_t distance_squared = offset.length_squared();
-                        if (distance_squared > neighbor_radius_sq || distance_squared == 0.0f) {
-                            continue;
-                        }
-
-                        neighbor_count += 1;
-                        cohesion_sum += boids[other_index].position->value;
-                        alignment_sum += boids[other_index].velocity->value;
-
-                        if (distance_squared < separation_radius_sq) {
-                            separation_sum -= offset / distance_squared;
-                            separation_count += 1;
-                        }
+                    if (distance_squared < separation_radius_squared) {
+                        const godot::Vector2 offset = other_position - origin;
+                        separation_sum_ref -= offset / distance_squared;
+                        separation_count_ref += 1;
                     }
                 }
-            }
+            };
+
+            NeighborAccumulator accumulator{
+                &boids,
+                position_value,
+                entity_index,
+                separation_radius_sq,
+                alignment_sum,
+                cohesion_sum,
+                separation_sum,
+                neighbor_count,
+                separation_count
+            };
+
+            kd_cache.tree.radius_query(position_value, neighbor_radius_sq, accumulator, neighbor_sample_limit);
 
             godot::Vector2 alignment_force = godot::Vector2(0.0f, 0.0f);
             godot::Vector2 cohesion_force = godot::Vector2(0.0f, 0.0f);
@@ -182,7 +268,15 @@ inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
             godot::Vector2 separation_force = godot::Vector2(0.0f, 0.0f);
             if (separation_count > 0) {
                 const godot::Vector2 average_push = separation_sum / static_cast<godot::real_t>(separation_count);
-                separation_force = enemy_movement::steer_towards(average_push, current_velocity, max_speed);
+
+                // Add noise to break up rows/columns
+                const double noise_intensity = static_cast<double>(movement_settings->separation_noise_intensity);
+                const godot::Vector2 noise(
+                    static_cast<float>(godot::UtilityFunctions::randf_range(-noise_intensity, noise_intensity)),
+                    static_cast<float>(godot::UtilityFunctions::randf_range(-noise_intensity, noise_intensity))
+                );
+
+                separation_force = enemy_movement::steer_towards(average_push + noise, current_velocity, max_speed);
             }
 
             const godot::Vector2 player_offset = player_position->value - position_value;
@@ -200,16 +294,12 @@ inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
             acceleration += separation_force * force_weights->separation_weight;
             acceleration += player_force * movement_settings->player_attraction_weight;
 
-            if (acceleration.length_squared() > max_force_sq && max_force_sq > 0.0f) {
-                acceleration = enemy_movement::limit_vector(acceleration, movement_settings->max_force);
-            }
+            acceleration = enemy_movement::limit_vector_squared(acceleration, max_force * max_force);
 
             godot::Vector2 new_velocity = current_velocity + acceleration * delta_time;
-            if (new_velocity.length_squared() > max_speed * max_speed) {
-                new_velocity = enemy_movement::limit_vector(new_velocity, max_speed);
-            }
+            new_velocity = enemy_movement::limit_vector_squared(new_velocity, max_speed * max_speed);
 
-            boids[entity_index].velocity->value = new_velocity;
+            *boids[entity_index].velocity = new_velocity;
         }
     });
 });
