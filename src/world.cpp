@@ -20,7 +20,6 @@
 #include "src/scripts_loader.h"
 
 #include "src/components/entity_rendering.h"
-#include "src/components/godot_signal.h"
 #include "src/components/godot_variants.h"
 #include "src/components/physics.h"
 #include "src/components/player.h"
@@ -30,6 +29,8 @@
 #include "src/systems/physics.h"
 #include "src/systems/transform_update.h"
 #include "src/systems/entity_rendering.h"
+
+#include "src/utilities/godot_signal.h"
 
 // Define the global buffer cache that is declared in entity_rendering.h
 std::unordered_map<godot::RID, godot::PackedFloat32Array> g_multimesh_buffer_cache;
