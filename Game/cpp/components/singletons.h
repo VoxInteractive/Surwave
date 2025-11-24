@@ -33,6 +33,11 @@ struct EnemyAnimationSettings {
     godot::real_t animation_offset_fraction_range;
 };
 
+struct EnemyTakeDamageSettings {
+    godot::real_t projectile_hit_cooldown;
+    godot::real_t shockwave_hit_cooldown;
+};
+
 struct ProjectileData {
     godot::Dictionary value;
 };
@@ -91,7 +96,7 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
             godot::real_t(0.5),  // horizontal_flip_cooldown
             godot::real_t(0.5),  // vertical_flip_cooldown
             godot::real_t(8.0),  // nominal_movement_speed
-            godot::real_t(0.2)   // animation_offset_fraction_range
+            godot::real_t(0.3)   // animation_offset_fraction_range
             });
 
 
@@ -109,4 +114,13 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
     register_singleton_setter<godot::Dictionary>("ShockwaveData", [](flecs::world& world, const godot::Dictionary& shockwave_data) {
         world.set<ShockwaveData>({ shockwave_data });
     });
+
+    world.component<EnemyTakeDamageSettings>("EnemyTakeDamageSettings")
+        .member<godot::real_t>("projectile_hit_cooldown")
+        .member<godot::real_t>("shockwave_hit_cooldown")
+        .add(flecs::Singleton)
+        .set<EnemyTakeDamageSettings>({
+            godot::real_t(1.0), // projectile_hit_cooldown
+            godot::real_t(1.0)  // shockwave_hit_cooldown
+            });
 });

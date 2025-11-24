@@ -22,6 +22,7 @@ namespace enemy_take_damage_detail {
         Position2D* position;
         HitPoints* hit_points;
         const HitRadius* hit_radius;
+        ProjectileHitTimeout* projectile_hit_timeout;
     };
 
     inline godot::Array get_projectile_positions(const ProjectileData* projectile_data) {
@@ -46,15 +47,18 @@ namespace enemy_take_damage_detail {
 } // namespace enemy_take_damage_detail
 
 inline FlecsRegistry register_enemy_take_damage_system([](flecs::world& world) {
-    world.system<Position2D, HitPoints, const HitRadius>("Enemy Take Damage")
+    world.system<Position2D, HitPoints, const HitRadius, ProjectileHitTimeout>("Enemy Take Damage")
         .with(flecs::IsA, world.lookup("Enemy"))
         .run([](flecs::iter& it) {
         flecs::world stage_world = it.world();
         const ProjectileData* projectile_data = stage_world.try_get<ProjectileData>();
         const EnemyBoidMovementSettings* movement_settings = stage_world.try_get<EnemyBoidMovementSettings>();
-        if (projectile_data == nullptr || movement_settings == nullptr) {
+        const EnemyTakeDamageSettings* take_damage_settings = stage_world.try_get<EnemyTakeDamageSettings>();
+        if (projectile_data == nullptr || movement_settings == nullptr || take_damage_settings == nullptr) {
             return;
         }
+
+        const godot::real_t projectile_cooldown = godot::Math::max(take_damage_settings->projectile_hit_cooldown, godot::real_t(0.0));
 
         const godot::Array projectile_positions = enemy_take_damage_detail::get_projectile_positions(projectile_data);
         const std::int32_t projectile_count = static_cast<std::int32_t>(projectile_positions.size());
@@ -70,12 +74,14 @@ inline FlecsRegistry register_enemy_take_damage_system([](flecs::world& world) {
             flecs::field<Position2D> positions = it.field<Position2D>(0);
             flecs::field<HitPoints> hit_points = it.field<HitPoints>(1);
             flecs::field<const HitRadius> hit_radii = it.field<const HitRadius>(2);
+            flecs::field<ProjectileHitTimeout> projectile_hit_timeouts = it.field<ProjectileHitTimeout>(3);
             const std::int32_t row_count = static_cast<std::int32_t>(it.count());
             for (std::int32_t row_index = 0; row_index < row_count; ++row_index) {
                 enemy_take_damage_detail::DamageTargetAccessor accessor{
                     &positions[static_cast<std::size_t>(row_index)],
                     &hit_points[static_cast<std::size_t>(row_index)],
-                    &hit_radii[static_cast<std::size_t>(row_index)]
+                    &hit_radii[static_cast<std::size_t>(row_index)],
+                    &projectile_hit_timeouts[static_cast<std::size_t>(row_index)]
                 };
                 targets.push_back(accessor);
                 max_hit_radius = godot::Math::max(max_hit_radius, hit_radii[static_cast<std::size_t>(row_index)].value);
@@ -133,7 +139,14 @@ inline FlecsRegistry register_enemy_take_damage_system([](flecs::world& world) {
                         const godot::real_t entity_hit_radius = godot::Math::max(targets[static_cast<std::size_t>(enemy_index)].hit_radius->value, godot::real_t(1.0));
                         const godot::real_t entity_hit_radius_sq = entity_hit_radius * entity_hit_radius;
                         if (distance_squared <= entity_hit_radius_sq) {
+                            ProjectileHitTimeout& projectile_timeout = *targets[static_cast<std::size_t>(enemy_index)].projectile_hit_timeout;
+                            const bool can_take_projectile_hit = projectile_cooldown <= godot::real_t(0.0) || projectile_timeout.value >= projectile_cooldown;
+                            if (!can_take_projectile_hit) {
+                                continue;
+                            }
+
                             accumulated_damage[static_cast<std::size_t>(enemy_index)] += godot::real_t(1.0);
+                            projectile_timeout.value = godot::real_t(0.0);
                         }
                     }
                 }
@@ -147,6 +160,7 @@ inline FlecsRegistry register_enemy_take_damage_system([](flecs::world& world) {
             }
 
             targets[static_cast<std::size_t>(enemy_index)].hit_points->value -= damage;
+            targets[static_cast<std::size_t>(enemy_index)].projectile_hit_timeout->value = godot::real_t(0.0);
         }
     });
 });

@@ -5,6 +5,7 @@
 #include "prefabs/character2d.h"
 #include "prefabs/enemy.h"
 
+#include "systems/enemy_timer_tick.h"
 #include "systems/enemy_movement.h"
 #include "systems/enemy_death.h"
 #include "systems/enemy_take_damage.h"

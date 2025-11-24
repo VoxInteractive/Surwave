@@ -83,11 +83,6 @@ inline FlecsRegistry register_enemy_animation_system([](flecs::world& world) {
         const godot::real_t animation_offset_fraction_range = godot::Math::max(animation_settings->animation_offset_fraction_range, godot::real_t(0.0));
 
         while (it.next()) {
-            godot::real_t delta_time = static_cast<godot::real_t>(it.delta_time());
-            if (delta_time < godot::real_t(0.0)) {
-                delta_time = godot::real_t(0.0);
-            }
-
             flecs::field<const HitPoints> hit_points = it.field<const HitPoints>(0);
             flecs::field<const Velocity2D> velocities = it.field<const Velocity2D>(1);
             flecs::field<const MovementSpeed> movement_speeds = it.field<const MovementSpeed>(2);
@@ -117,11 +112,6 @@ inline FlecsRegistry register_enemy_animation_system([](flecs::world& world) {
                 RenderingCustomData& custom_data = custom_data_field[i];
                 HFlipTimer& horizontal_timer = horizontal_flip_timers[i];
                 VFlipTimer& vertical_timer = vertical_flip_timers[i];
-
-                if (delta_time > godot::real_t(0.0)) {
-                    horizontal_timer.value += delta_time;
-                    vertical_timer.value += delta_time;
-                }
 
                 uint32_t animation_flags = static_cast<uint32_t>(custom_data.a);
                 bool current_horizontal_flip = (animation_flags & 1U) != 0U;

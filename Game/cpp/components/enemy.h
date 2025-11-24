@@ -40,6 +40,14 @@ struct VFlipTimer {
     godot::real_t value;
 };
 
+struct ProjectileHitTimeout {
+    godot::real_t value;
+};
+
+struct ShockwaveHitTimeout {
+    godot::real_t value;
+};
+
 // struct IsDying {};
 
 
@@ -66,5 +74,11 @@ inline FlecsRegistry register_enemy_stats_components([](flecs::world& world) {
         .member<godot::real_t>("value");
 
     world.component<VFlipTimer>("VFlipTimer")
+        .member<godot::real_t>("value");
+
+    world.component<ProjectileHitTimeout>("ProjectileHitTimeout")
+        .member<godot::real_t>("value");
+
+    world.component<ShockwaveHitTimeout>("ShockwaveHitTimeout")
         .member<godot::real_t>("value");
 });
