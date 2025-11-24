@@ -48,19 +48,13 @@ inline FlecsRegistry register_enemy_timer_tick_system([](flecs::world& world) {
                     if (death_timer.value <= godot::real_t(0.0)) {
                         death_timer.value = godot::real_t(0.0);
 
+                        flecs::entity entity = it.entity(static_cast<std::int32_t>(entity_index));
+                        
                         godot::Dictionary signal_data;
-                        signal_data["entity_id"] = (int64_t)it.entity(static_cast<std::int32_t>(entity_index)).id();
-                        GodotSignal signal{ godot::StringName("enemy_died"), signal_data };
+                        signal_data["entity_id"] = (int64_t)entity.id();
+                        emit_godot_signal(it.world(), entity, "enemy_died", signal_data);
 
-                        flecs::entity e = it.entity(static_cast<std::int32_t>(entity_index));
-                        it.world().defer([e, signal]() {
-                            e.world().event<GodotSignal>()
-                                .entity(e)
-                                .ctx(signal)
-                                .emit();
-                        });
-
-                        e.destruct();
+                        entity.destruct();
                         continue;
                     }
                 }
