@@ -24,6 +24,7 @@
 #include "src/components/transform.h"
 #include "src/components/physics.h"
 #include "src/components/player.h"
+#include "src/components/godot_signal.h"
 
 #include "src/systems/prefab_instantiation.h"
 #include "src/systems/transform_update.h"
@@ -85,6 +86,16 @@ FlecsWorld::FlecsWorld()
     // Use a Godot resource path so the loader can resolve it via ProjectSettings.
     FlecsScriptsLoader loader;
     loader.load(world);
+
+    world.observer("GodotSignalObserver")
+        .event<GodotSignal>()
+        .with(flecs::Any) // Tells the observer: "I don't care what components the entity has. If any entity emits this event, trigger the callback."
+        .each([this](flecs::iter& it, size_t index) {
+        GodotSignal* signal = it.param<GodotSignal>();
+        if (signal) {
+            this->emit_signal("flecs_signal_emitted", signal->name, signal->data);
+        }
+    });
 
     is_initialised = true;
 }
@@ -405,4 +416,6 @@ void FlecsWorld::_bind_methods()
     ClassDB::bind_method(D_METHOD("set_singleton_component", "component_name", "data"), &FlecsWorld::set_singleton_component);
     ClassDB::bind_method(D_METHOD("get_singleton_component", "component_name"), &FlecsWorld::get_singleton_component);
     ClassDB::bind_method(D_METHOD("run_system", "system_name", "data"), &FlecsWorld::run_system, DEFVAL(godot::Dictionary()));
+
+    ADD_SIGNAL(godot::MethodInfo("flecs_signal_emitted", godot::PropertyInfo(godot::Variant::STRING_NAME, "name"), godot::PropertyInfo(godot::Variant::DICTIONARY, "data")));
 }

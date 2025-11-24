@@ -103,7 +103,6 @@ func _process(delta: float) -> void:
 func _on_animation_frame_changed(frame: int) -> void:
 	if first_shooting_animation_frames.has(frame):
 		just_fired_weapon = true
-		print("just_fired_weapon is true")
 
 
 func _tick_cooldowns(delta: float) -> void:
