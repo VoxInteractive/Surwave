@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+#include <cstddef>
 #include <cstdint>
 #include <vector>
 
@@ -13,15 +15,29 @@
 
 #include "components/enemy.h"
 #include "components/singletons.h"
-#include "utilities/enemy_spatial_hash.h"
+#include "utilities/enemy_kd_tree.h"
 
 namespace enemy_movement {
 
     struct BoidAccessor {
+        flecs::entity_t entity_id;
         godot::Vector2* position;
         godot::Vector2* velocity;
         godot::real_t max_speed;
     };
+
+    struct KdTreeCache {
+        enemy_kd_tree::KdTree2D tree;
+        std::vector<godot::Vector2> cached_positions;
+        std::vector<flecs::entity_t> cached_entity_ids;
+        std::size_t cached_count = 0;
+        std::uint32_t frames_since_rebuild = 0;
+    };
+
+    inline KdTreeCache& get_kd_tree_cache() {
+        static KdTreeCache cache;
+        return cache;
+    }
 
     inline godot::Vector2 steer_towards(const godot::Vector2& desired_direction, const godot::Vector2& current_velocity, godot::real_t max_speed) {
         const godot::real_t desired_length_sq = desired_direction.length_squared();
@@ -65,8 +81,11 @@ inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
             return;
         }
 
+        enemy_movement::KdTreeCache& kd_cache = enemy_movement::get_kd_tree_cache();
+
         std::vector<enemy_movement::BoidAccessor> boids;
-        boids.reserve(256U);
+        const std::size_t suggested_capacity = kd_cache.cached_count > 0 ? kd_cache.cached_count : static_cast<std::size_t>(256U);
+        boids.reserve(suggested_capacity);
 
         godot::real_t delta_time = 0.0f;
         bool delta_time_initialized = false;
@@ -88,7 +107,9 @@ inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
                 if (death_timers[row_index].value > 0.0f) {
                     continue;
                 }
+                const flecs::entity current_entity = it.entity(static_cast<int32_t>(row_index));
                 enemy_movement::BoidAccessor accessor{
+                    current_entity.id(),
                     &positions[row_index].value,
                     &velocities[row_index].value,
                     godot::Math::max(movement_speeds[row_index].value * max_speed_multiplier, 1.0f)
@@ -102,25 +123,81 @@ inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
             return;
         }
 
-        const godot::real_t clamped_cell_size = godot::Math::max(movement_settings->grid_cell_size, 1.0f);
+        std::sort(boids.begin(), boids.end(), [](const enemy_movement::BoidAccessor& lhs, const enemy_movement::BoidAccessor& rhs) {
+            return lhs.entity_id < rhs.entity_id;
+        });
+
         const godot::real_t neighbor_radius_sq = movement_settings->neighbor_radius * movement_settings->neighbor_radius;
         const godot::real_t separation_radius_sq = movement_settings->separation_radius * movement_settings->separation_radius;
         const godot::real_t max_force = movement_settings->max_force;
         const godot::real_t player_engage_radius_sq = movement_settings->player_engage_distance * movement_settings->player_engage_distance;
+        const std::int32_t neighbor_sample_limit = movement_settings->max_neighbor_sample_count <= godot::real_t(0.0)
+            ? -1
+            : static_cast<std::int32_t>(movement_settings->max_neighbor_sample_count);
 
-        const godot::real_t normalized_span = movement_settings->neighbor_radius / clamped_cell_size;
-        const std::int32_t cell_span = static_cast<std::int32_t>(godot::Math::ceil(normalized_span));
+        struct BoidPositionAccessor {
+            const std::vector<enemy_movement::BoidAccessor>* boid_array;
 
-        std::vector<enemy_spatial_hash::GridCellKey> entity_cells;
-        enemy_spatial_hash::SpatialHash spatial_hash;
-        enemy_spatial_hash::populate_spatial_hash(
-            static_cast<int32_t>(enemy_count),
-            clamped_cell_size,
-            [&boids](int32_t entity_index) {
-            return *boids[static_cast<size_t>(entity_index)].position;
-        },
-            entity_cells,
-            spatial_hash);
+            godot::Vector2 operator()(std::int32_t entity_index) const {
+                const std::size_t offset = static_cast<std::size_t>(entity_index);
+                return *(*boid_array)[offset].position;
+            }
+        };
+
+        BoidPositionAccessor position_accessor{ &boids };
+
+        const godot::real_t rebuild_distance = godot::Math::max(movement_settings->kd_tree_rebuild_distance, godot::real_t(0.0));
+        const godot::real_t rebuild_distance_sq = rebuild_distance * rebuild_distance;
+        const std::uint32_t stale_frame_limit = movement_settings->kd_tree_max_stale_frames <= godot::real_t(0.0)
+            ? 0U
+            : static_cast<std::uint32_t>(movement_settings->kd_tree_max_stale_frames);
+
+        bool force_rebuild = kd_cache.tree.empty();
+        force_rebuild = force_rebuild || kd_cache.cached_count != enemy_count;
+        force_rebuild = force_rebuild || kd_cache.cached_positions.size() != enemy_count;
+        force_rebuild = force_rebuild || kd_cache.cached_entity_ids.size() != enemy_count;
+
+        if (!force_rebuild && enemy_count > 0) {
+            for (size_t index = 0; index < enemy_count; ++index) {
+                if (kd_cache.cached_entity_ids[index] != boids[index].entity_id) {
+                    force_rebuild = true;
+                    break;
+                }
+            }
+        }
+
+        if (!force_rebuild && rebuild_distance_sq > godot::real_t(0.0) && !kd_cache.cached_positions.empty()) {
+            godot::real_t max_displacement_sq = godot::real_t(0.0);
+            for (size_t index = 0; index < enemy_count; ++index) {
+                const godot::Vector2 delta = *boids[index].position - kd_cache.cached_positions[index];
+                max_displacement_sq = godot::Math::max(max_displacement_sq, delta.length_squared());
+                if (max_displacement_sq >= rebuild_distance_sq) {
+                    force_rebuild = true;
+                    break;
+                }
+            }
+        }
+
+        if (!force_rebuild && stale_frame_limit > 0U && kd_cache.frames_since_rebuild >= stale_frame_limit) {
+            force_rebuild = true;
+        }
+
+        if (force_rebuild) {
+            kd_cache.tree.build(static_cast<std::int32_t>(enemy_count), position_accessor);
+            kd_cache.frames_since_rebuild = 0;
+        }
+        else {
+            kd_cache.tree.refresh_points(static_cast<std::int32_t>(enemy_count), position_accessor);
+            kd_cache.frames_since_rebuild += 1;
+        }
+
+        kd_cache.cached_positions.resize(enemy_count);
+        kd_cache.cached_entity_ids.resize(enemy_count);
+        for (size_t index = 0; index < enemy_count; ++index) {
+            kd_cache.cached_positions[index] = *boids[index].position;
+            kd_cache.cached_entity_ids[index] = boids[index].entity_id;
+        }
+        kd_cache.cached_count = enemy_count;
 
         for (size_t entity_index = 0; entity_index < enemy_count; ++entity_index) {
             const godot::Vector2 position_value = *boids[entity_index].position;
@@ -133,40 +210,48 @@ inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
             std::int32_t neighbor_count = 0;
             std::int32_t separation_count = 0;
 
-            const enemy_spatial_hash::GridCellKey origin_cell = entity_cells[entity_index];
+            struct NeighborAccumulator {
+                const std::vector<enemy_movement::BoidAccessor>* boid_array;
+                const godot::Vector2& origin;
+                std::size_t self_index;
+                godot::real_t separation_radius_squared;
+                godot::Vector2& alignment_sum_ref;
+                godot::Vector2& cohesion_sum_ref;
+                godot::Vector2& separation_sum_ref;
+                std::int32_t& neighbor_count_ref;
+                std::int32_t& separation_count_ref;
 
-            for (std::int32_t offset_x = -cell_span; offset_x <= cell_span; ++offset_x) {
-                for (std::int32_t offset_y = -cell_span; offset_y <= cell_span; ++offset_y) {
-                    const enemy_spatial_hash::GridCellKey neighbor_cell{ origin_cell.x + offset_x, origin_cell.y + offset_y };
-                    const enemy_spatial_hash::SpatialHash::const_iterator found = spatial_hash.find(neighbor_cell);
-                    if (found == spatial_hash.end()) {
-                        continue;
+                void operator()(std::int32_t other_index, const godot::Vector2& other_position, godot::real_t distance_squared) const {
+                    const std::size_t other_offset = static_cast<std::size_t>(other_index);
+                    if (other_offset == self_index || distance_squared == 0.0f) {
+                        return;
                     }
 
-                    const std::vector<std::int32_t>& occupants = found->second;
-                    for (const int32_t other_boid_index : occupants) {
-                        if (static_cast<size_t>(other_boid_index) == entity_index) {
-                            continue;
-                        }
+                    neighbor_count_ref += 1;
+                    alignment_sum_ref += *(*boid_array)[other_offset].velocity;
+                    cohesion_sum_ref += other_position;
 
-                        const size_t other_index = static_cast<size_t>(other_boid_index);
-                        const godot::Vector2 offset = *boids[other_index].position - position_value;
-                        const godot::real_t distance_squared = offset.length_squared();
-                        if (distance_squared > neighbor_radius_sq || distance_squared == 0.0f) {
-                            continue;
-                        }
-
-                        neighbor_count += 1;
-                        cohesion_sum += *boids[other_index].position;
-                        alignment_sum += *boids[other_index].velocity;
-
-                        if (distance_squared < separation_radius_sq) {
-                            separation_sum -= offset / distance_squared;
-                            separation_count += 1;
-                        }
+                    if (distance_squared < separation_radius_squared) {
+                        const godot::Vector2 offset = other_position - origin;
+                        separation_sum_ref -= offset / distance_squared;
+                        separation_count_ref += 1;
                     }
                 }
-            }
+            };
+
+            NeighborAccumulator accumulator{
+                &boids,
+                position_value,
+                entity_index,
+                separation_radius_sq,
+                alignment_sum,
+                cohesion_sum,
+                separation_sum,
+                neighbor_count,
+                separation_count
+            };
+
+            kd_cache.tree.radius_query(position_value, neighbor_radius_sq, accumulator, neighbor_sample_limit);
 
             godot::Vector2 alignment_force = godot::Vector2(0.0f, 0.0f);
             godot::Vector2 cohesion_force = godot::Vector2(0.0f, 0.0f);
