@@ -8,6 +8,7 @@
 
 #include "components/enemy.h"
 #include "components/singletons.h"
+#include "src/components/godot_signal.h"
 
 inline FlecsRegistry register_enemy_timer_tick_system([](flecs::world& world) {
     world.system<ProjectileHitTimeout, ShockwaveHitTimeout, DeathTimer, HitReactionTimer, HFlipTimer, VFlipTimer>("Enemy Timer Tick")
@@ -46,7 +47,14 @@ inline FlecsRegistry register_enemy_timer_tick_system([](flecs::world& world) {
                     death_timer.value -= delta_time;
                     if (death_timer.value <= godot::real_t(0.0)) {
                         death_timer.value = godot::real_t(0.0);
-                        it.entity(static_cast<std::int32_t>(entity_index)).destruct();
+
+                        flecs::entity entity = it.entity(static_cast<std::int32_t>(entity_index));
+                        
+                        godot::Dictionary signal_data;
+                        signal_data["entity_id"] = (int64_t)entity.id();
+                        emit_godot_signal(it.world(), entity, "enemy_died", signal_data);
+
+                        entity.destruct();
                         continue;
                     }
                 }

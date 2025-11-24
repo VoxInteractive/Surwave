@@ -49,6 +49,12 @@ func _ready() -> void:
 	_set_world_singletons()
 	_spawn_initial_enemy_population()
 	_initialise_projectile_manager()
+	
+	world.flecs_signal_emitted.connect(_on_flecs_signal)
+
+
+func _on_flecs_signal(_signal_name: StringName, _data: Dictionary) -> void:
+	pass
 
 
 func _validate_terrain() -> void:
