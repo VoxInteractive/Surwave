@@ -1,8 +1,10 @@
 #pragma once
 
 #include <godot_cpp/core/math_defs.hpp>
+#include <godot_cpp/variant/dictionary.hpp>
 
 #include "src/flecs_registry.h"
+#include "src/flecs_singleton_registry.h"
 
 struct EnemyBoidForceWeights {
     godot::real_t alignment_weight;
@@ -22,7 +24,40 @@ struct EnemyBoidMovementSettings {
 
 struct EnemyAnimationSettings {
     godot::real_t animation_interval;
+    godot::real_t walk_animation_range;
+    godot::real_t death_animation_frame_count;
+    godot::real_t up_direction_frame_offset;
+    godot::real_t horizontal_flip_cooldown;
+    godot::real_t vertical_flip_cooldown;
+    godot::real_t nominal_movement_speed;
+    godot::real_t animation_offset_fraction_range;
+    godot::real_t hit_reaction_duration;
 };
+
+struct EnemyTakeDamageSettings {
+    godot::real_t projectile_hit_cooldown;
+    godot::real_t shockwave_hit_cooldown;
+};
+
+struct ProjectileData {
+    godot::Dictionary value;
+};
+
+struct ShockwaveData {
+    godot::Dictionary value;
+};
+
+struct StageData
+{
+    godot::Dictionary value;
+
+    // This will make it implicitly convertible to a godot::Dictionary, which is a type GDScript understands.
+    // When get_singleton_component returns the StageData object, this conversion will be used automatically to create a godot::Variant.
+    operator godot::Variant() const {
+        return value;
+    }
+};
+
 
 inline FlecsRegistry register_game_singleton_components([](flecs::world& world) {
     world.component<EnemyBoidForceWeights>("EnemyBoidForceWeights")
@@ -30,7 +65,11 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
         .member<godot::real_t>("cohesion_weight")
         .member<godot::real_t>("separation_weight")
         .add(flecs::Singleton)
-        .set<EnemyBoidForceWeights>({ 0.8f, 0.45f, 1.25f });
+        .set<EnemyBoidForceWeights>({
+            godot::real_t(0.8),   // alignment_weight
+            godot::real_t(0.45),  // cohesion_weight
+            godot::real_t(0.8)   // separation_weight
+            });
 
     world.component<EnemyBoidMovementSettings>("EnemyBoidMovementSettings")
         .member<godot::real_t>("player_attraction_weight")
@@ -41,10 +80,68 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
         .member<godot::real_t>("max_force")
         .member<godot::real_t>("grid_cell_size")
         .add(flecs::Singleton)
-        .set<EnemyBoidMovementSettings>({ 1.6f, 28.0f, 110.0f, 40.0f, 1.1f, 320.0f, 96.0f });
+        .set<EnemyBoidMovementSettings>({
+            godot::real_t(1.2),   // player_attraction_weight
+            godot::real_t(28.0),  // player_engage_distance
+            godot::real_t(110.0), // neighbor_radius
+            godot::real_t(40.0),  // separation_radius
+            godot::real_t(1.1),   // max_speed_multiplier
+            godot::real_t(220.0), // max_force
+            godot::real_t(96.0)   // grid_cell_size
+            });
 
     world.component<EnemyAnimationSettings>("EnemyAnimationSettings")
         .member<godot::real_t>("animation_interval")
+        .member<godot::real_t>("walk_animation_range")
+        .member<godot::real_t>("death_animation_frame_count")
+        .member<godot::real_t>("up_direction_frame_offset")
+        .member<godot::real_t>("horizontal_flip_cooldown")
+        .member<godot::real_t>("vertical_flip_cooldown")
+        .member<godot::real_t>("nominal_movement_speed")
+        .member<godot::real_t>("animation_offset_fraction_range")
+        .member<godot::real_t>("hit_reaction_duration")
         .add(flecs::Singleton)
-        .set<EnemyAnimationSettings>({ 0.25f });
+        .set<EnemyAnimationSettings>({
+            godot::real_t(0.25), // animation_interval
+            godot::real_t(5.0),  // walk_animation_range
+            godot::real_t(4.0),  // death_animation_frame_count
+            godot::real_t(6.0),  // up_direction_frame_offset
+            godot::real_t(0.5),  // horizontal_flip_cooldown
+            godot::real_t(0.5),  // vertical_flip_cooldown
+            godot::real_t(8.0),  // nominal_movement_speed
+            godot::real_t(0.3),  // animation_offset_fraction_range
+            godot::real_t(0.1) // hit_reaction_duration
+            });
+
+    world.component<EnemyTakeDamageSettings>("EnemyTakeDamageSettings")
+        .member<godot::real_t>("projectile_hit_cooldown")
+        .member<godot::real_t>("shockwave_hit_cooldown")
+        .add(flecs::Singleton)
+        .set<EnemyTakeDamageSettings>({
+            godot::real_t(1.0), // projectile_hit_cooldown
+            godot::real_t(1.0)  // shockwave_hit_cooldown
+            });
+
+    world.component<ProjectileData>("ProjectileData")
+        .add(flecs::Singleton);
+
+    world.component<ShockwaveData>("ShockwaveData")
+        .add(flecs::Singleton);
+
+    world.component<StageData>("StageData")
+        .add(flecs::Singleton);
+
+
+    register_singleton_setter<godot::Dictionary>("ProjectileData", [](flecs::world& world, const godot::Dictionary& projectile_data) {
+        world.set<ProjectileData>({ projectile_data });
+    });
+
+    register_singleton_setter<godot::Dictionary>("ShockwaveData", [](flecs::world& world, const godot::Dictionary& shockwave_data) {
+        world.set<ShockwaveData>({ shockwave_data });
+    });
+
+    register_singleton_setter<godot::Dictionary>("StageData", [](flecs::world& world, const godot::Dictionary& stage_data) {
+        world.set<StageData>({ stage_data });
+    });
+    register_singleton_getter<StageData>("StageData");
 });

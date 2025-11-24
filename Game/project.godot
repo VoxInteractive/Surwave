@@ -20,12 +20,12 @@ config/icon="res://icon.svg"
 
 window/size/viewport_width=1280
 window/size/viewport_height=720
-window/size/mode=3
 window/stretch/mode="viewport"
 
 [global_group]
 
 Players="root nodes of Player scenes belong to this group"
+Projectiles="root nodes of Projectile scenes belong to this group"
 
 [input]
 
@@ -171,6 +171,7 @@ shockwave={
 2d_physics/layer_3="Players"
 2d_physics/layer_4="Portals"
 2d_physics/layer_5="Monsters"
+2d_physics/layer_6="Projectiles"
 
 [physics]
 
