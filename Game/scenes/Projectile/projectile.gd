@@ -2,7 +2,7 @@ class_name Projectile extends Node2D
 
 @export_category("General")
 @export var damage: float = 1.0;
-@export var lifetime: float = 5.0; # In seconds. Can also be thought of as range. After this time, the projectile node will be freed.
+@export var range_squared: float = 100_000;
 @export var random_direction_offset: float = 0.0; # In degrees. A random angle between -this and +this will be added to the initial direction.
 
 @export_category("Movement")
@@ -14,10 +14,12 @@ var direction: Vector2 = Vector2.UP
 var age: float = 0.0
 var forward_offset: Vector2
 var right: Vector2
+var spawn_position: Vector2
 
 func _ready() -> void:
 	forward_offset = direction * speed;
 	right = Vector2(-direction.y, direction.x)
+	spawn_position = global_position;
 
 	if random_direction_offset > 0.0:
 		var half_range: float = random_direction_offset * 0.5;

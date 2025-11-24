@@ -23,7 +23,8 @@ func _process(delta: float) -> void:
 		projectile_positions.append(projectile_node.global_position)
 
 		projectile_node.age += delta
-		if projectile_node.age > projectile_node.lifetime:
+
+		if (projectile_node.spawn_position - projectile_node.global_position).length_squared() > projectile_node.range_squared:
 			projectile_node.queue_free()
 
 
