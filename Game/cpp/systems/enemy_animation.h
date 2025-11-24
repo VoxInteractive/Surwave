@@ -61,7 +61,7 @@ namespace enemy_animation_detail {
 // BugLarge walk(up)
 
 inline FlecsRegistry register_enemy_animation_system([](flecs::world& world) {
-    world.system<const HitPoints, const Velocity2D, const MovementSpeed, const AnimationFrameOffset, const DeathTimer, HFlipTimer, VFlipTimer, RenderingCustomData>("Enemy Animation")
+    world.system<const HitPoints, const Velocity2D, const MovementSpeed, const AnimationFrameOffset, const DeathTimer, const HitReactionTimer, HFlipTimer, VFlipTimer, RenderingCustomData>("Enemy Animation")
         .with(flecs::IsA, world.lookup("Enemy"))
         .kind(flecs::PostUpdate)
         .run([](flecs::iter& it) {
@@ -88,9 +88,10 @@ inline FlecsRegistry register_enemy_animation_system([](flecs::world& world) {
             flecs::field<const MovementSpeed> movement_speeds = it.field<const MovementSpeed>(2);
             flecs::field<const AnimationFrameOffset> frame_offsets = it.field<const AnimationFrameOffset>(3);
             flecs::field<const DeathTimer> death_timer = it.field<const DeathTimer>(4);
-            flecs::field<HFlipTimer> horizontal_flip_timers = it.field<HFlipTimer>(5);
-            flecs::field<VFlipTimer> vertical_flip_timers = it.field<VFlipTimer>(6);
-            flecs::field<RenderingCustomData> custom_data_field = it.field<RenderingCustomData>(7);
+            flecs::field<const HitReactionTimer> hit_reaction_timers = it.field<const HitReactionTimer>(5);
+            flecs::field<HFlipTimer> horizontal_flip_timers = it.field<HFlipTimer>(6);
+            flecs::field<VFlipTimer> vertical_flip_timers = it.field<VFlipTimer>(7);
+            flecs::field<RenderingCustomData> custom_data_field = it.field<RenderingCustomData>(8);
 
             const size_t count = it.count();
             for (size_t i = 0; i < count; ++i) {
@@ -108,6 +109,8 @@ inline FlecsRegistry register_enemy_animation_system([](flecs::world& world) {
                 const godot::real_t base_offset = frame_offsets[i].value;
                 const bool has_invulnerable_hit_points = hit_points_value >= kEnemyDeathInvulnerableHitPoints;
                 const bool is_dying_state = death_timer_value > godot::real_t(0.0) || has_invulnerable_hit_points;
+                const godot::real_t hit_reaction_time_remaining = hit_reaction_timers[i].value;
+                const bool is_hit_reacting = !is_dying_state && hit_reaction_time_remaining > godot::real_t(0.0);
 
                 RenderingCustomData& custom_data = custom_data_field[i];
                 HFlipTimer& horizontal_timer = horizontal_flip_timers[i];
@@ -146,7 +149,12 @@ inline FlecsRegistry register_enemy_animation_system([](flecs::world& world) {
                 const godot::real_t walk_directional_offset = (resolved_vertical_up ? godot::real_t(1.0) : godot::real_t(0.0)) * up_direction_frame_offset + godot::real_t(12.0);
                 const godot::real_t death_directional_offset = (resolved_vertical_up ? godot::real_t(1.0) : godot::real_t(0.0)) * up_direction_frame_offset;
 
-                if (is_dying_state) {
+                if (is_hit_reacting) {
+                    custom_data.r = static_cast<float>(base_offset + death_directional_offset);
+                    custom_data.g = 0.0f;
+                    custom_data.b = 0.0f;
+                }
+                else if (is_dying_state) {
                     const godot::real_t timer_for_frame_selection = godot::Math::max(death_timer_value, godot::real_t(0.0));
                     const godot::real_t frames_remaining = godot::Math::ceil(timer_for_frame_selection / scaled_frame_interval);
                     const godot::real_t frames_elapsed = death_animation_frame_count - frames_remaining;

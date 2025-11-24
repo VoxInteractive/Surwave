@@ -32,6 +32,10 @@ struct DeathTimer {
     godot::real_t value;
 };
 
+struct HitReactionTimer {
+    godot::real_t value;
+};
+
 struct HFlipTimer {
     godot::real_t value;
 };
@@ -68,6 +72,9 @@ inline FlecsRegistry register_enemy_stats_components([](flecs::world& world) {
         .member<godot::real_t>("value");
 
     world.component<DeathTimer>("DeathTimer")
+        .member<godot::real_t>("value");
+
+    world.component<HitReactionTimer>("HitReactionTimer")
         .member<godot::real_t>("value");
 
     world.component<HFlipTimer>("HFlipTimer")

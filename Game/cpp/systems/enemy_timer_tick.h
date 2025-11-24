@@ -10,7 +10,7 @@
 #include "components/singletons.h"
 
 inline FlecsRegistry register_enemy_timeout_tick_system([](flecs::world& world) {
-    world.system<ProjectileHitTimeout, ShockwaveHitTimeout, DeathTimer, HFlipTimer, VFlipTimer>("Enemy Timer Tick")
+    world.system<ProjectileHitTimeout, ShockwaveHitTimeout, DeathTimer, HitReactionTimer, HFlipTimer, VFlipTimer>("Enemy Timer Tick")
         .with(flecs::IsA, world.lookup("Enemy"))
         .kind(flecs::PreUpdate)
         .run([](flecs::iter& it) {
@@ -27,13 +27,15 @@ inline FlecsRegistry register_enemy_timeout_tick_system([](flecs::world& world) 
             flecs::field<ProjectileHitTimeout> projectile_timeouts = it.field<ProjectileHitTimeout>(0);
             flecs::field<ShockwaveHitTimeout> shockwave_timeouts = it.field<ShockwaveHitTimeout>(1);
             flecs::field<DeathTimer> death_timers = it.field<DeathTimer>(2);
-            flecs::field<HFlipTimer> horizontal_flip_timers = it.field<HFlipTimer>(3);
-            flecs::field<VFlipTimer> vertical_flip_timers = it.field<VFlipTimer>(4);
+            flecs::field<HitReactionTimer> hit_reaction_timers = it.field<HitReactionTimer>(3);
+            flecs::field<HFlipTimer> horizontal_flip_timers = it.field<HFlipTimer>(4);
+            flecs::field<VFlipTimer> vertical_flip_timers = it.field<VFlipTimer>(5);
             const std::size_t entity_count = it.count();
             for (std::size_t entity_index = 0; entity_index < entity_count; ++entity_index) {
                 ProjectileHitTimeout& projectile_timeout = projectile_timeouts[entity_index];
                 ShockwaveHitTimeout& shockwave_timeout = shockwave_timeouts[entity_index];
                 DeathTimer& death_timer = death_timers[entity_index];
+                HitReactionTimer& hit_reaction_timer = hit_reaction_timers[entity_index];
                 HFlipTimer& horizontal_timer = horizontal_flip_timers[entity_index];
                 VFlipTimer& vertical_timer = vertical_flip_timers[entity_index];
 
@@ -48,6 +50,8 @@ inline FlecsRegistry register_enemy_timeout_tick_system([](flecs::world& world) 
                         continue;
                     }
                 }
+
+                hit_reaction_timer.value = godot::Math::max(hit_reaction_timer.value - delta_time, godot::real_t(0.0));
 
                 horizontal_timer.value = godot::Math::max(horizontal_timer.value + delta_time, godot::real_t(0.0));
                 vertical_timer.value = godot::Math::max(vertical_timer.value + delta_time, godot::real_t(0.0));

@@ -14,6 +14,7 @@ inline FlecsRegistry register_enemy_prefab([](flecs::world& world) {
         .set_auto_override<MovementSpeed>({ godot::real_t(50.0) })
         .set<AnimationFrameOffset>({ godot::real_t(0.0) })
         .set_auto_override<DeathTimer>({ godot::real_t(0.0) })
+        .set_auto_override<HitReactionTimer>({ godot::real_t(0.0) })
         .set_auto_override<HFlipTimer>({ godot::real_t(0.5) })
         .set_auto_override<VFlipTimer>({ godot::real_t(0.5) })
         .set_auto_override<ProjectileHitTimeout>({ godot::real_t(0.0) })

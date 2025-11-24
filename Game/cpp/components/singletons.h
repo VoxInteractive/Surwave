@@ -31,6 +31,7 @@ struct EnemyAnimationSettings {
     godot::real_t vertical_flip_cooldown;
     godot::real_t nominal_movement_speed;
     godot::real_t animation_offset_fraction_range;
+    godot::real_t hit_reaction_duration;
 };
 
 struct EnemyTakeDamageSettings {
@@ -87,6 +88,7 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
         .member<godot::real_t>("vertical_flip_cooldown")
         .member<godot::real_t>("nominal_movement_speed")
         .member<godot::real_t>("animation_offset_fraction_range")
+        .member<godot::real_t>("hit_reaction_duration")
         .add(flecs::Singleton)
         .set<EnemyAnimationSettings>({
             godot::real_t(0.25), // animation_interval
@@ -96,7 +98,8 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
             godot::real_t(0.5),  // horizontal_flip_cooldown
             godot::real_t(0.5),  // vertical_flip_cooldown
             godot::real_t(8.0),  // nominal_movement_speed
-            godot::real_t(0.3)   // animation_offset_fraction_range
+            godot::real_t(0.3),  // animation_offset_fraction_range
+            godot::real_t(0.1) // hit_reaction_duration
             });
 
 

@@ -23,6 +23,7 @@ namespace enemy_take_damage_detail {
         HitPoints* hit_points;
         const HitRadius* hit_radius;
         ProjectileHitTimeout* projectile_hit_timeout;
+        HitReactionTimer* hit_reaction_timer;
     };
 
     inline godot::Array get_projectile_positions(const ProjectileData* projectile_data) {
@@ -47,18 +48,29 @@ namespace enemy_take_damage_detail {
 } // namespace enemy_take_damage_detail
 
 inline FlecsRegistry register_enemy_take_damage_system([](flecs::world& world) {
-    world.system<Position2D, HitPoints, const HitRadius, ProjectileHitTimeout>("Enemy Take Damage")
+    world.system<Position2D, HitPoints, const HitRadius, ProjectileHitTimeout, HitReactionTimer>("Enemy Take Damage")
         .with(flecs::IsA, world.lookup("Enemy"))
         .run([](flecs::iter& it) {
         flecs::world stage_world = it.world();
         const ProjectileData* projectile_data = stage_world.try_get<ProjectileData>();
         const EnemyBoidMovementSettings* movement_settings = stage_world.try_get<EnemyBoidMovementSettings>();
         const EnemyTakeDamageSettings* take_damage_settings = stage_world.try_get<EnemyTakeDamageSettings>();
+        const EnemyAnimationSettings* animation_settings = stage_world.try_get<EnemyAnimationSettings>();
         if (projectile_data == nullptr || movement_settings == nullptr || take_damage_settings == nullptr) {
             return;
         }
 
         const godot::real_t projectile_cooldown = godot::Math::max(take_damage_settings->projectile_hit_cooldown, godot::real_t(0.0));
+        godot::real_t hit_reaction_duration = godot::real_t(0.0);
+        if (animation_settings != nullptr) {
+            const godot::real_t configured_duration = godot::Math::max(animation_settings->hit_reaction_duration, godot::real_t(0.0));
+            if (configured_duration > godot::real_t(0.0)) {
+                hit_reaction_duration = configured_duration;
+            }
+            else {
+                hit_reaction_duration = godot::Math::max(animation_settings->animation_interval, godot::real_t(0.0)) * godot::real_t(0.5);
+            }
+        }
 
         const godot::Array projectile_positions = enemy_take_damage_detail::get_projectile_positions(projectile_data);
         const std::int32_t projectile_count = static_cast<std::int32_t>(projectile_positions.size());
@@ -75,13 +87,15 @@ inline FlecsRegistry register_enemy_take_damage_system([](flecs::world& world) {
             flecs::field<HitPoints> hit_points = it.field<HitPoints>(1);
             flecs::field<const HitRadius> hit_radii = it.field<const HitRadius>(2);
             flecs::field<ProjectileHitTimeout> projectile_hit_timeouts = it.field<ProjectileHitTimeout>(3);
+            flecs::field<HitReactionTimer> hit_reaction_timers = it.field<HitReactionTimer>(4);
             const std::int32_t row_count = static_cast<std::int32_t>(it.count());
             for (std::int32_t row_index = 0; row_index < row_count; ++row_index) {
                 enemy_take_damage_detail::DamageTargetAccessor accessor{
                     &positions[static_cast<std::size_t>(row_index)],
                     &hit_points[static_cast<std::size_t>(row_index)],
                     &hit_radii[static_cast<std::size_t>(row_index)],
-                    &projectile_hit_timeouts[static_cast<std::size_t>(row_index)]
+                    &projectile_hit_timeouts[static_cast<std::size_t>(row_index)],
+                    &hit_reaction_timers[static_cast<std::size_t>(row_index)]
                 };
                 targets.push_back(accessor);
                 max_hit_radius = godot::Math::max(max_hit_radius, hit_radii[static_cast<std::size_t>(row_index)].value);
@@ -161,6 +175,10 @@ inline FlecsRegistry register_enemy_take_damage_system([](flecs::world& world) {
 
             targets[static_cast<std::size_t>(enemy_index)].hit_points->value -= damage;
             targets[static_cast<std::size_t>(enemy_index)].projectile_hit_timeout->value = godot::real_t(0.0);
+            if (hit_reaction_duration > godot::real_t(0.0)) {
+                HitReactionTimer& reaction_timer = *targets[static_cast<std::size_t>(enemy_index)].hit_reaction_timer;
+                reaction_timer.value = godot::Math::max(reaction_timer.value, hit_reaction_duration);
+            }
         }
     });
 });
