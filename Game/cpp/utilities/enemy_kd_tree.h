@@ -6,6 +6,9 @@
 
 #include <godot_cpp/variant/vector2.hpp>
 
+// Based on the idea from "Optimizing the brute force implementation of Boids simulation using a k-d tree"
+// Stefan Borkovski, Jožef Stefan International Postgraduate School, Ljubljana, Slovenia
+
 namespace enemy_kd_tree {
 
     struct Node2D {

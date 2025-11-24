@@ -7,6 +7,7 @@
 
 #include <godot_cpp/core/math.hpp>
 #include <godot_cpp/variant/vector2.hpp>
+#include <godot_cpp/variant/utility_functions.hpp>
 
 #include "src/flecs_registry.h"
 #include "src/components/player.h"
@@ -267,7 +268,15 @@ inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
             godot::Vector2 separation_force = godot::Vector2(0.0f, 0.0f);
             if (separation_count > 0) {
                 const godot::Vector2 average_push = separation_sum / static_cast<godot::real_t>(separation_count);
-                separation_force = enemy_movement::steer_towards(average_push, current_velocity, max_speed);
+
+                // Add noise to break up rows/columns
+                const double noise_intensity = static_cast<double>(movement_settings->separation_noise_intensity);
+                const godot::Vector2 noise(
+                    static_cast<float>(godot::UtilityFunctions::randf_range(-noise_intensity, noise_intensity)),
+                    static_cast<float>(godot::UtilityFunctions::randf_range(-noise_intensity, noise_intensity))
+                );
+
+                separation_force = enemy_movement::steer_towards(average_push + noise, current_velocity, max_speed);
             }
 
             const godot::Vector2 player_offset = player_position->value - position_value;
