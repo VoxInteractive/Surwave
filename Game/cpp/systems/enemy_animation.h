@@ -12,7 +12,7 @@
 #include "components/enemy.h"
 #include "components/singletons.h"
 
-namespace enemy_animation_detail {
+namespace enemy_animation {
 
     inline bool try_get_previous_walk_orientation(const RenderingCustomData& custom_data, godot::real_t base_offset, godot::real_t walk_animation_range, godot::real_t up_direction_frame_offset, bool& is_facing_up) {
         const godot::real_t stored_walk_animation_range = godot::Math::floor(godot::Math::abs(custom_data.g));
@@ -43,7 +43,7 @@ namespace enemy_animation_detail {
         return (normalized_value * 2.0f - 1.0f) * offset_range;
     }
 
-} // namespace enemy_animation_detail
+} // namespace enemy_animation
 
 // The spritesheet contains 6 columns and 12 rows, with the death animations consisting of only the
 // leftmost 4 frames and walk animations using all 6 columns in their rows. Row by row layout:
@@ -131,7 +131,7 @@ inline FlecsRegistry register_enemy_animation_system([](flecs::world& world) {
                 bool resolved_vertical_up = wants_vertical_up;
                 if (!is_dying_state) {
                     bool previous_vertical_up = wants_vertical_up;
-                    if (!enemy_animation_detail::try_get_previous_walk_orientation(custom_data, base_offset, animation_range, up_direction_frame_offset, previous_vertical_up)) {
+                    if (!enemy_animation::try_get_previous_walk_orientation(custom_data, base_offset, animation_range, up_direction_frame_offset, previous_vertical_up)) {
                         previous_vertical_up = wants_vertical_up;
                     }
 
@@ -168,7 +168,7 @@ inline FlecsRegistry register_enemy_animation_system([](flecs::world& world) {
                     godot::real_t animation_time_offset_fraction = godot::real_t(0.0);
                     if (animation_offset_fraction_range > godot::real_t(0.0)) {
                         const flecs::entity entity_handle = it.entity(static_cast<std::int32_t>(i));
-                        animation_time_offset_fraction = enemy_animation_detail::compute_entity_animation_offset_fraction(entity_handle, animation_offset_fraction_range);
+                        animation_time_offset_fraction = enemy_animation::compute_entity_animation_offset_fraction(entity_handle, animation_offset_fraction_range);
                     }
                     const godot::real_t encoded_animation_range = animation_time_offset_fraction < godot::real_t(0.0) ? -animation_range : animation_range;
                     custom_data.r = static_cast<float>(base_offset + walk_directional_offset);

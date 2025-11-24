@@ -25,7 +25,7 @@ struct MeleeDamage {
 };
 
 struct AnimationFrameOffset {
-    godot::real_t value; // Keep as real_t to avoid casting when interfacing with shader data encoded as floats
+    godot::real_t value;
 };
 
 struct DeathTimer {

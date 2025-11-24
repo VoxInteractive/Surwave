@@ -16,7 +16,7 @@
 #include "components/singletons.h"
 #include "utilities/enemy_spatial_hash.h"
 
-namespace enemy_take_damage_detail {
+namespace enemy_take_damage {
 
     struct DamageTargetAccessor {
         Position2D* position;
@@ -45,7 +45,7 @@ namespace enemy_take_damage_detail {
         return positions_variant;
     }
 
-} // namespace enemy_take_damage_detail
+} // namespace enemy_take_damage
 
 inline FlecsRegistry register_enemy_take_damage_system([](flecs::world& world) {
     world.system<Position2D, HitPoints, const HitRadius, ProjectileHitTimeout, HitReactionTimer>("Enemy Take Damage")
@@ -72,13 +72,13 @@ inline FlecsRegistry register_enemy_take_damage_system([](flecs::world& world) {
             }
         }
 
-        const godot::Array projectile_positions = enemy_take_damage_detail::get_projectile_positions(projectile_data);
+        const godot::Array projectile_positions = enemy_take_damage::get_projectile_positions(projectile_data);
         const std::int32_t projectile_count = static_cast<std::int32_t>(projectile_positions.size());
         if (projectile_count == 0) {
             return;
         }
 
-        std::vector<enemy_take_damage_detail::DamageTargetAccessor> targets;
+        std::vector<enemy_take_damage::DamageTargetAccessor> targets;
         targets.reserve(128U);
         godot::real_t max_hit_radius = godot::real_t(0.0);
 
@@ -90,7 +90,7 @@ inline FlecsRegistry register_enemy_take_damage_system([](flecs::world& world) {
             flecs::field<HitReactionTimer> hit_reaction_timers = it.field<HitReactionTimer>(4);
             const std::int32_t row_count = static_cast<std::int32_t>(it.count());
             for (std::int32_t row_index = 0; row_index < row_count; ++row_index) {
-                enemy_take_damage_detail::DamageTargetAccessor accessor{
+                enemy_take_damage::DamageTargetAccessor accessor{
                     &positions[static_cast<std::size_t>(row_index)],
                     &hit_points[static_cast<std::size_t>(row_index)],
                     &hit_radii[static_cast<std::size_t>(row_index)],

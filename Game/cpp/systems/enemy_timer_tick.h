@@ -9,7 +9,7 @@
 #include "components/enemy.h"
 #include "components/singletons.h"
 
-inline FlecsRegistry register_enemy_timeout_tick_system([](flecs::world& world) {
+inline FlecsRegistry register_enemy_timer_tick_system([](flecs::world& world) {
     world.system<ProjectileHitTimeout, ShockwaveHitTimeout, DeathTimer, HitReactionTimer, HFlipTimer, VFlipTimer>("Enemy Timer Tick")
         .with(flecs::IsA, world.lookup("Enemy"))
         .kind(flecs::PreUpdate)

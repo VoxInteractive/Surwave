@@ -15,7 +15,7 @@
 #include "components/singletons.h"
 #include "utilities/enemy_spatial_hash.h"
 
-namespace enemy_movement_detail {
+namespace enemy_movement {
 
     struct BoidAccessor {
         Position2D* position;
@@ -50,7 +50,7 @@ namespace enemy_movement_detail {
         return value.normalized() * max_length;
     }
 
-} // namespace enemy_movement_detail
+} // namespace enemy_movement
 
 inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
     world.system<Position2D, Velocity2D, const MovementSpeed, const DeathTimer>("Enemy Movement")
@@ -65,7 +65,7 @@ inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
             return;
         }
 
-        std::vector<enemy_movement_detail::BoidAccessor> boids;
+        std::vector<enemy_movement::BoidAccessor> boids;
         boids.reserve(128U);
 
         godot::real_t delta_time = 0.0f;
@@ -87,7 +87,7 @@ inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
                 if (death_timers[static_cast<std::size_t>(row_index)].value > 0.0f) {
                     continue;
                 }
-                enemy_movement_detail::BoidAccessor accessor{
+                enemy_movement::BoidAccessor accessor{
                     &positions[static_cast<std::size_t>(row_index)],
                     &velocities[static_cast<std::size_t>(row_index)],
                     &movement_speeds[static_cast<std::size_t>(row_index)]
@@ -172,21 +172,21 @@ inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
             godot::Vector2 cohesion_force = godot::Vector2(0.0f, 0.0f);
             if (neighbor_count > 0) {
                 const godot::Vector2 average_velocity = alignment_sum / static_cast<godot::real_t>(neighbor_count);
-                alignment_force = enemy_movement_detail::steer_towards(average_velocity, current_velocity, max_speed);
+                alignment_force = enemy_movement::steer_towards(average_velocity, current_velocity, max_speed);
 
                 const godot::Vector2 average_position = cohesion_sum / static_cast<godot::real_t>(neighbor_count);
                 const godot::Vector2 direction_to_center = average_position - position_value;
-                cohesion_force = enemy_movement_detail::steer_towards(direction_to_center, current_velocity, max_speed);
+                cohesion_force = enemy_movement::steer_towards(direction_to_center, current_velocity, max_speed);
             }
 
             godot::Vector2 separation_force = godot::Vector2(0.0f, 0.0f);
             if (separation_count > 0) {
                 const godot::Vector2 average_push = separation_sum / static_cast<godot::real_t>(separation_count);
-                separation_force = enemy_movement_detail::steer_towards(average_push, current_velocity, max_speed);
+                separation_force = enemy_movement::steer_towards(average_push, current_velocity, max_speed);
             }
 
             const godot::Vector2 player_offset = player_position->value - position_value;
-            godot::Vector2 player_force = enemy_movement_detail::steer_towards(player_offset, current_velocity, max_speed);
+            godot::Vector2 player_force = enemy_movement::steer_towards(player_offset, current_velocity, max_speed);
             const godot::real_t distance_to_player_sq = player_offset.length_squared();
             if (distance_to_player_sq < player_engage_radius_sq && player_engage_radius_sq > 0.0f) {
                 const godot::real_t distance_to_player = godot::Math::sqrt(distance_to_player_sq);
@@ -201,12 +201,12 @@ inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
             acceleration += player_force * movement_settings->player_attraction_weight;
 
             if (acceleration.length_squared() > max_force_sq && max_force_sq > 0.0f) {
-                acceleration = enemy_movement_detail::limit_vector(acceleration, movement_settings->max_force);
+                acceleration = enemy_movement::limit_vector(acceleration, movement_settings->max_force);
             }
 
             godot::Vector2 new_velocity = current_velocity + acceleration * delta_time;
             if (new_velocity.length_squared() > max_speed * max_speed) {
-                new_velocity = enemy_movement_detail::limit_vector(new_velocity, max_speed);
+                new_velocity = enemy_movement::limit_vector(new_velocity, max_speed);
             }
 
             boids[entity_index].velocity->value = new_velocity;

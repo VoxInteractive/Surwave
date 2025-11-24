@@ -47,6 +47,17 @@ struct ShockwaveData {
     godot::Dictionary value;
 };
 
+struct StageData
+{
+    godot::Dictionary value;
+
+    // This will make it implicitly convertible to a godot::Dictionary, which is a type GDScript understands.
+    // When get_singleton_component returns the StageData object, this conversion will be used automatically to create a godot::Variant.
+    operator godot::Variant() const {
+        return value;
+    }
+};
+
 
 inline FlecsRegistry register_game_singleton_components([](flecs::world& world) {
     world.component<EnemyBoidForceWeights>("EnemyBoidForceWeights")
@@ -102,22 +113,6 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
             godot::real_t(0.1) // hit_reaction_duration
             });
 
-
-    world.component<ProjectileData>("ProjectileData")
-        .add(flecs::Singleton);
-
-    register_singleton_setter<godot::Dictionary>("ProjectileData", [](flecs::world& world, const godot::Dictionary& projectile_data) {
-        world.set<ProjectileData>({ projectile_data });
-    });
-
-
-    world.component<ShockwaveData>("ShockwaveData")
-        .add(flecs::Singleton);
-
-    register_singleton_setter<godot::Dictionary>("ShockwaveData", [](flecs::world& world, const godot::Dictionary& shockwave_data) {
-        world.set<ShockwaveData>({ shockwave_data });
-    });
-
     world.component<EnemyTakeDamageSettings>("EnemyTakeDamageSettings")
         .member<godot::real_t>("projectile_hit_cooldown")
         .member<godot::real_t>("shockwave_hit_cooldown")
@@ -126,4 +121,27 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
             godot::real_t(1.0), // projectile_hit_cooldown
             godot::real_t(1.0)  // shockwave_hit_cooldown
             });
+
+    world.component<ProjectileData>("ProjectileData")
+        .add(flecs::Singleton);
+
+    world.component<ShockwaveData>("ShockwaveData")
+        .add(flecs::Singleton);
+
+    world.component<StageData>("StageData")
+        .add(flecs::Singleton);
+
+
+    register_singleton_setter<godot::Dictionary>("ProjectileData", [](flecs::world& world, const godot::Dictionary& projectile_data) {
+        world.set<ProjectileData>({ projectile_data });
+    });
+
+    register_singleton_setter<godot::Dictionary>("ShockwaveData", [](flecs::world& world, const godot::Dictionary& shockwave_data) {
+        world.set<ShockwaveData>({ shockwave_data });
+    });
+
+    register_singleton_setter<godot::Dictionary>("StageData", [](flecs::world& world, const godot::Dictionary& stage_data) {
+        world.set<StageData>({ stage_data });
+    });
+    register_singleton_getter<StageData>("StageData");
 });
