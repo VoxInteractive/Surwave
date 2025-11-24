@@ -15,7 +15,8 @@
 namespace enemy_animation_detail {
 
     inline bool try_get_previous_walk_orientation(const RenderingCustomData& custom_data, float base_offset, float walk_animation_range, float up_direction_frame_offset, bool& is_facing_up) {
-        if (!godot::Math::is_equal_approx(custom_data.g, walk_animation_range)) {
+        const float stored_walk_animation_range = godot::Math::floor(godot::Math::abs(custom_data.g));
+        if (!godot::Math::is_equal_approx(stored_walk_animation_range, walk_animation_range)) {
             return false;
         }
 
@@ -28,6 +29,18 @@ namespace enemy_animation_detail {
         const float threshold = up_direction_frame_offset * 0.5f;
         is_facing_up = stored_walk_offset > threshold;
         return true;
+    }
+
+    inline float compute_entity_animation_offset_fraction(flecs::entity entity_handle, float offset_range) {
+        if (offset_range <= 0.0f) {
+            return 0.0f;
+        }
+
+        const std::uint64_t entity_identifier = entity_handle.id();
+        std::uint32_t seeded_value = static_cast<std::uint32_t>(entity_identifier) ^ static_cast<std::uint32_t>(entity_identifier >> 32U);
+        seeded_value = seeded_value * 1664525U + 1013904223U;
+        const float normalized_value = static_cast<float>(seeded_value & 0x00FFFFFFU) / 16777215.0f;
+        return (normalized_value * 2.0f - 1.0f) * offset_range;
     }
 
 } // namespace enemy_animation_detail
@@ -67,6 +80,7 @@ inline FlecsRegistry register_enemy_animation_system([](flecs::world& world) {
         const float horizontal_flip_cooldown = godot::Math::max(animation_settings->horizontal_flip_cooldown, 0.0f);
         const float vertical_flip_cooldown = godot::Math::max(animation_settings->vertical_flip_cooldown, 0.0f);
         const float nominal_movement_speed = animation_settings->nominal_movement_speed;
+        const float animation_offset_fraction_range = godot::Math::max(animation_settings->animation_offset_fraction_range, 0.0f);
 
         while (it.next()) {
             float delta_time = static_cast<float>(it.delta_time());
@@ -153,8 +167,14 @@ inline FlecsRegistry register_enemy_animation_system([](flecs::world& world) {
                     custom_data.b = 0.0f;
                 }
                 else {
+                    float animation_time_offset_fraction = 0.0f;
+                    if (animation_offset_fraction_range > 0.0f) {
+                        const flecs::entity entity_handle = it.entity(static_cast<std::int32_t>(i));
+                        animation_time_offset_fraction = enemy_animation_detail::compute_entity_animation_offset_fraction(entity_handle, animation_offset_fraction_range);
+                    }
+                    const float encoded_animation_range = animation_time_offset_fraction < 0.0f ? -animation_range : animation_range;
                     custom_data.r = base_offset + walk_directional_offset;
-                    custom_data.g = animation_range;
+                    custom_data.g = encoded_animation_range + animation_time_offset_fraction;
                     custom_data.b = static_cast<float>(scaled_animation_speed);
                 }
 

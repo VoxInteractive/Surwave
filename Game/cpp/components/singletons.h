@@ -30,6 +30,7 @@ struct EnemyAnimationSettings {
     float horizontal_flip_cooldown;
     float vertical_flip_cooldown;
     float nominal_movement_speed;
+    float animation_offset_fraction_range;
 };
 
 struct ProjectileData {
@@ -80,6 +81,7 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
         .member<float>("horizontal_flip_cooldown")
         .member<float>("vertical_flip_cooldown")
         .member<float>("nominal_movement_speed")
+        .member<float>("animation_offset_fraction_range")
         .add(flecs::Singleton)
         .set<EnemyAnimationSettings>({
             0.25f, // animation_interval
@@ -88,7 +90,8 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
             6.0f,  // up_direction_frame_offset
             0.5f,  // horizontal_flip_cooldown
             0.5f,  // vertical_flip_cooldown
-            8.0f   // nominal_movement_speed
+            8.0f,  // nominal_movement_speed
+            0.2f   // animation_offset_fraction_range
             });
 
 
