@@ -7,30 +7,30 @@
 #include "src/flecs_singleton_registry.h"
 
 struct EnemyBoidForceWeights {
-    float alignment_weight;
-    float cohesion_weight;
-    float separation_weight;
+    godot::real_t alignment_weight;
+    godot::real_t cohesion_weight;
+    godot::real_t separation_weight;
 };
 
 struct EnemyBoidMovementSettings {
-    float player_attraction_weight;
-    float player_engage_distance;
-    float neighbor_radius;
-    float separation_radius;
-    float max_speed_multiplier;
-    float max_force;
-    float grid_cell_size;
+    godot::real_t player_attraction_weight;
+    godot::real_t player_engage_distance;
+    godot::real_t neighbor_radius;
+    godot::real_t separation_radius;
+    godot::real_t max_speed_multiplier;
+    godot::real_t max_force;
+    godot::real_t grid_cell_size;
 };
 
 struct EnemyAnimationSettings {
-    float animation_interval;
-    float walk_animation_range;
-    float death_animation_frame_count;
-    float up_direction_frame_offset;
-    float horizontal_flip_cooldown;
-    float vertical_flip_cooldown;
-    float nominal_movement_speed;
-    float animation_offset_fraction_range;
+    godot::real_t animation_interval;
+    godot::real_t walk_animation_range;
+    godot::real_t death_animation_frame_count;
+    godot::real_t up_direction_frame_offset;
+    godot::real_t horizontal_flip_cooldown;
+    godot::real_t vertical_flip_cooldown;
+    godot::real_t nominal_movement_speed;
+    godot::real_t animation_offset_fraction_range;
 };
 
 struct ProjectileData {
@@ -44,54 +44,54 @@ struct ShockwaveData {
 
 inline FlecsRegistry register_game_singleton_components([](flecs::world& world) {
     world.component<EnemyBoidForceWeights>("EnemyBoidForceWeights")
-        .member<float>("alignment_weight")
-        .member<float>("cohesion_weight")
-        .member<float>("separation_weight")
+        .member<godot::real_t>("alignment_weight")
+        .member<godot::real_t>("cohesion_weight")
+        .member<godot::real_t>("separation_weight")
         .add(flecs::Singleton)
         .set<EnemyBoidForceWeights>({
-            0.8f,   // alignment_weight
-            0.45f,  // cohesion_weight
-            0.8f   // separation_weight
+            godot::real_t(0.8),   // alignment_weight
+            godot::real_t(0.45),  // cohesion_weight
+            godot::real_t(0.8)   // separation_weight
             });
 
     world.component<EnemyBoidMovementSettings>("EnemyBoidMovementSettings")
-        .member<float>("player_attraction_weight")
-        .member<float>("player_engage_distance")
-        .member<float>("neighbor_radius")
-        .member<float>("separation_radius")
-        .member<float>("max_speed_multiplier")
-        .member<float>("max_force")
-        .member<float>("grid_cell_size")
+        .member<godot::real_t>("player_attraction_weight")
+        .member<godot::real_t>("player_engage_distance")
+        .member<godot::real_t>("neighbor_radius")
+        .member<godot::real_t>("separation_radius")
+        .member<godot::real_t>("max_speed_multiplier")
+        .member<godot::real_t>("max_force")
+        .member<godot::real_t>("grid_cell_size")
         .add(flecs::Singleton)
         .set<EnemyBoidMovementSettings>({
-            1.2f,   // player_attraction_weight
-            28.0f,  // player_engage_distance
-            110.0f, // neighbor_radius
-            40.0f,  // separation_radius
-            1.1f,   // max_speed_multiplier
-            220.0f, // max_force
-            96.0f   // grid_cell_size
+            godot::real_t(1.2),   // player_attraction_weight
+            godot::real_t(28.0),  // player_engage_distance
+            godot::real_t(110.0), // neighbor_radius
+            godot::real_t(40.0),  // separation_radius
+            godot::real_t(1.1),   // max_speed_multiplier
+            godot::real_t(220.0), // max_force
+            godot::real_t(96.0)   // grid_cell_size
             });
 
     world.component<EnemyAnimationSettings>("EnemyAnimationSettings")
-        .member<float>("animation_interval")
-        .member<float>("walk_animation_range")
-        .member<float>("death_animation_frame_count")
-        .member<float>("up_direction_frame_offset")
-        .member<float>("horizontal_flip_cooldown")
-        .member<float>("vertical_flip_cooldown")
-        .member<float>("nominal_movement_speed")
-        .member<float>("animation_offset_fraction_range")
+        .member<godot::real_t>("animation_interval")
+        .member<godot::real_t>("walk_animation_range")
+        .member<godot::real_t>("death_animation_frame_count")
+        .member<godot::real_t>("up_direction_frame_offset")
+        .member<godot::real_t>("horizontal_flip_cooldown")
+        .member<godot::real_t>("vertical_flip_cooldown")
+        .member<godot::real_t>("nominal_movement_speed")
+        .member<godot::real_t>("animation_offset_fraction_range")
         .add(flecs::Singleton)
         .set<EnemyAnimationSettings>({
-            0.25f, // animation_interval
-            5.0f,  // walk_animation_range
-            4.0f,  // death_animation_frame_count
-            6.0f,  // up_direction_frame_offset
-            0.5f,  // horizontal_flip_cooldown
-            0.5f,  // vertical_flip_cooldown
-            8.0f,  // nominal_movement_speed
-            0.2f   // animation_offset_fraction_range
+            godot::real_t(0.25), // animation_interval
+            godot::real_t(5.0),  // walk_animation_range
+            godot::real_t(4.0),  // death_animation_frame_count
+            godot::real_t(6.0),  // up_direction_frame_offset
+            godot::real_t(0.5),  // horizontal_flip_cooldown
+            godot::real_t(0.5),  // vertical_flip_cooldown
+            godot::real_t(8.0),  // nominal_movement_speed
+            godot::real_t(0.2)   // animation_offset_fraction_range
             });
 
 

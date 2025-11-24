@@ -21,8 +21,8 @@ inline FlecsRegistry register_enemy_death_system([](flecs::world& world) {
         const EnemyAnimationSettings* animation_settings = it.world().try_get<EnemyAnimationSettings>();
         if (animation_settings == nullptr) { return; }
 
-        const float death_animation_duration = animation_settings->animation_interval * animation_settings->death_animation_frame_count;
-        const float invulnerable_hit_points = kEnemyDeathInvulnerableHitPoints;
+        const godot::real_t death_animation_duration = animation_settings->animation_interval * animation_settings->death_animation_frame_count;
+        const godot::real_t invulnerable_hit_points = kEnemyDeathInvulnerableHitPoints;
 
         while (it.next()) {
             flecs::field<HitPoints> hit_points = it.field<HitPoints>(0);
@@ -33,12 +33,12 @@ inline FlecsRegistry register_enemy_death_system([](flecs::world& world) {
 
             const std::size_t entity_count = it.count();
             for (std::size_t entity_index = 0; entity_index < entity_count; ++entity_index) {
-                if (hit_points[entity_index].value > 0.0f) { continue; }
+                if (hit_points[entity_index].value > godot::real_t(0.0)) { continue; }
 
                 hit_points[entity_index].value = invulnerable_hit_points;
                 death_timer[entity_index].value = death_animation_duration;
-                melee_damage[entity_index].value = 0.0f;
-                movement_speed[entity_index].value = 0.0f;
+                melee_damage[entity_index].value = godot::real_t(0.0);
+                movement_speed[entity_index].value = godot::real_t(0.0);
                 velocities[entity_index].value = godot::Vector2(0.0f, 0.0f);
             }
         }
@@ -49,22 +49,22 @@ inline FlecsRegistry register_enemy_death_system([](flecs::world& world) {
         .kind(flecs::OnUpdate)
         .run([](flecs::iter& it) {
         while (it.next()) {
-            const float delta_time = static_cast<float>(it.delta_time());
-            if (delta_time <= 0.0f) {
+            const godot::real_t delta_time = static_cast<godot::real_t>(it.delta_time());
+            if (delta_time <= godot::real_t(0.0)) {
                 continue;
             }
 
             flecs::field<DeathTimer> death_timer = it.field<DeathTimer>(0);
             const std::size_t entity_count = it.count();
             for (std::size_t entity_index = 0; entity_index < entity_count; ++entity_index) {
-                float& timer_value = death_timer[entity_index].value;
+                godot::real_t& timer_value = death_timer[entity_index].value;
                 // Timer already expired on a previous frame, nothing to update.
-                if (timer_value <= 0.0f) { continue; }
+                if (timer_value <= godot::real_t(0.0)) { continue; }
 
                 timer_value -= delta_time;
-                if (timer_value <= 0.0f) {
+                if (timer_value <= godot::real_t(0.0)) {
                     // Clamp before destruction so other systems observing this tick never see negatives.
-                    timer_value = 0.0f;
+                    timer_value = godot::real_t(0.0);
                     it.entity(static_cast<std::int32_t>(entity_index)).destruct();
                 }
             }

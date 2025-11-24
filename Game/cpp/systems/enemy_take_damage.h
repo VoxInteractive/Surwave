@@ -64,7 +64,7 @@ inline FlecsRegistry register_enemy_take_damage_system([](flecs::world& world) {
 
         std::vector<enemy_take_damage_detail::DamageTargetAccessor> targets;
         targets.reserve(128U);
-        godot::real_t max_hit_radius = 0.0f;
+        godot::real_t max_hit_radius = godot::real_t(0.0);
 
         while (it.next()) {
             flecs::field<Position2D> positions = it.field<Position2D>(0);
@@ -87,8 +87,8 @@ inline FlecsRegistry register_enemy_take_damage_system([](flecs::world& world) {
             return;
         }
 
-        const godot::real_t clamped_cell_size = godot::Math::max(movement_settings->grid_cell_size, 1.0f);
-        const godot::real_t max_query_radius = godot::Math::max(max_hit_radius, 1.0f);
+        const godot::real_t clamped_cell_size = godot::Math::max(movement_settings->grid_cell_size, godot::real_t(1.0));
+        const godot::real_t max_query_radius = godot::Math::max(max_hit_radius, godot::real_t(1.0));
         const godot::real_t normalized_span = max_query_radius / clamped_cell_size;
         const std::int32_t cell_span = static_cast<std::int32_t>(godot::Math::ceil(normalized_span));
 
@@ -104,7 +104,7 @@ inline FlecsRegistry register_enemy_take_damage_system([](flecs::world& world) {
             entity_cells,
             spatial_hash);
 
-        std::vector<float> accumulated_damage(static_cast<std::size_t>(enemy_count), 0.0f);
+        std::vector<godot::real_t> accumulated_damage(static_cast<std::size_t>(enemy_count), godot::real_t(0.0));
 
         for (std::int32_t projectile_index = 0; projectile_index < projectile_count; ++projectile_index) {
             const godot::Variant projectile_variant = projectile_positions[projectile_index];
@@ -130,10 +130,10 @@ inline FlecsRegistry register_enemy_take_damage_system([](flecs::world& world) {
                         const godot::Vector2 enemy_position = targets[static_cast<std::size_t>(enemy_index)].position->value;
                         const godot::Vector2 delta = enemy_position - projectile_position;
                         const godot::real_t distance_squared = delta.length_squared();
-                        const godot::real_t entity_hit_radius = godot::Math::max(targets[static_cast<std::size_t>(enemy_index)].hit_radius->value, 1.0f);
+                        const godot::real_t entity_hit_radius = godot::Math::max(targets[static_cast<std::size_t>(enemy_index)].hit_radius->value, godot::real_t(1.0));
                         const godot::real_t entity_hit_radius_sq = entity_hit_radius * entity_hit_radius;
                         if (distance_squared <= entity_hit_radius_sq) {
-                            accumulated_damage[static_cast<std::size_t>(enemy_index)] += 1.0f;
+                            accumulated_damage[static_cast<std::size_t>(enemy_index)] += godot::real_t(1.0);
                         }
                     }
                 }
@@ -141,8 +141,8 @@ inline FlecsRegistry register_enemy_take_damage_system([](flecs::world& world) {
         }
 
         for (std::int32_t enemy_index = 0; enemy_index < enemy_count; ++enemy_index) {
-            const float damage = accumulated_damage[static_cast<std::size_t>(enemy_index)];
-            if (damage <= 0.0f) {
+            const godot::real_t damage = accumulated_damage[static_cast<std::size_t>(enemy_index)];
+            if (damage <= godot::real_t(0.0)) {
                 continue;
             }
 

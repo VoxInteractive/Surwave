@@ -6,38 +6,38 @@
 
 #include "src/flecs_registry.h"
 
-inline constexpr float kEnemyDeathInvulnerableHitPoints = std::numeric_limits<float>::max();
+inline constexpr godot::real_t kEnemyDeathInvulnerableHitPoints = std::numeric_limits<godot::real_t>::max();
 
 struct HitPoints {
-    float value;
+    godot::real_t value;
 };
 
 struct HitRadius {
-    float value;
+    godot::real_t value;
 };
 
 struct MovementSpeed {
-    float value;
+    godot::real_t value;
 };
 
 struct MeleeDamage {
-    float value;
+    godot::real_t value;
 };
 
 struct AnimationFrameOffset {
-    float value; // Even though this is an integer value, using float to avoid casting when used in shaders
+    godot::real_t value; // Keep as real_t to avoid casting when interfacing with shader data encoded as floats
 };
 
 struct DeathTimer {
-    float value;
+    godot::real_t value;
 };
 
 struct HFlipTimer {
-    float value;
+    godot::real_t value;
 };
 
 struct VFlipTimer {
-    float value;
+    godot::real_t value;
 };
 
 // struct IsDying {};
@@ -45,26 +45,26 @@ struct VFlipTimer {
 
 inline FlecsRegistry register_enemy_stats_components([](flecs::world& world) {
     world.component<HitPoints>("HitPoints")
-        .member<float>("value");
+        .member<godot::real_t>("value");
 
     world.component<HitRadius>("HitRadius")
-        .member<float>("value");
+        .member<godot::real_t>("value");
 
     world.component<MeleeDamage>("MeleeDamage")
-        .member<float>("value");
+        .member<godot::real_t>("value");
 
     world.component<MovementSpeed>("MovementSpeed")
-        .member<float>("value");
+        .member<godot::real_t>("value");
 
     world.component<AnimationFrameOffset>("AnimationFrameOffset")
-        .member<float>("value");
+        .member<godot::real_t>("value");
 
     world.component<DeathTimer>("DeathTimer")
-        .member<float>("value");
+        .member<godot::real_t>("value");
 
     world.component<HFlipTimer>("HFlipTimer")
-        .member<float>("value");
+        .member<godot::real_t>("value");
 
     world.component<VFlipTimer>("VFlipTimer")
-        .member<float>("value");
+        .member<godot::real_t>("value");
 });
