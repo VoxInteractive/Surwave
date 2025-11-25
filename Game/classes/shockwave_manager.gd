@@ -8,12 +8,14 @@ class_name ShockwaveManager extends Node
 var is_firing: bool = false
 var max_radius: float = 0.5
 var active_radius: float = 0.0
+var mesh_radius: float = 0.0
 
 @onready var world: FlecsWorld = get_node("../../World")
 @onready var player: Player = $".."
 @onready var timer: Timer = $Timer
 @onready var vfx: MeshInstance2D = %ShockwaveVFX
 @onready var shader_material: ShaderMaterial = vfx.material as ShaderMaterial
+@onready var quad_mesh: QuadMesh = vfx.mesh as QuadMesh
 
 func _ready() -> void:
 	if world == null:
@@ -26,6 +28,17 @@ func _ready() -> void:
 		set_process(false)
 		return
 
+	if quad_mesh == null:
+		push_warning("ShockwaveManager: ShockwaveVFX mesh must be a QuadMesh.")
+		set_process(false)
+		return
+
+	if not is_equal_approx(quad_mesh.size.x, quad_mesh.size.y):
+		push_warning("ShockwaveManager: ShockwaveVFX mesh must be square.")
+		set_process(false)
+		return
+
+	mesh_radius = quad_mesh.size.x * 0.5
 
 func _process(delta: float) -> void:
 	if not is_firing:
@@ -33,7 +46,10 @@ func _process(delta: float) -> void:
 
 	active_radius += radiation_speed * delta
 	var clamped_radius: float = clampf(active_radius, 0.0, max_radius)
-	var progress: float = clamped_radius / max_radius
+	var progress: float = 0.0
+	if max_radius > 0.0:
+		progress = clamped_radius / max_radius
+	var game_radius: float = progress * mesh_radius
 
 	if not vfx.visible:
 		vfx.visible = true
@@ -43,7 +59,7 @@ func _process(delta: float) -> void:
 	shader_material.set_shader_parameter("outer_ring", lerpf(outer_ring_range.x, outer_ring_range.y, progress))
 
 	world.set_singleton_component(singleton_component_name, {
-		"radius": clamped_radius
+		"radius": game_radius
 	})
 
 	if active_radius >= max_radius:
