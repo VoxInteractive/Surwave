@@ -3,7 +3,6 @@ extends Stage
 
 func _ready() -> void:
 	super._ready()
-	# print("landmark_occupied_areas: ", landmark_occupied_areas)
 
 
 func _on_flecs_signal(signal_name: StringName, data: Dictionary) -> void:

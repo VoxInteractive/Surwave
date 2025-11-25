@@ -1,4 +1,4 @@
-[gd_scene load_steps=30 format=4 uid="uid://1f0s78v8ooax"]
+[gd_scene load_steps=31 format=4 uid="uid://1f0s78v8ooax"]
 
 [ext_resource type="Script" uid="uid://b0ekcl6i0i8y0" path="res://scenes/Stage 01/stage_01.gd" id="1_eml3u"]
 [ext_resource type="Texture2D" uid="uid://d6c6qr0di0ba" path="res://scenes/Stage 01/tiles_outdoors.png" id="1_oji7v"]
@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://byjknt5h78oqt" path="res://scenes/Stage 01/foliage/grass2.png" id="3_u0n13"]
 [ext_resource type="Texture2D" uid="uid://pwpiyyc44edk" path="res://scenes/Stage 01/foliage/grass3.png" id="4_gms3k"]
 [ext_resource type="Texture2D" uid="uid://bbpjjjtucvjlr" path="res://resources/characters/enemies/Bugs/Bugs.png" id="4_qgwcv"]
+[ext_resource type="Script" uid="uid://cblprpvcpkxxh" path="res://classes/enemy_spawn_manager.gd" id="5_1m5sl"]
 [ext_resource type="Texture2D" uid="uid://4vkky8xmxasg" path="res://scenes/Stage 01/foliage/grass4.png" id="5_qgwcv"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_1m5sl"]
@@ -186,6 +187,9 @@ multimesh = SubResource("MultiMesh_c1wav")
 texture = ExtResource("4_qgwcv")
 metadata/prefabs_rendered = ["BugSmall", "BugHumanoid", "BugLarge"]
 metadata/draw_order = "Y"
+
+[node name="EnemySpawnManager" type="Node" parent="World"]
+script = ExtResource("5_1m5sl")
 
 [node name="Terrain" type="MeshInstance2D" parent="."]
 z_index = -99
