@@ -18,9 +18,6 @@ class_name Stage extends Node
 ## Controls the radial distribution of spawns. > 1.0 pushes spawns outward, < 1.0 pulls them inward.
 @export var spawn_radial_exponent: float = 1.2
 
-@export_category("Gameplay")
-@export var difficulty_curve: Curve
-
 var altar_nodes: Array[Node]
 var portal_nodes: Array[Node]
 var half_outer_boundary: float
