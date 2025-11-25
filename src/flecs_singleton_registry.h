@@ -14,13 +14,10 @@
 
 using FlecsSingletonGetter = std::function<godot::Variant(const flecs::world&)>;
 
-namespace
+inline std::unordered_map<std::string, FlecsSingletonGetter>& get_singleton_getters()
 {
-    inline std::unordered_map<std::string, FlecsSingletonGetter>& get_singleton_getters()
-    {
-        static std::unordered_map<std::string, FlecsSingletonGetter> getters;
-        return getters;
-    }
+    static std::unordered_map<std::string, FlecsSingletonGetter> getters;
+    return getters;
 }
 
 template <typename T>

@@ -51,12 +51,11 @@ struct ShockwaveData {
     godot::Dictionary value;
 };
 
-struct StageData
+struct EnemyCount
 {
-    godot::Dictionary value;
+    size_t value;
 
-    // This will make it implicitly convertible to a godot::Dictionary, which is a type GDScript understands.
-    // When get_singleton_component returns the StageData object, this conversion will be used automatically to create a godot::Variant.
+    // Allows implicit conversion of this struct to a godot::Variant.
     operator godot::Variant() const {
         return value;
     }
@@ -134,15 +133,18 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
             godot::real_t(1.0)  // shockwave_hit_cooldown
             });
 
+    world.component<EnemyCount>("EnemyCount")
+        .member<size_t>("value")
+        .add(flecs::Singleton)
+        .set<EnemyCount>({ 0 });
+
     world.component<ProjectileData>("ProjectileData")
         .add(flecs::Singleton);
 
     world.component<ShockwaveData>("ShockwaveData")
         .add(flecs::Singleton);
 
-    world.component<StageData>("StageData")
-        .add(flecs::Singleton);
-
+    register_singleton_getter<EnemyCount>("EnemyCount");
 
     register_singleton_setter<godot::Dictionary>("ProjectileData", [](flecs::world& world, const godot::Dictionary& projectile_data) {
         world.set<ProjectileData>({ projectile_data });
@@ -151,9 +153,4 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
     register_singleton_setter<godot::Dictionary>("ShockwaveData", [](flecs::world& world, const godot::Dictionary& shockwave_data) {
         world.set<ShockwaveData>({ shockwave_data });
     });
-
-    register_singleton_setter<godot::Dictionary>("StageData", [](flecs::world& world, const godot::Dictionary& stage_data) {
-        world.set<StageData>({ stage_data });
-    });
-    register_singleton_getter<StageData>("StageData");
 });
