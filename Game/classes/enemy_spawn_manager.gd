@@ -29,7 +29,10 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	time += delta
 	
-	print(world.get_singleton_component("EnemyCount"))
+	var current_enemy_count = (world.get_singleton_component("EnemyCount"))
+	print(current_enemy_count)
+	if current_enemy_count >= max_enemy_count:
+		return # Rendering limit reached; can't spawn any more
 	
 	var scaled_time: float = time * time_multiplier
 	var prob_curve_sample: float = probability_curve.sample_baked(scaled_time)

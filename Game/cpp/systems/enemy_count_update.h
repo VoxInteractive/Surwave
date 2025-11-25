@@ -5,23 +5,21 @@
 #include "components/singletons.h"
 
 inline FlecsRegistry register_enemy_count_update_system([](flecs::world& world) {
+    const flecs::entity enemy_prefab = world.lookup("Enemy");
+    const flecs::query<> enemy_instance_query = world.query_builder<>()
+        .with(flecs::IsA, enemy_prefab)
+        .build();
+
     world.system<>("Enemy Count Update")
-        .with(flecs::IsA, world.lookup("Enemy"))
         .kind(flecs::PostUpdate)
-        .run([](flecs::iter& it) {
+        .run([enemy_instance_query](flecs::iter& it) {
+        flecs::world stage_world = it.world();
+        const size_t current_enemy_count = static_cast<size_t>(
+            enemy_instance_query.iter(stage_world.c_ptr()).count());
 
-        flecs::world world = it.world();
-        size_t current_enemy_count = 0;
-
-        while (it.next()) {
-            current_enemy_count += it.count();
-        }
-
-        const EnemyCount* singleton_component = world.try_get<EnemyCount>();
-        if (singleton_component) {
-            if (singleton_component->value != current_enemy_count) {
-                world.set<EnemyCount>({ current_enemy_count });
-            }
+        const EnemyCount* singleton_component = stage_world.try_get<EnemyCount>();
+        if (singleton_component == nullptr || singleton_component->value != current_enemy_count) {
+            stage_world.set<EnemyCount>({ current_enemy_count });
         }
     });
 });
