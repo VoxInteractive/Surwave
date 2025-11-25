@@ -18,9 +18,6 @@ class_name Stage extends Node
 ## Controls the radial distribution of spawns. > 1.0 pushes spawns outward, < 1.0 pulls them inward.
 @export var spawn_radial_exponent: float = 1.2
 
-@export_category("Gameplay")
-@export var difficulty_curve: Curve
-
 var altar_nodes: Array[Node]
 var portal_nodes: Array[Node]
 var half_outer_boundary: float
@@ -29,7 +26,6 @@ var spawn_iteration_counter: int = 0
 
 @onready var terrain: MeshInstance2D = $Terrain
 @onready var terrain_object_multimesh_parents: Array[Node2D] = [$Terrain/Foliage]
-@onready var borders: TileMapLayer = $Terrain/Borders
 @onready var landmarks: Node = $Landmarks
 
 @onready var world: FlecsWorld = $World
@@ -37,7 +33,7 @@ var projectile_manager: ProjectileManager
 
 func _ready() -> void:
 	_validate_terrain()
-	half_outer_boundary = (terrain.mesh.size.x - (borders.tile_set.tile_size.x * terrain_margin)) / 2.0
+	half_outer_boundary = terrain.mesh.size.x / 2.0
 
 	_mark_landmark_occupied_areas()
 	_place_terrain_objects()
@@ -46,7 +42,6 @@ func _ready() -> void:
 	_instantiate_player()
 	_instantiate_camera()
 	_set_camera_limits()
-	_set_world_singletons()
 	_spawn_initial_enemy_population()
 	_initialise_projectile_manager()
 	
@@ -61,10 +56,6 @@ func _validate_terrain() -> void:
 	assert(terrain != null, "Node at path $Terrain is missing or not a MeshInstance2D.")
 	assert(terrain.mesh != null, "A terrain mesh must be set for the stage.")
 	assert(terrain.mesh.size.x == terrain.mesh.size.y, "Terrain mesh must be a square.")
-
-	assert(borders != null, "Node at path $Terrain/Borders is missing or not a TileMapLayer.")
-	assert(borders.tile_set != null, "Borders must be a valid TileMapLayer with a tile_set assigned.")
-	assert(borders.tile_set.tile_size.x == borders.tile_set.tile_size.y, "Border tiles must be square")
 
 	assert(landmarks != null, "'Landmarks' node is missing or is invalid.")
 
@@ -134,12 +125,6 @@ func _set_camera_limits() -> void:
 		camera.set_limits(terrain.mesh.size)
 	else:
 		push_warning("Stage: Camera node not found, couldn't set limits.")
-
-
-func _set_world_singletons() -> void:
-	world.set_singleton_component("StageData", {
-		"landmark_occupied_areas": landmark_occupied_areas}
-	)
 
 
 func _spawn_initial_enemy_population() -> void:

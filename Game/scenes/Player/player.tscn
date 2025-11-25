@@ -129,6 +129,7 @@ _data = {
 
 [node name="Player" type="Node2D" node_paths=PackedStringArray("sprite")]
 script = ExtResource("1_1kbk7")
+movement_speed = 200.0
 sprite = NodePath("CharacterBody2D/Sprite2D")
 
 [node name="CharacterBody2D" type="CharacterBody2D" parent="." groups=["Players"]]
