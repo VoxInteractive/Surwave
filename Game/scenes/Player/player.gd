@@ -7,10 +7,6 @@ var adjusted_movement_speed := movement_speed
 @export_range(0.0, 1.0, 0.01)
 var movement_speed_penalty_when_shooting: float = 0.4
 
-@export_category("Cooldowns")
-@export_range(0.5, 10.0, 0.1)
-var shockwave_cooldown: float = 5.0
-
 var input_movement_vector: Vector2
 var is_colliding: bool = false
 var position_at_frame_start: Vector2
@@ -20,12 +16,6 @@ var has_moved_this_frame: bool = false
 var shoot_weapon_timer: float
 var can_shoot_weapon: bool = false
 var just_fired_weapon: bool = false
-
-var shockwave_timer: float = 0.0
-var can_fire_shockwave: bool = false
-
-var projectile_manager: ProjectileManager
-var shockwave_manager: ShockwaveManager
 
 enum PlayerState {
 	IDLE,
@@ -87,7 +77,6 @@ func _get_animation_mode(p_state: PlayerState):
 @onready var world: FlecsWorld = get_node("../World")
 @onready var character_body: CharacterBody2D = $CharacterBody2D
 @onready var _sprite: Sprite2D = $CharacterBody2D/Sprite2D
-@onready var action_vfx_animation_player: AnimationPlayer = $CharacterBody2D/ActionVFX/AnimationPlayer
 
 func _ready() -> void:
 	animation_frame_changed.connect(_on_animation_frame_changed)
@@ -126,10 +115,6 @@ func _tick_cooldowns(delta: float) -> void:
 	shoot_weapon_timer += delta
 	if not can_shoot_weapon and shoot_weapon_timer >= animation_interval:
 		can_shoot_weapon = true
-
-	shockwave_timer += delta
-	if not can_fire_shockwave and shockwave_timer >= shockwave_cooldown:
-		can_fire_shockwave = true
 
 
 func _handle_input(delta: float) -> void:
@@ -190,9 +175,3 @@ func _handle_input(delta: float) -> void:
 			new_state = PlayerState.IDLE
 	
 	set_state(new_state)
-
-	# Action VFX
-	if Input.is_action_just_pressed("shockwave") && can_fire_shockwave:
-		action_vfx_animation_player.play("Shockwave")
-		can_fire_shockwave = false
-		shockwave_timer = 0.0
