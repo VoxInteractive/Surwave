@@ -130,7 +130,7 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
         .member<godot::real_t>("shockwave_hit_cooldown")
         .add(flecs::Singleton)
         .set<EnemyTakeDamageSettings>({
-            godot::real_t(1.0), // projectile_hit_cooldown
+            godot::real_t(0.2), // projectile_hit_cooldown
             godot::real_t(1.0)  // shockwave_hit_cooldown
             });
 

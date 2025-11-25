@@ -103,6 +103,18 @@ func _process(delta: float) -> void:
 func _on_animation_frame_changed(frame: int) -> void:
 	if first_shooting_animation_frames.has(frame):
 		just_fired_weapon = true
+		if can_shoot_weapon:
+			_fire_projectile()
+
+
+func _fire_projectile() -> void:
+	var projectile: Node2D = PROJECTILE.instantiate()
+	projectile.global_position = character_body.global_position
+	projectile.direction = (get_global_mouse_position() - character_body.global_position).normalized()
+	add_child(projectile)
+	
+	can_shoot_weapon = false
+	shoot_weapon_timer = 0.0
 
 
 func _tick_cooldowns(delta: float) -> void:
@@ -119,14 +131,6 @@ func _handle_input(delta: float) -> void:
 	position_at_frame_start = character_body.global_position
 
 	var is_shooting_input = Input.is_action_pressed("shoot_weapon")
-	if is_shooting_input and can_shoot_weapon:
-		var projectile: Node2D = PROJECTILE.instantiate()
-		projectile.global_position = character_body.global_position
-		projectile.direction = (get_global_mouse_position() - character_body.global_position).normalized()
-		add_child(projectile)
-		
-		can_shoot_weapon = false
-		shoot_weapon_timer = 0.0
 
 	var is_shooting = is_shooting_input or shoot_weapon_timer < animation_interval
 
