@@ -1,8 +1,10 @@
-[gd_scene load_steps=11 format=3 uid="uid://b6bjohq7ewbe0"]
+[gd_scene load_steps=13 format=3 uid="uid://b6bjohq7ewbe0"]
 
 [ext_resource type="Script" uid="uid://bqur363lsbm3k" path="res://scenes/Player/player.gd" id="1_1kbk7"]
 [ext_resource type="Texture2D" uid="uid://5cwvcedtanps" path="res://scenes/Player/sprites.png" id="1_cyojo"]
 [ext_resource type="Shader" uid="uid://dnrcjfhn7xfqk" path="res://shaders/shockwave.gdshader" id="3_gqjuk"]
+[ext_resource type="Script" uid="uid://dmf3livfpo8fu" path="res://classes/projectile_manager.gd" id="4_uiqp4"]
+[ext_resource type="Script" uid="uid://coxlji6xeb5sy" path="res://classes/shockwave_manager.gd" id="5_hvfru"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_cyojo"]
 radius = 6.0
@@ -157,3 +159,9 @@ texture = SubResource("PlaceholderTexture2D_c4h5g")
 libraries = {
 &"": SubResource("AnimationLibrary_uiqp4")
 }
+
+[node name="ProjectileManager" type="Node" parent="."]
+script = ExtResource("4_uiqp4")
+
+[node name="ShockwaveManager" type="Node" parent="."]
+script = ExtResource("5_hvfru")

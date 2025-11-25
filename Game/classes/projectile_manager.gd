@@ -3,11 +3,9 @@ class_name ProjectileManager extends Node
 @export var projectile_global_node_group_name: String = "Projectiles"
 @export var singleton_component_name: String = "ProjectileData"
 
-var world: FlecsWorld
 var projectile_positions: Array[Vector2] = []
 
-func _ready() -> void:
-	pass
+@onready var world: FlecsWorld = get_node("../../World")
 
 
 func _process(delta: float) -> void:

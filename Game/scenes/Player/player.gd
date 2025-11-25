@@ -24,6 +24,9 @@ var just_fired_weapon: bool = false
 var shockwave_timer: float = 0.0
 var can_fire_shockwave: bool = false
 
+var projectile_manager: ProjectileManager
+var shockwave_manager: ShockwaveManager
+
 enum PlayerState {
 	IDLE,
 	TALKING,
@@ -91,6 +94,8 @@ func _ready() -> void:
 	set_state(PlayerState.IDLE)
 	shoot_weapon_timer = animation_interval
 	can_shoot_weapon = true
+	
+		
 
 
 func _process(delta: float) -> void:
