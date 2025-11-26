@@ -1,8 +1,10 @@
-[gd_scene load_steps=11 format=3 uid="uid://b6bjohq7ewbe0"]
+[gd_scene load_steps=10 format=3 uid="uid://b6bjohq7ewbe0"]
 
 [ext_resource type="Script" uid="uid://bqur363lsbm3k" path="res://scenes/Player/player.gd" id="1_1kbk7"]
 [ext_resource type="Texture2D" uid="uid://5cwvcedtanps" path="res://scenes/Player/sprites.png" id="1_cyojo"]
 [ext_resource type="Shader" uid="uid://dnrcjfhn7xfqk" path="res://shaders/shockwave.gdshader" id="3_gqjuk"]
+[ext_resource type="Script" uid="uid://dmf3livfpo8fu" path="res://classes/projectile_manager.gd" id="4_uiqp4"]
+[ext_resource type="Script" uid="uid://coxlji6xeb5sy" path="res://classes/shockwave_manager.gd" id="5_hvfru"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_cyojo"]
 radius = 6.0
@@ -10,127 +12,28 @@ radius = 6.0
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_c4h5g"]
 shader = ExtResource("3_gqjuk")
 shader_parameter/radius = 0.0
-shader_parameter/inner_ring = 0.1
+shader_parameter/inner_ring = 0.5
 shader_parameter/outer_ring = 0.05
 
 [sub_resource type="QuadMesh" id="QuadMesh_gqjuk"]
-size = Vector2(80, -80)
+size = Vector2(360, 360)
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_c4h5g"]
-size = Vector2(512, 512)
-
-[sub_resource type="Animation" id="Animation_c4h5g"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Shockwave:material:shader_parameter/radius")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [0.0]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("Shockwave:material:shader_parameter/inner_ring")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [0.1]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("Shockwave:material:shader_parameter/outer_ring")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [0.05]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("Shockwave:visible")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [true]
-}
-
-[sub_resource type="Animation" id="Animation_gqjuk"]
-resource_name = "Shockwave"
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Shockwave:material:shader_parameter/radius")
-tracks/0/interp = 2
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 1),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [0.0, 0.5]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("Shockwave:material:shader_parameter/inner_ring")
-tracks/1/interp = 2
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 1),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [0.5, -0.2]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("Shockwave:material:shader_parameter/outer_ring")
-tracks/2/interp = 2
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0, 1),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [0.05, 0.4]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("Shockwave:visible")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(0, 1),
-"transitions": PackedFloat32Array(1, 1),
-"update": 1,
-"values": [true, false]
-}
-
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_uiqp4"]
-_data = {
-&"RESET": SubResource("Animation_c4h5g"),
-&"Shockwave": SubResource("Animation_gqjuk")
-}
 
 [node name="Player" type="Node2D" node_paths=PackedStringArray("sprite")]
 script = ExtResource("1_1kbk7")
 movement_speed = 200.0
 sprite = NodePath("CharacterBody2D/Sprite2D")
+
+[node name="ProjectileManager" type="Node" parent="."]
+script = ExtResource("4_uiqp4")
+
+[node name="ShockwaveManager" type="Node" parent="."]
+script = ExtResource("5_hvfru")
+
+[node name="Timer" type="Timer" parent="ShockwaveManager"]
+wait_time = 1.2
+autostart = true
 
 [node name="CharacterBody2D" type="CharacterBody2D" parent="." groups=["Players"]]
 collision_layer = 4
@@ -148,12 +51,10 @@ shape = SubResource("CircleShape2D_cyojo")
 
 [node name="ActionVFX" type="Node2D" parent="CharacterBody2D"]
 
-[node name="Shockwave" type="MeshInstance2D" parent="CharacterBody2D/ActionVFX"]
+[node name="ShockwaveVFX" type="MeshInstance2D" parent="CharacterBody2D/ActionVFX"]
+unique_name_in_owner = true
 material = SubResource("ShaderMaterial_c4h5g")
 mesh = SubResource("QuadMesh_gqjuk")
 texture = SubResource("PlaceholderTexture2D_c4h5g")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="CharacterBody2D/ActionVFX"]
-libraries = {
-&"": SubResource("AnimationLibrary_uiqp4")
-}
+[connection signal="timeout" from="ShockwaveManager/Timer" to="ShockwaveManager" method="_fire"]

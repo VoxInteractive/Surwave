@@ -41,6 +41,8 @@ struct EnemyAnimationSettings {
 struct EnemyTakeDamageSettings {
     godot::real_t projectile_hit_cooldown;
     godot::real_t shockwave_hit_cooldown;
+    godot::real_t projectile_damage;
+    godot::real_t shockwave_damage;
 };
 
 struct ProjectileData {
@@ -127,10 +129,14 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
     world.component<EnemyTakeDamageSettings>("EnemyTakeDamageSettings")
         .member<godot::real_t>("projectile_hit_cooldown")
         .member<godot::real_t>("shockwave_hit_cooldown")
+        .member<godot::real_t>("projectile_damage")
+        .member<godot::real_t>("shockwave_damage")
         .add(flecs::Singleton)
         .set<EnemyTakeDamageSettings>({
             godot::real_t(0.2), // projectile_hit_cooldown
-            godot::real_t(1.0)  // shockwave_hit_cooldown
+            godot::real_t(1.0), // shockwave_hit_cooldown
+            godot::real_t(1.0), // projectile_damage
+            godot::real_t(1.0)  // shockwave_damage
             });
 
     world.component<EnemyCount>("EnemyCount")
