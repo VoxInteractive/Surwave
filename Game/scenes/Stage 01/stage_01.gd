@@ -6,8 +6,4 @@ func _ready() -> void:
 
 
 func _on_flecs_signal(signal_name: StringName, data: Dictionary) -> void:
-	if signal_name == "enemy_died":
-		print("Enemy died! ", data.get("enemy_type"))
-
-	elif signal_name == "player_took_damage":
-		print("Player took: ", data.get("damage_amount"), " damage")
+	print("Stage 01 received signal: %s with data: %s" % [signal_name, data])
