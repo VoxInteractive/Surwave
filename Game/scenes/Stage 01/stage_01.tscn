@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=3 uid="uid://1f0s78v8ooax"]
+[gd_scene load_steps=42 format=3 uid="uid://1f0s78v8ooax"]
 
 [ext_resource type="Script" uid="uid://b0ekcl6i0i8y0" path="res://scenes/Stage 01/stage_01.gd" id="1_eml3u"]
 [ext_resource type="Texture2D" uid="uid://u0ein3bhqfwq" path="res://scenes/Stage 01/foliage/grass1.png" id="2_3tqr6"]
@@ -12,6 +12,12 @@
 [ext_resource type="Texture2D" uid="uid://4vkky8xmxasg" path="res://scenes/Stage 01/foliage/grass4.png" id="5_qgwcv"]
 [ext_resource type="Script" uid="uid://c8rbxj6sdbfbr" path="res://classes/gem_drop_manager.gd" id="6_qgwcv"]
 [ext_resource type="PackedScene" uid="uid://b0rmafrd1wigo" path="res://scenes/Gem/gem.tscn" id="7_1m5sl"]
+[ext_resource type="Texture2D" uid="uid://ej5738ncc6oc" path="res://scenes/Altar/debris/5.png" id="12_o3nnp"]
+[ext_resource type="Texture2D" uid="uid://bibdu8jl30p4a" path="res://scenes/Altar/debris/1.png" id="13_jfh1v"]
+[ext_resource type="Texture2D" uid="uid://nwfl7onslfdc" path="res://scenes/Altar/debris/6.png" id="14_vufsv"]
+[ext_resource type="Texture2D" uid="uid://1xld4r1sgwc8" path="res://scenes/Altar/debris/2.png" id="15_8wwtj"]
+[ext_resource type="Texture2D" uid="uid://jf5nqssf1a5c" path="res://scenes/Altar/debris/3.png" id="16_y354e"]
+[ext_resource type="Texture2D" uid="uid://bqiyvivyet87n" path="res://scenes/Altar/debris/4.png" id="17_avk1y"]
 
 [sub_resource type="Curve" id="Curve_1m5sl"]
 _data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 0.3820225), 0.0, 0.0, 0, 0]
@@ -163,6 +169,40 @@ multimesh = SubResource("MultiMesh_3mvql")
 texture = ExtResource("5_qgwcv")
 
 [node name="Landmarks" type="Node" parent="."]
+
+[node name="Debris" type="Node" parent="Landmarks"]
+
+[node name="5" type="Sprite2D" parent="Landmarks/Debris"]
+position = Vector2(-1002, -1018)
+texture = ExtResource("12_o3nnp")
+
+[node name="1" type="Sprite2D" parent="Landmarks/Debris"]
+position = Vector2(-1020, -991)
+texture = ExtResource("13_jfh1v")
+
+[node name="6" type="Sprite2D" parent="Landmarks/Debris"]
+position = Vector2(1001, -1015)
+texture = ExtResource("14_vufsv")
+
+[node name="2" type="Sprite2D" parent="Landmarks/Debris"]
+position = Vector2(1019, -993)
+texture = ExtResource("13_jfh1v")
+
+[node name="3" type="Sprite2D" parent="Landmarks/Debris"]
+position = Vector2(1018, 995)
+texture = ExtResource("15_8wwtj")
+
+[node name="4" type="Sprite2D" parent="Landmarks/Debris"]
+position = Vector2(997, 1018)
+texture = ExtResource("16_y354e")
+
+[node name="7" type="Sprite2D" parent="Landmarks/Debris"]
+position = Vector2(-998, 1018)
+texture = ExtResource("17_avk1y")
+
+[node name="8" type="Sprite2D" parent="Landmarks/Debris"]
+position = Vector2(-1019, 993)
+texture = ExtResource("13_jfh1v")
 
 [node name="AltarNW" parent="Landmarks" instance=ExtResource("3_2lrbc")]
 position = Vector2(-1004, -1009)
