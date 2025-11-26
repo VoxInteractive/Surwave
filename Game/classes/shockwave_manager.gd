@@ -16,6 +16,8 @@ var mesh_radius: float = 0.0
 @onready var vfx: MeshInstance2D = %ShockwaveVFX
 @onready var shader_material: ShaderMaterial = vfx.material as ShaderMaterial
 @onready var quad_mesh: QuadMesh = vfx.mesh as QuadMesh
+@onready var upgrade_manager: UpgradeManager = $"../UpgradeManager"
+
 
 func _ready() -> void:
 	if world == null:
@@ -50,16 +52,22 @@ func _process(delta: float) -> void:
 	if max_radius > 0.0:
 		progress = clamped_radius / max_radius
 	var game_radius: float = progress * mesh_radius
+	var radius_multiplier: float = upgrade_manager.get_shockwave_radius_multiplier()
+	var effective_radius: float = game_radius * radius_multiplier
+	var effective_progress: float = 0.0
+	if mesh_radius > 0.0:
+		effective_progress = clampf(effective_radius / mesh_radius, 0.0, 1.0)
+	var shader_radius: float = effective_progress * max_radius
 
 	if not vfx.visible:
 		vfx.visible = true
 
-	shader_material.set_shader_parameter("radius", clamped_radius)
-	shader_material.set_shader_parameter("inner_ring", lerpf(inner_ring_range.x, inner_ring_range.y, progress))
-	shader_material.set_shader_parameter("outer_ring", lerpf(outer_ring_range.x, outer_ring_range.y, progress))
+	shader_material.set_shader_parameter("radius", shader_radius)
+	shader_material.set_shader_parameter("inner_ring", lerpf(inner_ring_range.x, inner_ring_range.y, effective_progress))
+	shader_material.set_shader_parameter("outer_ring", lerpf(outer_ring_range.x, outer_ring_range.y, effective_progress))
 
 	world.set_singleton_component(singleton_component_name, {
-		"radius": game_radius
+		"radius": effective_radius
 	})
 
 	if active_radius >= max_radius:
