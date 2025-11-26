@@ -10,10 +10,10 @@
 #include "src/flecs_registry.h"
 #include "src/components/transform.h"
 #include "src/components/player.h"
+#include "src/utilities/godot_signal.h"
 
 #include "components/enemy.h"
 #include "components/singletons.h"
-#include "src/utilities/godot_signal.h"
 
 inline FlecsRegistry register_player_take_damage_system([](flecs::world& world) {
     world.system<const Position2D, const HitRadius, const MeleeDamage>("Player Take Damage")
@@ -56,7 +56,6 @@ inline FlecsRegistry register_player_take_damage_system([](flecs::world& world) 
 
                 flecs::entity damaging_enemy = it.entity(static_cast<std::int32_t>(entity_index));
                 godot::Dictionary signal_data;
-                signal_data["entity_id"] = static_cast<int64_t>(damaging_enemy.id());
                 signal_data["damage_amount"] = damage_amount;
                 emit_godot_signal(it.world(), damaging_enemy, "player_took_damage", signal_data);
 

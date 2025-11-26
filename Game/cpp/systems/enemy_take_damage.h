@@ -5,13 +5,15 @@
 
 #include <godot_cpp/core/math.hpp>
 #include <godot_cpp/variant/array.hpp>
-#include <godot_cpp/variant/string_name.hpp>
+#include <godot_cpp/variant/dictionary.hpp>
+#include <godot_cpp/variant/string.hpp>
 #include <godot_cpp/variant/variant.hpp>
 #include <godot_cpp/variant/vector2.hpp>
 
 #include "src/flecs_registry.h"
 #include "src/components/transform.h"
 #include "src/components/player.h"
+#include "src/utilities/godot_signal.h"
 
 #include "components/enemy.h"
 #include "components/singletons.h"
@@ -26,6 +28,7 @@ namespace enemy_take_damage {
         ProjectileHitTimeout* projectile_hit_timeout;
         ShockwaveHitTimeout* shockwave_hit_timeout;
         HitReactionTimer* hit_reaction_timer;
+        flecs::entity entity;
     };
 
     inline godot::Array get_projectile_positions(const ProjectileData* projectile_data) {
@@ -130,7 +133,8 @@ inline FlecsRegistry register_enemy_take_damage_system([](flecs::world& world) {
                     &hit_radii[static_cast<std::size_t>(row_index)],
                     &projectile_hit_timeouts[static_cast<std::size_t>(row_index)],
                     &shockwave_hit_timeouts[static_cast<std::size_t>(row_index)],
-                    &hit_reaction_timers[static_cast<std::size_t>(row_index)]
+                    &hit_reaction_timers[static_cast<std::size_t>(row_index)],
+                    it.entity(row_index)
                 };
                 targets.push_back(accessor);
                 max_hit_radius = godot::Math::max(max_hit_radius, hit_radii[static_cast<std::size_t>(row_index)].value);
@@ -241,6 +245,13 @@ inline FlecsRegistry register_enemy_take_damage_system([](flecs::world& world) {
                 HitReactionTimer& reaction_timer = *targets[target_index].hit_reaction_timer;
                 reaction_timer.value = godot::Math::max(reaction_timer.value, hit_reaction_duration);
             }
+
+            flecs::entity damaged_entity = targets[target_index].entity;
+            const flecs::entity prefab_entity = damaged_entity.target(flecs::IsA);
+            godot::Dictionary signal_data;
+            signal_data["enemy_type"] = godot::String(prefab_entity.name().c_str());
+            signal_data["enemy_position"] = targets[target_index].position->value;
+            emit_godot_signal(stage_world, damaged_entity, "enemy_took_damage", signal_data);
         }
     });
 });
