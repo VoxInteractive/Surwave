@@ -42,12 +42,6 @@ func _ready() -> void:
 	_instantiate_camera()
 	_set_camera_limits()
 	_spawn_initial_enemy_population()
-	
-	world.flecs_signal_emitted.connect(_on_flecs_signal)
-
-
-func _on_flecs_signal(_signal_name: StringName, _data: Dictionary) -> void:
-	pass
 
 
 func _validate_terrain() -> void:

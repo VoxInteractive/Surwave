@@ -41,7 +41,7 @@ autostart = true
 
 [node name="CharacterBody2D" type="CharacterBody2D" parent="." groups=["Players"]]
 collision_layer = 4
-collision_mask = 11
+collision_mask = 27
 
 [node name="Sprite2D" type="Sprite2D" parent="CharacterBody2D"]
 position = Vector2(0, 14)
