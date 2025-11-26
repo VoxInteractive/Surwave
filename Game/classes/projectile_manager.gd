@@ -6,6 +6,7 @@ class_name ProjectileManager extends Node
 var projectile_positions: Array[Vector2] = []
 
 @onready var world: FlecsWorld = get_node("../../World")
+@onready var upgrade_manager: UpgradeManager = $"../UpgradeManager"
 
 func _ready() -> void:
 	if world == null:
