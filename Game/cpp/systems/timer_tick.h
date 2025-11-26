@@ -6,6 +6,7 @@
 
 #include "src/flecs_registry.h"
 
+#include "src/components/player.h"
 #include "components/enemy.h"
 #include "components/singletons.h"
 #include "src/utilities/godot_signal.h"
@@ -65,5 +66,29 @@ inline FlecsRegistry register_enemy_timer_tick_system([](flecs::world& world) {
                 vertical_timer.value = godot::Math::max(vertical_timer.value + delta_time, godot::real_t(0.0));
             }
         }
+    });
+
+    world.system<>("Player Damage Timer Tick")
+        .kind(flecs::PreUpdate)
+        .run([](flecs::iter& it) {
+        flecs::world stage_world = it.world();
+        const PlayerTakeDamageSettings* player_damage_settings = stage_world.try_get<PlayerTakeDamageSettings>();
+        PlayerDamageCooldown* player_damage_cooldown = stage_world.try_get_mut<PlayerDamageCooldown>();
+        if (player_damage_settings == nullptr || player_damage_cooldown == nullptr) {
+            return;
+        }
+
+        const godot::real_t cooldown = godot::Math::max(player_damage_settings->damage_cooldown, godot::real_t(0.0));
+        if (cooldown <= godot::real_t(0.0)) {
+            player_damage_cooldown->value = cooldown;
+            return;
+        }
+
+        const godot::real_t delta_time = godot::Math::max(static_cast<godot::real_t>(it.delta_time()), godot::real_t(0.0));
+        if (delta_time <= godot::real_t(0.0)) {
+            return;
+        }
+
+        player_damage_cooldown->value = godot::Math::min(player_damage_cooldown->value + delta_time, cooldown);
     });
 });

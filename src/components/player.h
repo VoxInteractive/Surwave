@@ -16,8 +16,18 @@ struct PlayerPosition
     }
 };
 
+struct PlayerDamageCooldown {
+    godot::real_t value;
+};
+
 inline FlecsRegistry register_player_components([](flecs::world& world) {
-    world.component<PlayerPosition>("PlayerPosition").add(flecs::Singleton);
+    world.component<PlayerPosition>("PlayerPosition")
+        .add(flecs::Singleton);
+
+    world.component<PlayerDamageCooldown>("PlayerDamageCooldown")
+        .member<godot::real_t>("value")
+        .add(flecs::Singleton)
+        .set<PlayerDamageCooldown>({ godot::real_t(0.0) });
 
     register_singleton_setter<godot::Vector2>("PlayerPosition", [](flecs::world& world, const godot::Vector2& player_position) {
         world.set<PlayerPosition>({ player_position });
