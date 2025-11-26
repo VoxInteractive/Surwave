@@ -51,10 +51,6 @@ inline FlecsRegistry register_enemy_timer_tick_system([](flecs::world& world) {
 
                         flecs::entity entity = it.entity(static_cast<std::int32_t>(entity_index));
 
-                        godot::Dictionary signal_data;
-                        signal_data["entity_id"] = (int64_t)entity.id();
-                        emit_godot_signal(it.world(), entity, "enemy_died", signal_data);
-
                         entity.destruct();
                         continue;
                     }

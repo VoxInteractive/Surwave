@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <limits>
 
+#include <godot_cpp/variant/string.hpp>
 #include <godot_cpp/variant/vector2.hpp>
 
 #include "src/flecs_registry.h"
@@ -12,6 +13,7 @@
 
 #include "components/enemy.h"
 #include "components/singletons.h"
+#include "src/utilities/godot_signal.h"
 
 inline FlecsRegistry register_enemy_death_system([](flecs::world& world) {
     world.system<HitPoints, DeathTimer, MeleeDamage, MovementSpeed, Velocity2D>("Enemy Death")
@@ -34,6 +36,12 @@ inline FlecsRegistry register_enemy_death_system([](flecs::world& world) {
             const std::size_t entity_count = it.count();
             for (std::size_t entity_index = 0; entity_index < entity_count; ++entity_index) {
                 if (hit_points[entity_index].value > godot::real_t(0.0)) { continue; }
+
+                flecs::entity entity = it.entity(static_cast<std::int32_t>(entity_index));
+                godot::Dictionary signal_data;
+                const flecs::entity prefab_entity = entity.target(flecs::IsA);
+                signal_data["enemy_type"] = godot::String(prefab_entity.name().c_str());
+                emit_godot_signal(it.world(), entity, "enemy_died", signal_data);
 
                 hit_points[entity_index].value = invulnerable_hit_points;
                 death_timer[entity_index].value = death_animation_duration;
