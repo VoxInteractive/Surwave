@@ -6,7 +6,6 @@
 
 #include <godot_cpp/variant/dictionary.hpp>
 #include <godot_cpp/variant/string.hpp>
-#include <godot_cpp/variant/string_name.hpp>
 #include <godot_cpp/variant/vector2.hpp>
 
 #include "src/flecs_registry.h"
@@ -17,12 +16,6 @@
 
 #include "components/enemy.h"
 #include "components/singletons.h"
-
-namespace enemy_death {
-    inline const godot::StringName enemy_died_signal_name = "enemy_died";
-    inline const godot::StringName enemy_type_key = "enemy_type";
-    inline const godot::StringName enemy_position_key = "enemy_position";
-}
 
 inline FlecsRegistry register_enemy_death_system([](flecs::world& world) {
     world.system<const Position2D, HitPoints, DeathTimer, MeleeDamage, MovementSpeed, Velocity2D>("Enemy Death")
@@ -50,9 +43,9 @@ inline FlecsRegistry register_enemy_death_system([](flecs::world& world) {
                 flecs::entity entity = it.entity(static_cast<std::int32_t>(entity_index));
                 godot::Dictionary signal_data;
                 const flecs::entity prefab_entity = entity.target(flecs::IsA);
-                signal_data[enemy_death::enemy_type_key] = godot::String(prefab_entity.name().c_str());
-                signal_data[enemy_death::enemy_position_key] = positions[entity_index].value;
-                emit_godot_signal(it.world(), entity, enemy_death::enemy_died_signal_name, signal_data);
+                signal_data["enemy_type"] = godot::String(prefab_entity.name().c_str());
+                signal_data["enemy_position"] = positions[entity_index].value;
+                emit_godot_signal(it.world(), entity, "enemy_died", signal_data);
 
                 hit_points[entity_index].value = invulnerable_hit_points;
                 death_timer[entity_index].value = death_animation_duration;
