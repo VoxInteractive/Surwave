@@ -6,6 +6,7 @@
 
 #include "src/flecs_registry.h"
 
+#include "src/components/player.h"
 #include "components/enemy.h"
 #include "components/singletons.h"
 #include "src/utilities/godot_signal.h"
@@ -63,6 +64,36 @@ inline FlecsRegistry register_enemy_timer_tick_system([](flecs::world& world) {
 
                 horizontal_timer.value = godot::Math::max(horizontal_timer.value + delta_time, godot::real_t(0.0));
                 vertical_timer.value = godot::Math::max(vertical_timer.value + delta_time, godot::real_t(0.0));
+            }
+        }
+    });
+
+    world.system<PlayerDamageCooldown>("Player Damage Timer Tick")
+        .kind(flecs::PreUpdate)
+        .run([](flecs::iter& it) {
+        const PlayerTakeDamageSettings* player_damage_settings = it.world().try_get<PlayerTakeDamageSettings>();
+        if (player_damage_settings == nullptr) {
+            return;
+        }
+
+        const godot::real_t cooldown = godot::Math::max(player_damage_settings->damage_cooldown, godot::real_t(0.0));
+
+        while (it.next()) {
+            const godot::real_t delta_time = godot::Math::max(static_cast<godot::real_t>(it.delta_time()), godot::real_t(0.0));
+            flecs::field<PlayerDamageCooldown> cooldown_components = it.field<PlayerDamageCooldown>(0);
+            const std::size_t entity_count = it.count();
+            for (std::size_t entity_index = 0; entity_index < entity_count; ++entity_index) {
+                PlayerDamageCooldown& cooldown_component = cooldown_components[entity_index];
+                if (cooldown <= godot::real_t(0.0)) {
+                    cooldown_component.value = cooldown;
+                    continue;
+                }
+
+                if (delta_time <= godot::real_t(0.0)) {
+                    continue;
+                }
+
+                cooldown_component.value = godot::Math::min(cooldown_component.value + delta_time, cooldown);
             }
         }
     });
