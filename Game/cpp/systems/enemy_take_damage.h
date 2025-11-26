@@ -85,6 +85,8 @@ inline FlecsRegistry register_enemy_take_damage_system([](flecs::world& world) {
 
         const godot::real_t projectile_cooldown = godot::Math::max(take_damage_settings->projectile_hit_cooldown, godot::real_t(0.0));
         const godot::real_t shockwave_cooldown = godot::Math::max(take_damage_settings->shockwave_hit_cooldown, godot::real_t(0.0));
+        const godot::real_t projectile_damage_amount = godot::Math::max(take_damage_settings->projectile_damage, godot::real_t(0.0));
+        const godot::real_t shockwave_damage_amount = godot::Math::max(take_damage_settings->shockwave_damage, godot::real_t(0.0));
         godot::real_t hit_reaction_duration = godot::real_t(0.0);
         if (animation_settings != nullptr) {
             const godot::real_t configured_duration = godot::Math::max(animation_settings->hit_reaction_duration, godot::real_t(0.0));
@@ -193,7 +195,9 @@ inline FlecsRegistry register_enemy_take_damage_system([](flecs::world& world) {
                                     continue;
                                 }
 
-                                accumulated_damage[static_cast<std::size_t>(enemy_index)] += godot::real_t(1.0);
+                                if (projectile_damage_amount > godot::real_t(0.0)) {
+                                    accumulated_damage[static_cast<std::size_t>(enemy_index)] += projectile_damage_amount;
+                                }
                                 projectile_timeout.value = godot::real_t(0.0);
                             }
                         }
@@ -201,8 +205,6 @@ inline FlecsRegistry register_enemy_take_damage_system([](flecs::world& world) {
                 }
             }
         }
-
-        const godot::real_t shockwave_damage = godot::real_t(1.0);
 
         for (std::int32_t enemy_index = 0; enemy_index < enemy_count; ++enemy_index) {
             const std::size_t target_index = static_cast<std::size_t>(enemy_index);
@@ -223,8 +225,8 @@ inline FlecsRegistry register_enemy_take_damage_system([](flecs::world& world) {
                     const godot::real_t combined_radius = shockwave_radius + enemy_radius;
                     const godot::Vector2 offset = enemy_position - shockwave_center;
                     const godot::real_t distance_squared = offset.length_squared();
-                    if (distance_squared <= combined_radius * combined_radius) {
-                        total_damage += shockwave_damage;
+                    if (distance_squared <= combined_radius * combined_radius && shockwave_damage_amount > godot::real_t(0.0)) {
+                        total_damage += shockwave_damage_amount;
                         shockwave_timeout.value = godot::real_t(0.0);
                     }
                 }
