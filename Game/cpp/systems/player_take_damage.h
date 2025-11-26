@@ -10,10 +10,10 @@
 #include "src/flecs_registry.h"
 #include "src/components/transform.h"
 #include "src/components/player.h"
+#include "src/utilities/godot_signal.h"
 
 #include "components/enemy.h"
 #include "components/singletons.h"
-#include "src/utilities/godot_signal.h"
 
 inline FlecsRegistry register_player_take_damage_system([](flecs::world& world) {
     world.system<const Position2D, const HitRadius, const MeleeDamage>("Player Take Damage")

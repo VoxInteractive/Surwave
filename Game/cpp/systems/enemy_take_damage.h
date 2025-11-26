@@ -14,10 +14,10 @@
 #include "src/flecs_registry.h"
 #include "src/components/transform.h"
 #include "src/components/player.h"
+#include "src/utilities/godot_signal.h"
 
 #include "components/enemy.h"
 #include "components/singletons.h"
-#include "src/utilities/godot_signal.h"
 #include "utilities/enemy_spatial_hash.h"
 
 namespace enemy_take_damage {

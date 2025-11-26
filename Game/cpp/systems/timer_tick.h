@@ -5,11 +5,10 @@
 #include <godot_cpp/core/math.hpp>
 
 #include "src/flecs_registry.h"
-
 #include "src/components/player.h"
+
 #include "components/enemy.h"
 #include "components/singletons.h"
-#include "src/utilities/godot_signal.h"
 
 inline FlecsRegistry register_enemy_timer_tick_system([](flecs::world& world) {
     world.system<ProjectileHitTimeout, ShockwaveHitTimeout, DeathTimer, HitReactionTimer, HFlipTimer, VFlipTimer>("Enemy Timer Tick")

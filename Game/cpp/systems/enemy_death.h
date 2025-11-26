@@ -13,10 +13,10 @@
 
 #include "src/components/physics.h"
 #include "src/components/transform.h"
+#include "src/utilities/godot_signal.h"
 
 #include "components/enemy.h"
 #include "components/singletons.h"
-#include "src/utilities/godot_signal.h"
 
 namespace enemy_death {
     inline const godot::StringName enemy_died_signal_name = "enemy_died";
