@@ -8,7 +8,7 @@ class_name EnemySpawnManager extends Node
 @export_range(0.0001, 0.1, 0.001)
 var time_multiplier: float = 0.003333333 # maxes out at 5 minute mark
 ## Length to exclude from corners when spawning enemies
-@export var corner_exclusion_length: int = 128
+@export var corner_exclusion_length: int = 64
 ## Margin from sides when spawning enemies
 @export var side_margin: int = 20
 
@@ -62,22 +62,30 @@ func _pick_spawn_position() -> Vector2:
 
 	var size: Vector2 = terrain.mesh.size
 	var half_size: Vector2 = size / 2.0
+	var spawnable_width: float = max(size.x - float(corner_exclusion_length * 2), 0.0)
+	var spawnable_height: float = max(size.y - float(corner_exclusion_length * 2), 0.0)
+
+	var total_perimeter: float = 2 * spawnable_width + 2 * spawnable_height
+	if total_perimeter == 0.0:
+		return Vector2.ZERO
+
+	var pick: float = randf() * total_perimeter
+
+	if pick < spawnable_width: # Top edge
+		var x_pos: float = pick - (spawnable_width / 2.0)
+		return Vector2(x_pos, -half_size.y - side_margin)
+	pick -= spawnable_width
 	
-	# 0: Top, 1: Bottom, 2: Left, 3: Right
-	var edge: int = randi() % 4
+	if pick < spawnable_width: # Bottom edge
+		var x_pos: float = pick - (spawnable_width / 2.0)
+		return Vector2(x_pos, half_size.y + side_margin)
+	pick -= spawnable_width
 	
-	match edge:
-		0: # Top
-			var x: float = randf_range(-half_size.x + corner_exclusion_length, half_size.x - corner_exclusion_length)
-			return Vector2(x, -half_size.y - side_margin)
-		1: # Bottom
-			var x: float = randf_range(-half_size.x + corner_exclusion_length, half_size.x - corner_exclusion_length)
-			return Vector2(x, half_size.y + side_margin)
-		2: # Left
-			var y: float = randf_range(-half_size.y + corner_exclusion_length, half_size.y - corner_exclusion_length)
-			return Vector2(-half_size.x - side_margin, y)
-		3: # Right
-			var y: float = randf_range(-half_size.y + corner_exclusion_length, half_size.y - corner_exclusion_length)
-			return Vector2(half_size.x + side_margin, y)
+	if pick < spawnable_height: # Left edge
+		var y_pos: float = pick - (spawnable_height / 2.0)
+		return Vector2(-half_size.x - side_margin, y_pos)
+	pick -= spawnable_height
 	
-	return Vector2.ZERO
+	# Right edge
+	var y_pos: float = pick - (spawnable_height / 2.0)
+	return Vector2(half_size.x + side_margin, y_pos)
