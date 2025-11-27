@@ -52,7 +52,7 @@ func _process(delta: float) -> void:
 	if max_radius > 0.0:
 		progress = clamped_radius / max_radius
 	var game_radius: float = progress * mesh_radius
-	var radius_multiplier: float = upgrade_manager.get_shockwave_radius_multiplier()
+	var radius_multiplier: float = upgrade_manager.get_upgrade_value(UpgradeManager.Upgradeable.SHOCKWAVE)
 	var effective_radius: float = game_radius * radius_multiplier
 	var effective_progress: float = 0.0
 	if mesh_radius > 0.0:
