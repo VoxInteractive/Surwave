@@ -57,5 +57,34 @@ var upgrade_tiers: Dictionary[Upgradeable, int] = {
 	Upgradeable.SPEED: 0
 }
 
+@onready var world: FlecsWorld = get_node("../../World")
+
 func get_upgrade_value(upgradeable: Upgradeable) -> Variant:
 	return upgrade_info[upgradeable][1][upgrade_tiers[upgradeable]][1]
+
+func upgrade(upgradeable: Upgradeable) -> void:
+	if not upgrade_info.has(upgradeable):
+		return
+
+	var tiers: Array = upgrade_info[upgradeable][1]
+	var current_tier: int = upgrade_tiers[upgradeable]
+	if current_tier >= tiers.size() - 1:
+		return
+
+	current_tier += 1
+	upgrade_tiers[upgradeable] = current_tier
+
+	match upgradeable:
+		Upgradeable.PROJECTILE_DAMAGE:
+			_update_enemy_projectile_damage(float(tiers[current_tier][1]))
+		_:
+			pass
+
+func _update_enemy_projectile_damage(new_damage: float) -> void:
+	if world == null:
+		push_warning("UpgradeManager: Cannot set EnemyTakeDamageSettings without a FlecsWorld reference.")
+		return
+
+	world.set_singleton_component("EnemyTakeDamageSettings", {
+		"projectile_damage": new_damage
+	})

@@ -1,11 +1,16 @@
 class_name Player extends AnimatedObject
 
+const BASE_MOVEMENT_SPEED: float = 65.0
+var movement_speed: float = BASE_MOVEMENT_SPEED
+var adjusted_movement_speed: float = BASE_MOVEMENT_SPEED
+
 @export_category("Movement")
-@export_range(1.0, 200.0, 1.0)
-var movement_speed: float = 70.0
-var adjusted_movement_speed := movement_speed
 @export_range(0.0, 1.0, 0.01)
 var movement_speed_penalty_when_shooting: float = 0.4
+
+@export_category("Combat")
+@export_range(0.0, 45.0, 0.5)
+var projectile_spread_degrees: float = 10.0
 
 var input_movement_vector: Vector2
 var is_colliding: bool = false
@@ -74,6 +79,8 @@ func _get_animation_frames(p_state: PlayerState) -> Array:
 func _get_animation_mode(p_state: PlayerState):
 	return PlayerAnimationModes[p_state]
 
+
+@onready var upgrade_manager: UpgradeManager = $UpgradeManager
 @onready var world: FlecsWorld = get_node("../World")
 @onready var character_body: CharacterBody2D = $CharacterBody2D
 @onready var _sprite: Sprite2D = $CharacterBody2D/Sprite2D
@@ -85,8 +92,6 @@ func _ready() -> void:
 	can_shoot_weapon = true
 	
 		
-
-
 func _process(delta: float) -> void:
 	just_fired_weapon = false # Reset at the beginning of every frame
 	_tick_cooldowns(delta)
@@ -102,11 +107,18 @@ func _on_animation_frame_changed(frame: int) -> void:
 
 
 func _fire_projectile() -> void:
-	var projectile: Node2D = PROJECTILE.instantiate()
-	projectile.global_position = character_body.global_position
-	projectile.direction = (get_global_mouse_position() - character_body.global_position).normalized()
-	add_child(projectile)
-	
+	var projectile_count: int = _get_projectile_count()
+	var direction_to_cursor: Vector2 = (get_global_mouse_position() - character_body.global_position).normalized()
+	var spread_radians: float = deg_to_rad(projectile_spread_degrees)
+	var middle_index: float = (projectile_count - 1) * 0.5
+
+	for projectile_index in range(projectile_count):
+		var projectile: Node2D = PROJECTILE.instantiate()
+		var rotation_offset: float = spread_radians * (projectile_index - middle_index)
+		projectile.global_position = character_body.global_position
+		projectile.direction = direction_to_cursor.rotated(rotation_offset)
+		add_child(projectile)
+
 	can_shoot_weapon = false
 	shoot_weapon_timer = 0.0
 
@@ -117,14 +129,15 @@ func _tick_cooldowns(delta: float) -> void:
 		can_shoot_weapon = true
 
 
-func _handle_input(delta: float) -> void:
+func _handle_input(_delta: float) -> void:
 	position_at_frame_start = character_body.global_position
 
 	var is_shooting_input = Input.is_action_pressed("shoot_weapon")
 
 	var is_shooting = is_shooting_input or shoot_weapon_timer < animation_interval
 
-	adjusted_movement_speed = movement_speed * (1 - movement_speed_penalty_when_shooting) if is_shooting else movement_speed
+	var base_movement_speed: float = _get_base_movement_speed()
+	adjusted_movement_speed = base_movement_speed * (1 - movement_speed_penalty_when_shooting) if is_shooting else base_movement_speed
 	var aim_direction = (get_global_mouse_position() - character_body.global_position).normalized()
 	var is_aiming_up = abs(aim_direction.y) > abs(aim_direction.x) and aim_direction.y < 0
 	var is_aiming_down = abs(aim_direction.y) > abs(aim_direction.x) and aim_direction.y > 0
@@ -175,3 +188,13 @@ func _handle_input(delta: float) -> void:
 			new_state = PlayerState.IDLE
 	
 	set_state(new_state)
+
+func _get_base_movement_speed() -> float:
+	if upgrade_manager != null:
+		return float(upgrade_manager.get_upgrade_value(UpgradeManager.Upgradeable.SPEED))
+	return movement_speed
+
+func _get_projectile_count() -> int:
+	if upgrade_manager != null:
+		return max(1, int(upgrade_manager.get_upgrade_value(UpgradeManager.Upgradeable.PROJECTILE_COUNT)))
+	return 1
