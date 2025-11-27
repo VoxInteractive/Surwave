@@ -223,5 +223,30 @@ func _sample_radius_for_angle(max_radius: float, inner_margin: float, exponent: 
 	return (lower_bound + higher_bound) * 0.5
 
 
-func _process(delta: float) -> void:
+func get_stage_bounds() -> Rect2:
+	if terrain == null or terrain.mesh == null:
+		return Rect2()
+	var size: Vector2 = terrain.mesh.size
+	return Rect2(-size / 2.0, size)
+
+
+func get_altar_positions() -> Array[Vector2]:
+	var positions: Array[Vector2] = []
+	for altar in altar_nodes:
+		if altar is Node2D:
+			positions.append((altar as Node2D).global_position)
+	return positions
+
+
+func get_altar_states() -> Array[int]:
+	var states: Array[int] = []
+	for altar in altar_nodes:
+		if altar is Altar:
+			states.append(int((altar as Altar).state))
+		else:
+			states.append(0)
+	return states
+
+
+func _process(_delta: float) -> void:
 	pass
