@@ -1,6 +1,8 @@
 class_name Player extends AnimatedObject
 
-var health: float = 10.0
+const MAX_HEALTH: float = 10.0
+var health: float = MAX_HEALTH
+var health_bar_original_modulation: Color
 
 var movement_speed: float
 var adjusted_movement_speed: float
@@ -82,10 +84,11 @@ func _get_animation_mode(p_state: PlayerState):
 	return PlayerAnimationModes[p_state]
 
 
-@onready var upgrade_manager: UpgradeManager = $UpgradeManager
 @onready var world: FlecsWorld = get_node("../World")
+@onready var upgrade_manager: UpgradeManager = $UpgradeManager
 @onready var character_body: CharacterBody2D = $CharacterBody2D
 @onready var _sprite: Sprite2D = $CharacterBody2D/Sprite2D
+@onready var health_bar: ProgressBar = $CharacterBody2D/HealthBar
 @onready var damage_cooldown_timer: Timer = $DamageCooldownTimer
 
 func _ready() -> void:
@@ -93,6 +96,9 @@ func _ready() -> void:
 	set_state(PlayerState.IDLE)
 	shoot_weapon_timer = animation_interval
 	can_shoot_weapon = true
+	
+	health_bar.value = health_bar.max_value
+	health_bar_original_modulation = health_bar.modulate
 	
 	world.flecs_signal_emitted.connect(_on_flecs_signal)
 	
@@ -219,11 +225,14 @@ func _on_flecs_signal(signal_name: StringName, data: Dictionary) -> void:
 		if (damage_cooldown_timer.time_left > 0): return
 		
 		health -= data.damage_amount
+		health_bar.value = max(health / MAX_HEALTH, 0)
+		health_bar.modulate = Color.WHITE
 		
 		if health > 0:
 			damage_cooldown_timer.start()
 		else:
 			await _handle_death()
+			health_bar.visible = false
 
 
 func _handle_death() -> void:
@@ -239,3 +248,7 @@ func _handle_death() -> void:
 
 	await get_tree().create_timer(dying_duration).timeout
 	# TODO: Show the defeat screen
+
+
+func _on_damage_cooldown_timeout() -> void:
+	health_bar.modulate = health_bar_original_modulation
