@@ -202,7 +202,6 @@ inline FlecsRegistry register_enemy_take_damage_system([](flecs::world& world) {
                                 if (projectile_damage_amount > godot::real_t(0.0)) {
                                     accumulated_damage[static_cast<std::size_t>(enemy_index)] += projectile_damage_amount;
                                 }
-                                projectile_timeout.value = godot::real_t(0.0);
                             }
                         }
                     }

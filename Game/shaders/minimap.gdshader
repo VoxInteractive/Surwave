@@ -6,7 +6,7 @@ uniform vec4 background_color : source_color = vec4(0.0, 0.0, 0.0, 1.0);
 uniform vec2 minimap_size = vec2(96.0, 96.0);
 
 uniform vec2 altar_points[4];
-uniform float altar_radius = 15.0;
+uniform float altar_radius = 11.0;
 uniform float altar_states[4];
 uniform vec4 altar_available_color : source_color = vec4(0.5, 0.95, 1.0, 1.0);
 uniform vec4 altar_spent_color : source_color = vec4(0.2, 0.4, 1.0, 1.0);

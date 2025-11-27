@@ -159,6 +159,26 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
     world.component<ShockwaveData>("ShockwaveData")
         .add(flecs::Singleton);
 
+    register_singleton_setter<godot::Dictionary>("EnemyTakeDamageSettings", [](flecs::world& world, const godot::Dictionary& damage_settings) {
+        const EnemyTakeDamageSettings* existing_settings = world.try_get<EnemyTakeDamageSettings>();
+        EnemyTakeDamageSettings updated_settings = existing_settings ? *existing_settings : EnemyTakeDamageSettings{};
+
+        if (damage_settings.has("projectile_hit_cooldown")) {
+            updated_settings.projectile_hit_cooldown = static_cast<godot::real_t>(damage_settings.get("projectile_hit_cooldown", updated_settings.projectile_hit_cooldown));
+        }
+        if (damage_settings.has("shockwave_hit_cooldown")) {
+            updated_settings.shockwave_hit_cooldown = static_cast<godot::real_t>(damage_settings.get("shockwave_hit_cooldown", updated_settings.shockwave_hit_cooldown));
+        }
+        if (damage_settings.has("projectile_damage")) {
+            updated_settings.projectile_damage = static_cast<godot::real_t>(damage_settings.get("projectile_damage", updated_settings.projectile_damage));
+        }
+        if (damage_settings.has("shockwave_damage")) {
+            updated_settings.shockwave_damage = static_cast<godot::real_t>(damage_settings.get("shockwave_damage", updated_settings.shockwave_damage));
+        }
+
+        world.set<EnemyTakeDamageSettings>(updated_settings);
+    });
+
     register_singleton_getter<EnemyCount>("EnemyCount");
 
     register_singleton_setter<godot::Dictionary>("ProjectileData", [](flecs::world& world, const godot::Dictionary& projectile_data) {

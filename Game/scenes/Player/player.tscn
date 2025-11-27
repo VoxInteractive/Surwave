@@ -1,7 +1,8 @@
-[gd_scene load_steps=10 format=3 uid="uid://b6bjohq7ewbe0"]
+[gd_scene load_steps=11 format=3 uid="uid://b6bjohq7ewbe0"]
 
 [ext_resource type="Script" uid="uid://bqur363lsbm3k" path="res://scenes/Player/player.gd" id="1_1kbk7"]
 [ext_resource type="Texture2D" uid="uid://5cwvcedtanps" path="res://scenes/Player/sprites.png" id="1_cyojo"]
+[ext_resource type="Script" uid="uid://cstjmlchpx8l6" path="res://classes/upgrade_manager.gd" id="2_hvfru"]
 [ext_resource type="Shader" uid="uid://dnrcjfhn7xfqk" path="res://shaders/shockwave.gdshader" id="3_gqjuk"]
 [ext_resource type="Script" uid="uid://dmf3livfpo8fu" path="res://classes/projectile_manager.gd" id="4_uiqp4"]
 [ext_resource type="Script" uid="uid://coxlji6xeb5sy" path="res://classes/shockwave_manager.gd" id="5_hvfru"]
@@ -16,14 +17,16 @@ shader_parameter/inner_ring = 0.5
 shader_parameter/outer_ring = 0.05
 
 [sub_resource type="QuadMesh" id="QuadMesh_gqjuk"]
-size = Vector2(360, 360)
+size = Vector2(300, 300)
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_c4h5g"]
 
 [node name="Player" type="Node2D" node_paths=PackedStringArray("sprite")]
 script = ExtResource("1_1kbk7")
-movement_speed = 200.0
 sprite = NodePath("CharacterBody2D/Sprite2D")
+
+[node name="UpgradeManager" type="Node" parent="."]
+script = ExtResource("2_hvfru")
 
 [node name="ProjectileManager" type="Node" parent="."]
 script = ExtResource("4_uiqp4")
@@ -37,7 +40,7 @@ autostart = true
 
 [node name="CharacterBody2D" type="CharacterBody2D" parent="." groups=["Players"]]
 collision_layer = 4
-collision_mask = 11
+collision_mask = 27
 
 [node name="Sprite2D" type="Sprite2D" parent="CharacterBody2D"]
 position = Vector2(0, 14)
