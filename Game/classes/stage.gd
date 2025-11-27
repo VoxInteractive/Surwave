@@ -238,5 +238,15 @@ func get_altar_positions() -> Array[Vector2]:
 	return positions
 
 
+func get_altar_states() -> Array[int]:
+	var states: Array[int] = []
+	for altar in altar_nodes:
+		if altar is Altar:
+			states.append(int((altar as Altar).state))
+		else:
+			states.append(0)
+	return states
+
+
 func _process(_delta: float) -> void:
 	pass

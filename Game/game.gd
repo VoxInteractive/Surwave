@@ -18,6 +18,7 @@ var camera_node: Camera2D
 var enemy_multimesh: MultiMesh
 var minimap_ready: bool = false
 var cached_altar_points: PackedVector2Array = PackedVector2Array()
+var cached_altar_states: PackedFloat32Array = PackedFloat32Array()
 
 
 # Called when the node enters the scene tree for the first time.
@@ -52,7 +53,9 @@ func _initialise_minimap() -> void:
 	var enemies_instance: MultiMeshInstance2D = stage.get_node_or_null("World/Enemies")
 	enemy_multimesh = enemies_instance.multimesh if enemies_instance else null
 	cached_altar_points = _build_altar_points(stage.get_altar_positions())
+	cached_altar_states = _build_altar_states(stage.get_altar_states())
 	minimap_material.set_shader_parameter("altar_points", cached_altar_points)
+	minimap_material.set_shader_parameter("altar_states", cached_altar_states)
 	minimap_material.set_shader_parameter("player_visible", 0.0)
 	minimap_material.set_shader_parameter("camera_visible", 0.0)
 	minimap_ready = world != null and camera_node != null and stage_bounds.size != Vector2.ZERO
@@ -69,6 +72,7 @@ func _update_minimap() -> void:
 	if minimap_material == null:
 		return
 	minimap_material.set_shader_parameter("minimap_size", minimap_rect.size)
+	_update_altar_markers()
 	_update_player_marker()
 	_update_camera_rect()
 	_update_enemy_markers()
@@ -128,6 +132,13 @@ func _update_enemy_markers() -> void:
 	minimap_material.set_shader_parameter("enemy_count", positions.size())
 
 
+func _update_altar_markers() -> void:
+	if stage == null:
+		return
+	cached_altar_states = _build_altar_states(stage.get_altar_states())
+	minimap_material.set_shader_parameter("altar_states", cached_altar_states)
+
+
 func _sample_enemy_positions() -> PackedVector2Array:
 	var positions := PackedVector2Array()
 	if enemy_multimesh == null or stage_bounds.size == Vector2.ZERO:
@@ -173,6 +184,20 @@ func _build_altar_points(world_positions: Array[Vector2]) -> PackedVector2Array:
 	while points.size() < 4:
 		points.append(Vector2.ZERO)
 	return points
+
+
+func _build_altar_states(raw_states: Array[int]) -> PackedFloat32Array:
+	var states := PackedFloat32Array()
+	for state_value in raw_states:
+		states.append(float(clamp(state_value, 0, 1)))
+	if states.size() > 4:
+		var trimmed := PackedFloat32Array()
+		for i in range(4):
+			trimmed.append(states[i])
+		states = trimmed
+	while states.size() < 4:
+		states.append(0.0)
+	return states
 
 
 func _normalise_point(world_point: Vector2) -> Vector2:

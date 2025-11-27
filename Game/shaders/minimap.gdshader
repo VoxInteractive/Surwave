@@ -3,15 +3,17 @@ shader_type canvas_item;
 const int MAX_ENEMY_POINTS = 256;
 
 uniform vec4 background_color : source_color = vec4(0.0, 0.0, 0.0, 1.0);
-uniform vec2 minimap_size = vec2(128.0, 128.0);
+uniform vec2 minimap_size = vec2(96.0, 96.0);
 
 uniform vec2 altar_points[4];
-uniform float altar_radius = 2.5;
-uniform vec4 altar_color : source_color = vec4(0.5, 0.95, 1.0, 1.0);
+uniform float altar_radius = 15.0;
+uniform float altar_states[4];
+uniform vec4 altar_available_color : source_color = vec4(0.5, 0.95, 1.0, 1.0);
+uniform vec4 altar_spent_color : source_color = vec4(0.2, 0.4, 1.0, 1.0);
 
 uniform vec2 enemy_points[MAX_ENEMY_POINTS];
 uniform int enemy_count = 0;
-uniform float enemy_radius = 1.1;
+uniform float enemy_radius = 1.0;
 uniform vec4 enemy_color : source_color = vec4(0.87, 0.15, 0.15, 1.0);
 
 uniform vec2 player_point = vec2(0.5, 0.5);
@@ -53,7 +55,12 @@ void fragment() {
 
 	for (int altar_index = 0; altar_index < 4; altar_index++) {
 		vec2 altar_center = to_pixels(altar_points[altar_index]);
+		vec2 inset = vec2(altar_radius);
+		vec2 max_bounds = max(minimap_size - inset, inset);
+		altar_center = clamp(altar_center, inset, max_bounds);
 		float altar_mask = disc_mask(frag, altar_center, altar_radius);
+		float state_factor = clamp(altar_states[altar_index], 0.0, 1.0);
+		vec4 altar_color = mix(altar_available_color, altar_spent_color, state_factor);
 		color = mix(color, altar_color, altar_mask * altar_color.a);
 	}
 
