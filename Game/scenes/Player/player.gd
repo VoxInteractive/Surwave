@@ -1,6 +1,8 @@
 class_name Player extends AnimatedObject
 
-var health: int = 10
+const MAX_HEALTH: float = 10.0
+var health: float = MAX_HEALTH
+var health_bar_original_modulation: Color
 
 var movement_speed: float
 var adjusted_movement_speed: float
@@ -22,6 +24,7 @@ var has_moved_this_frame: bool = false
 var shoot_weapon_timer: float
 var can_shoot_weapon: bool = false
 var just_fired_weapon: bool = false
+var is_dead: bool = false
 
 enum PlayerState {
 	IDLE,
@@ -81,10 +84,12 @@ func _get_animation_mode(p_state: PlayerState):
 	return PlayerAnimationModes[p_state]
 
 
-@onready var upgrade_manager: UpgradeManager = $UpgradeManager
 @onready var world: FlecsWorld = get_node("../World")
+@onready var upgrade_manager: UpgradeManager = $UpgradeManager
 @onready var character_body: CharacterBody2D = $CharacterBody2D
 @onready var _sprite: Sprite2D = $CharacterBody2D/Sprite2D
+@onready var health_bar: ProgressBar = $CharacterBody2D/HealthBar
+@onready var damage_cooldown_timer: Timer = $DamageCooldownTimer
 
 func _ready() -> void:
 	animation_frame_changed.connect(_on_animation_frame_changed)
@@ -92,15 +97,25 @@ func _ready() -> void:
 	shoot_weapon_timer = animation_interval
 	can_shoot_weapon = true
 	
+	health_bar.value = health_bar.max_value
+	health_bar_original_modulation = health_bar.modulate
+	
+	world.flecs_signal_emitted.connect(_on_flecs_signal)
+	
 		
 func _process(delta: float) -> void:
 	just_fired_weapon = false # Reset at the beginning of every frame
+	if is_dead:
+		super._process(delta)
+		return
 	_tick_cooldowns(delta)
 	_handle_input(delta)
 	super._process(delta);
 
 
 func _on_animation_frame_changed(frame: int) -> void:
+	if is_dead:
+		return
 	if first_shooting_animation_frames.has(frame):
 		just_fired_weapon = true
 		if can_shoot_weapon:
@@ -201,3 +216,39 @@ func _get_projectile_count() -> int:
 	if upgrade_manager != null:
 		return max(1, int(upgrade_manager.get_upgrade_value(UpgradeManager.Upgradeable.PROJECTILE_COUNT)))
 	return 1
+
+
+func _on_flecs_signal(signal_name: StringName, data: Dictionary) -> void:
+	if is_dead:
+		return
+	if signal_name == "player_took_damage":
+		if (damage_cooldown_timer.time_left > 0): return
+		
+		health -= data.damage_amount
+		health_bar.value = max(health / MAX_HEALTH, 0)
+		health_bar.modulate = Color.WHITE
+		
+		if health > 0:
+			damage_cooldown_timer.start()
+		else:
+			await _handle_death()
+			health_bar.visible = false
+
+
+func _handle_death() -> void:
+	if is_dead: return
+	
+	is_dead = true
+	character_body.velocity = Vector2.ZERO
+	input_movement_vector = Vector2.ZERO
+	$ShockwaveManager/Timer.stop()
+	set_state(PlayerState.DYING)
+	var dying_animation_frames: int = PlayerAnimationFrames[PlayerState.DYING].size()
+	var dying_duration: float = float(dying_animation_frames) * animation_interval
+
+	await get_tree().create_timer(dying_duration).timeout
+	# TODO: Show the defeat screen
+
+
+func _on_damage_cooldown_timeout() -> void:
+	health_bar.modulate = health_bar_original_modulation

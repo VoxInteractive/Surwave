@@ -47,6 +47,7 @@ struct EnemyTakeDamageSettings {
 
 struct PlayerTakeDamageSettings {
     godot::real_t damage_cooldown;
+    godot::real_t player_hit_radius;
 };
 
 struct ProjectileData {
@@ -145,8 +146,9 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
 
     world.component<PlayerTakeDamageSettings>("PlayerTakeDamageSettings")
         .member<godot::real_t>("damage_cooldown")
+        .member<godot::real_t>("player_hit_radius")
         .add(flecs::Singleton)
-        .set<PlayerTakeDamageSettings>({ godot::real_t(0.3) });
+        .set<PlayerTakeDamageSettings>({ godot::real_t(0.3), godot::real_t(9.0) });
 
     world.component<EnemyCount>("EnemyCount")
         .member<size_t>("value")
