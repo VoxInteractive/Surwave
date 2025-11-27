@@ -92,10 +92,28 @@ func _update_camera_rect() -> void:
 		minimap_material.set_shader_parameter("camera_visible", 0.0)
 		return
 	var viewport_size: Vector2 = camera_node.get_viewport().get_visible_rect().size
-	var zoomed_size: Vector2 = viewport_size * camera_node.zoom
-	var rect_position: Vector2 = camera_node.global_position - zoomed_size * 0.5
-	var rect_size: Vector2 = zoomed_size
-	var normalised_position: Vector2 = _normalise_point(rect_position)
+	var zoom_vector: Vector2 = camera_node.zoom
+	var rect_size := Vector2(
+		viewport_size.x / max(zoom_vector.x, 0.0001),
+		viewport_size.y / max(zoom_vector.y, 0.0001)
+	)
+	var rect_position: Vector2 = camera_node.global_position - rect_size * 0.5
+	var rect_min: Vector2 = rect_position
+	var rect_max: Vector2 = rect_position + rect_size
+	var stage_min: Vector2 = stage_bounds.position
+	var stage_max: Vector2 = stage_bounds.position + stage_bounds.size
+	var offset: Vector2 = Vector2.ZERO
+	if rect_min.x < stage_min.x:
+		offset.x = stage_min.x - rect_min.x
+	elif rect_max.x > stage_max.x:
+		offset.x = stage_max.x - rect_max.x
+	if rect_min.y < stage_min.y:
+		offset.y = stage_min.y - rect_min.y
+	elif rect_max.y > stage_max.y:
+		offset.y = stage_max.y - rect_max.y
+	rect_min += offset
+	rect_max += offset
+	var normalised_position: Vector2 = _normalise_point(rect_min)
 	var normalised_size := Vector2(
 		rect_size.x / stage_bounds.size.x,
 		rect_size.y / stage_bounds.size.y
