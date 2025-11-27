@@ -5,18 +5,19 @@
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_fc0e3"]
 shader = ExtResource("1_ub6rh")
 shader_parameter/background_color = Color(0, 0, 0, 1)
-shader_parameter/minimap_size = Vector2(128, 128)
+shader_parameter/minimap_size = Vector2(80, 80)
+shader_parameter/opacity = 0.67
 shader_parameter/altar_points = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0)
-shader_parameter/altar_radius = 2.5
+shader_parameter/altar_radius = 3.0
 shader_parameter/altar_states = PackedFloat32Array(0, 0, 0, 0)
 shader_parameter/altar_available_color = Color(0.5, 0.95, 1, 1)
 shader_parameter/altar_spent_color = Color(0.2, 0.4, 1, 1)
 shader_parameter/enemy_points = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 shader_parameter/enemy_count = 0
-shader_parameter/enemy_radius = 1.1
+shader_parameter/enemy_radius = 1.0
 shader_parameter/enemy_color = Color(0.87, 0.15, 0.15, 1)
 shader_parameter/player_point = Vector2(0.5, 0.5)
-shader_parameter/player_radius = 3.0
+shader_parameter/player_radius = 2.0
 shader_parameter/player_visible = 0.0
 shader_parameter/player_color = Color(1, 1, 1, 1)
 shader_parameter/camera_rect = Vector4(0, 0, 1, 1)
@@ -27,13 +28,16 @@ shader_parameter/camera_color = Color(0.6, 0.6, 0.6, 1)
 [node name="StatusOverlay" type="CanvasLayer"]
 
 [node name="MinimapMargin" type="MarginContainer" parent="."]
-modulate = Color(1, 1, 1, 0.49803922)
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -80.0
 offset_bottom = 80.0
 grow_horizontal = 0
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
 
 [node name="Minimap" type="ColorRect" parent="MinimapMargin"]
 material = SubResource("ShaderMaterial_fc0e3")

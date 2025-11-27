@@ -61,7 +61,7 @@ var upgrade_tiers: Dictionary[Upgradeable, int] = {
 }
 
 # Holds the gem balance of the player
-var gems: int = 0
+var gems: int = 1000 # TODO: Change back to 0
 
 @onready var world: FlecsWorld = get_node("../../World")
 

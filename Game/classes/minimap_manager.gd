@@ -18,7 +18,7 @@ var minimap_ready: bool = false
 var cached_altar_points: PackedVector2Array = PackedVector2Array()
 var cached_altar_states: PackedFloat32Array = PackedFloat32Array()
 
-@onready var minimap_rect: ColorRect =  $"../../StatusOverlay/MinimapMargin/Minimap"
+@onready var minimap_rect: ColorRect = $"../../StatusOverlay/MinimapMargin/Minimap"
 
 
 # Called when the node enters the scene tree for the first time.
@@ -38,7 +38,7 @@ func _process(_delta: float) -> void:
 func _initialise_minimap() -> void:
 	if minimap_ready:
 		return
-	stage = _find_stage()
+	stage = owner
 	if stage == null or minimap_material == null:
 		return
 	stage_bounds = stage.get_stage_bounds()
@@ -53,13 +53,6 @@ func _initialise_minimap() -> void:
 	minimap_material.set_shader_parameter("player_visible", 0.0)
 	minimap_material.set_shader_parameter("camera_visible", 0.0)
 	minimap_ready = world != null and camera_node != null and stage_bounds.size != Vector2.ZERO
-
-
-func _find_stage() -> Stage:
-	for child in get_children():
-		if child is Stage:
-			return child as Stage
-	return null
 
 
 func _update_minimap() -> void:
