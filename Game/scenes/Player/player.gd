@@ -8,8 +8,8 @@ var movement_speed: float
 var adjusted_movement_speed: float
 
 @export_category("Movement")
-@export_range(0.0, 1.0, 0.01)
-var movement_speed_penalty_when_shooting: float = 0.4
+@export_range(0.0, 100.0, 0.1) var acceleration_smoothing: float = 20
+@export_range(0.0, 1.0, 0.01) var movement_speed_penalty_when_shooting: float = 0.4
 
 @export_category("Combat")
 @export_range(0.0, 45.0, 0.5)
@@ -145,21 +145,22 @@ func _tick_cooldowns(delta: float) -> void:
 		can_shoot_weapon = true
 
 
-func _handle_input(_delta: float) -> void:
+func _handle_input(delta: float) -> void:
 	position_at_frame_start = character_body.global_position
 
-	var is_shooting_input = Input.is_action_pressed("shoot_weapon")
+	var is_shooting_input := Input.is_action_pressed("shoot_weapon")
 
-	var is_shooting = is_shooting_input or shoot_weapon_timer < animation_interval
+	var is_shooting := is_shooting_input or shoot_weapon_timer < animation_interval
 
 	var base_movement_speed: float = _get_base_movement_speed()
 	adjusted_movement_speed = base_movement_speed * (1 - movement_speed_penalty_when_shooting) if is_shooting else base_movement_speed
-	var aim_direction = (get_global_mouse_position() - character_body.global_position).normalized()
-	var is_aiming_up = abs(aim_direction.y) > abs(aim_direction.x) and aim_direction.y < 0
-	var is_aiming_down = abs(aim_direction.y) > abs(aim_direction.x) and aim_direction.y > 0
+	var aim_direction := (get_global_mouse_position() - character_body.global_position).normalized()
+	var is_aiming_up: bool = abs(aim_direction.y) > abs(aim_direction.x) and aim_direction.y < 0
+	var is_aiming_down: bool = abs(aim_direction.y) > abs(aim_direction.x) and aim_direction.y > 0
 
 	input_movement_vector = Input.get_vector("move_left", "move_right", "move_up", "move_down")
-	character_body.velocity = input_movement_vector * adjusted_movement_speed
+	var target_velocity := input_movement_vector * adjusted_movement_speed
+	character_body.velocity = character_body.velocity.lerp(target_velocity, 1 - exp(-delta * acceleration_smoothing))
 
 	is_colliding = character_body.move_and_slide()
 	world.set_singleton_component("PlayerPosition", character_body.global_position)
