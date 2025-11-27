@@ -1,6 +1,6 @@
 class_name Player extends AnimatedObject
 
-var health: int = 10
+var health: float = 10.0
 
 var movement_speed: float
 var adjusted_movement_speed: float
@@ -85,12 +85,15 @@ func _get_animation_mode(p_state: PlayerState):
 @onready var world: FlecsWorld = get_node("../World")
 @onready var character_body: CharacterBody2D = $CharacterBody2D
 @onready var _sprite: Sprite2D = $CharacterBody2D/Sprite2D
+@onready var damage_cooldown_timer: Timer = $DamageCooldownTimer
 
 func _ready() -> void:
 	animation_frame_changed.connect(_on_animation_frame_changed)
 	set_state(PlayerState.IDLE)
 	shoot_weapon_timer = animation_interval
 	can_shoot_weapon = true
+	
+	world.flecs_signal_emitted.connect(_on_flecs_signal)
 	
 		
 func _process(delta: float) -> void:
@@ -201,3 +204,11 @@ func _get_projectile_count() -> int:
 	if upgrade_manager != null:
 		return max(1, int(upgrade_manager.get_upgrade_value(UpgradeManager.Upgradeable.PROJECTILE_COUNT)))
 	return 1
+
+func _on_flecs_signal(signal_name: StringName, data: Dictionary) -> void:
+	if signal_name == "player_took_damage":
+		if (damage_cooldown_timer.time_left > 0): return
+		
+		health -= data.damage_amount
+		damage_cooldown_timer.start()
+		print(signal_name)

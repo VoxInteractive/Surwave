@@ -60,4 +60,10 @@ material = SubResource("ShaderMaterial_c4h5g")
 mesh = SubResource("QuadMesh_gqjuk")
 texture = SubResource("PlaceholderTexture2D_c4h5g")
 
+[node name="DamageCooldownTimer" type="Timer" parent="."]
+wait_time = 1.2
+one_shot = true
+autostart = true
+ignore_time_scale = true
+
 [connection signal="timeout" from="ShockwaveManager/Timer" to="ShockwaveManager" method="_fire"]
