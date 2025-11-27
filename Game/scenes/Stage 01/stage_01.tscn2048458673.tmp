@@ -1,4 +1,4 @@
-[gd_scene load_steps=44 format=3 uid="uid://1f0s78v8ooax"]
+[gd_scene load_steps=43 format=3 uid="uid://1f0s78v8ooax"]
 
 [ext_resource type="Script" uid="uid://b0ekcl6i0i8y0" path="res://scenes/Stage 01/stage_01.gd" id="1_eml3u"]
 [ext_resource type="Texture2D" uid="uid://u0ein3bhqfwq" path="res://scenes/Stage 01/foliage/grass1.png" id="2_3tqr6"]
@@ -19,7 +19,6 @@
 [ext_resource type="Texture2D" uid="uid://1xld4r1sgwc8" path="res://scenes/Altar/debris/2.png" id="15_8wwtj"]
 [ext_resource type="Texture2D" uid="uid://jf5nqssf1a5c" path="res://scenes/Altar/debris/3.png" id="16_y354e"]
 [ext_resource type="Texture2D" uid="uid://bqiyvivyet87n" path="res://scenes/Altar/debris/4.png" id="17_avk1y"]
-[ext_resource type="PackedScene" uid="uid://cou2i7rmir1yd" path="res://scenes/ui/status_overlay.tscn" id="20_vufsv"]
 
 [sub_resource type="Curve" id="Curve_1m5sl"]
 _data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 0.3820225), 0.0, 0.0, 0, 0]
@@ -255,5 +254,3 @@ shape = SubResource("CircleShape2D_gms3k")
 [node name="AltarSE" type="CollisionShape2D" parent="Borders"]
 position = Vector2(-1034, 1034)
 shape = SubResource("CircleShape2D_gms3k")
-
-[node name="StatusOverlay" parent="." instance=ExtResource("20_vufsv")]

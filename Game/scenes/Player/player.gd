@@ -53,18 +53,18 @@ const PlayerAnimationFrames: Dictionary[PlayerState, Array] = {
 	PlayerState.RUNNING_AND_SHOOTING_DOWN: [52, 53],
 	PlayerState.DYING: [40, 41, 42, 43, 44, 45, 46]
 }
-const PlayerAnimationModes: Dictionary[PlayerState, Game.AnimationMode] = {
-	PlayerState.IDLE: Game.AnimationMode.LOOP,
-	PlayerState.TALKING: Game.AnimationMode.ONCE,
-	PlayerState.RELOADING: Game.AnimationMode.ONCE,
-	PlayerState.RUNNING: Game.AnimationMode.LOOP,
-	PlayerState.SHOOTING_RIGHT: Game.AnimationMode.LOOP,
-	PlayerState.SHOOTING_UP: Game.AnimationMode.LOOP,
-	PlayerState.SHOOTING_DOWN: Game.AnimationMode.LOOP,
-	PlayerState.RUNNING_AND_SHOOTING_RIGHT: Game.AnimationMode.LOOP,
-	PlayerState.RUNNING_AND_SHOOTING_UP: Game.AnimationMode.LOOP,
-	PlayerState.RUNNING_AND_SHOOTING_DOWN: Game.AnimationMode.LOOP,
-	PlayerState.DYING: Game.AnimationMode.ONCE
+const PlayerAnimationModes: Dictionary[PlayerState, AnimationMode] = {
+	PlayerState.IDLE: AnimationMode.LOOP,
+	PlayerState.TALKING: AnimationMode.ONCE,
+	PlayerState.RELOADING: AnimationMode.ONCE,
+	PlayerState.RUNNING: AnimationMode.LOOP,
+	PlayerState.SHOOTING_RIGHT: AnimationMode.LOOP,
+	PlayerState.SHOOTING_UP: AnimationMode.LOOP,
+	PlayerState.SHOOTING_DOWN: AnimationMode.LOOP,
+	PlayerState.RUNNING_AND_SHOOTING_RIGHT: AnimationMode.LOOP,
+	PlayerState.RUNNING_AND_SHOOTING_UP: AnimationMode.LOOP,
+	PlayerState.RUNNING_AND_SHOOTING_DOWN: AnimationMode.LOOP,
+	PlayerState.DYING: AnimationMode.ONCE
 }
 const first_shooting_animation_frames: Array[int] = [
 	PlayerAnimationFrames[PlayerState.SHOOTING_RIGHT][0],

@@ -3,7 +3,7 @@ shader_type canvas_item;
 const int MAX_ENEMY_POINTS = 256;
 
 uniform vec4 background_color : source_color = vec4(0.0, 0.0, 0.0, 1.0);
-uniform vec2 minimap_size = vec2(96.0, 96.0);
+uniform vec2 minimap_size = vec2(80.0, 80.0);
 
 uniform vec2 altar_points[4];
 uniform float altar_radius = 11.0;
