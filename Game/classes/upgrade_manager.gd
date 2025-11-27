@@ -41,7 +41,7 @@ const UPGRADE_INFO: Dictionary[Upgradeable, Array] = {
 	Upgradeable.SPEED: [
 		"Increase your movement speed",
 		[
-			["Base", 65],
+			["Base", 265], # TODO: Set back to 65
 			["Speed I", 80],
 			["Speed II", 100],
 			["Speed III", 125],
@@ -75,8 +75,7 @@ func get_available_upgrades() -> Dictionary[Upgradeable, Dictionary]:
 	for upgradeable in upgrade_tiers.keys():
 		var tiers: Array = UPGRADE_INFO[upgradeable][1]
 		var next_tier_index: int = upgrade_tiers[upgradeable] + 1
-		if next_tier_index >= tiers.size():
-			continue
+		if next_tier_index >= tiers.size(): continue
 
 		var tier_data: Array = tiers[next_tier_index]
 		var cost: int = TIER_COSTS[next_tier_index]
@@ -96,8 +95,7 @@ func upgrade(upgradeable: Upgradeable) -> void:
 
 	var tiers: Array = UPGRADE_INFO[upgradeable][1]
 	var current_tier: int = upgrade_tiers[upgradeable]
-	if current_tier >= tiers.size() - 1:
-		return
+	if current_tier >= tiers.size() - 1: return
 
 	current_tier += 1
 	upgrade_tiers[upgradeable] = current_tier

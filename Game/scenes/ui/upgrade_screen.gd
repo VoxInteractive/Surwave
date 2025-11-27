@@ -3,7 +3,7 @@ class_name UpgradeScreen extends CanvasLayer
 signal upgrade_finalized(requester: Node, upgradeable: UpgradeManager.Upgradeable)
 
 @export var upgrade_card_scene: PackedScene
-@export var resume_delay_seconds: float = 2.0
+@export var resume_delay_seconds: float = 1.5
 
 var upgrade_manager: UpgradeManager
 var was_game_paused: bool = false
@@ -51,10 +51,8 @@ func set_ability_upgrades(upgrades: Dictionary[UpgradeManager.Upgradeable, Dicti
 
 
 func _on_upgrade_selected(upgradeable: UpgradeManager.Upgradeable) -> void:
-	if purchase_in_progress:
-		return
-	if upgrade_manager == null:
-		return
+	if purchase_in_progress: return
+	if upgrade_manager == null: return
 	purchase_in_progress = true
 	upgrade_manager.upgrade(upgradeable)
 	_disable_all_cards()
@@ -64,8 +62,8 @@ func _on_upgrade_selected(upgradeable: UpgradeManager.Upgradeable) -> void:
 
 func _wait_resume_delay() -> void:
 	var delay: float = max(resume_delay_seconds, 0.0)
-	if delay <= 0.0:
-		return
+	if delay <= 0.0: return
+	
 	var timer := Timer.new()
 	timer.wait_time = delay
 	timer.one_shot = true
@@ -90,10 +88,8 @@ func _disable_all_cards() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not visible:
-		return
-	if purchase_in_progress:
-		return
+	if not visible: return
+	if purchase_in_progress: return
 	if event.is_action_pressed("menu"):
 		_cancel_selection()
 		get_viewport().set_input_as_handled()
@@ -104,31 +100,29 @@ func _cancel_selection() -> void:
 
 
 func _ensure_upgrade_manager(player_body: Node = null) -> bool:
-	if upgrade_manager != null and is_instance_valid(upgrade_manager):
-		return true
+	if upgrade_manager != null and is_instance_valid(upgrade_manager): return true
+
 	upgrade_manager = _get_manager_from_body(player_body)
-	if upgrade_manager != null:
-		return true
+	if upgrade_manager != null: return true
+
 	upgrade_manager = _find_manager_in_players_group()
 	return upgrade_manager != null
 
 
 func _get_manager_from_body(player_body: Node) -> UpgradeManager:
-	if player_body == null:
-		return null
+	if player_body == null: return null
+
 	var player_root := player_body.owner
-	if player_root == null:
-		player_root = player_body.get_parent()
-	if player_root == null:
-		return null
+	if player_root == null: player_root = player_body.get_parent()
+	if player_root == null: return null
+
 	var manager_node := player_root.get_node_or_null("UpgradeManager")
 	return manager_node as UpgradeManager
 
 
 func _find_manager_in_players_group() -> UpgradeManager:
 	var player := get_tree().get_first_node_in_group("Players")
-	if player == null:
-		return null
+	if player == null: return null
 	var manager_node := player.get_node_or_null("UpgradeManager")
 	return manager_node as UpgradeManager
 

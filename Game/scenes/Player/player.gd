@@ -1,8 +1,9 @@
 class_name Player extends AnimatedObject
 
-const BASE_MOVEMENT_SPEED: float = 65.0
-var movement_speed: float = BASE_MOVEMENT_SPEED
-var adjusted_movement_speed: float = BASE_MOVEMENT_SPEED
+var health: int = 10
+
+var movement_speed: float
+var adjusted_movement_speed: float
 
 @export_category("Movement")
 @export_range(0.0, 1.0, 0.01)
@@ -10,7 +11,7 @@ var movement_speed_penalty_when_shooting: float = 0.4
 
 @export_category("Combat")
 @export_range(0.0, 45.0, 0.5)
-var projectile_spread_degrees: float = 10.0
+var projectile_spread_degrees: float = 6.0
 
 var input_movement_vector: Vector2
 var is_colliding: bool = false
@@ -189,10 +190,12 @@ func _handle_input(_delta: float) -> void:
 	
 	set_state(new_state)
 
+
 func _get_base_movement_speed() -> float:
 	if upgrade_manager != null:
 		return float(upgrade_manager.get_upgrade_value(UpgradeManager.Upgradeable.SPEED))
 	return movement_speed
+
 
 func _get_projectile_count() -> int:
 	if upgrade_manager != null:
