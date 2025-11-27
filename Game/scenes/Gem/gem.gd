@@ -25,3 +25,13 @@ func _on_expiry() -> void:
 		is_about_to_expire = true
 	else: # Fully expired (ExpirationTimer.wait_time + blink_duration has elapsed)
 		queue_free()
+
+
+func _on_area_entered(body: Node2D) -> void:
+	if not body.is_in_group("Players"): return
+	var player_root: Node = body.get_parent()
+	if player_root == null: return
+	var upgrade_manager: UpgradeManager = player_root.get_node_or_null("UpgradeManager")
+	if upgrade_manager == null: return
+	upgrade_manager.gems += 1
+	queue_free()

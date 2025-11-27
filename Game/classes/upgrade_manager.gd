@@ -7,7 +7,7 @@ enum Upgradeable {
 	SPEED
 }
 
-const upgrade_info: Dictionary[Upgradeable, Array] = {
+const UPGRADE_INFO: Dictionary[Upgradeable, Array] = {
 	Upgradeable.PROJECTILE_DAMAGE: [
 		"Increase the damage of your gun",
 		[
@@ -31,11 +31,11 @@ const upgrade_info: Dictionary[Upgradeable, Array] = {
 	Upgradeable.SHOCKWAVE: [
 		"Increase the area of effect of your shockwave",
 		[
-			["Base", 0.30],
-			["Shockwave I", 0.40],
-			["Shockwave II", 0.65],
-			["Shockwave III", 0.85],
-			["Shockwave IV", 1.00]
+			["Base", 0.3],
+			["Shockwave I", 0.564],
+			["Shockwave II", 0.738],
+			["Shockwave III", 0.879],
+			["Shockwave IV", 1.0]
 		]
 	],
 	Upgradeable.SPEED: [
@@ -50,6 +50,9 @@ const upgrade_info: Dictionary[Upgradeable, Array] = {
 	]
 }
 
+const TIER_COSTS = [10, 20, 40, 80]
+
+# Holds the current upgrade tier that the player has for each upgradeable type
 var upgrade_tiers: Dictionary[Upgradeable, int] = {
 	Upgradeable.PROJECTILE_DAMAGE: 0,
 	Upgradeable.PROJECTILE_COUNT: 0,
@@ -57,16 +60,19 @@ var upgrade_tiers: Dictionary[Upgradeable, int] = {
 	Upgradeable.SPEED: 0
 }
 
+# Holds the gem balance of the player
+var gems: int = 0
+
 @onready var world: FlecsWorld = get_node("../../World")
 
 func get_upgrade_value(upgradeable: Upgradeable) -> Variant:
-	return upgrade_info[upgradeable][1][upgrade_tiers[upgradeable]][1]
+	return UPGRADE_INFO[upgradeable][1][upgrade_tiers[upgradeable]][1]
 
 func upgrade(upgradeable: Upgradeable) -> void:
-	if not upgrade_info.has(upgradeable):
+	if not UPGRADE_INFO.has(upgradeable):
 		return
 
-	var tiers: Array = upgrade_info[upgradeable][1]
+	var tiers: Array = UPGRADE_INFO[upgradeable][1]
 	var current_tier: int = upgrade_tiers[upgradeable]
 	if current_tier >= tiers.size() - 1:
 		return
