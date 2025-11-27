@@ -1,0 +1,39 @@
+class_name UpgradeCard extends PanelContainer
+
+signal upgrade_selected(upgradeable: UpgradeManager.Upgradeable)
+
+@onready var name_label: Label = %NameLabel
+@onready var description_label: Label = %DescriptionLabel
+@onready var select_button: Button = %SelectButton
+
+var upgradeable_type: UpgradeManager.Upgradeable = UpgradeManager.Upgradeable.PROJECTILE_DAMAGE
+var can_afford_upgrade: bool = false
+const AFFORDABLE_COLOR: Color = Color(1, 1, 1, 1)
+const UNAFFORDABLE_COLOR: Color = Color(0.5, 0.5, 0.5, 1)
+
+
+func _ready() -> void:
+	select_button.pressed.connect(_on_select_button_pressed)
+
+
+func set_upgrade_info(upgradeable: UpgradeManager.Upgradeable, upgrade_data: Dictionary):
+	upgradeable_type = upgradeable
+	var tier_name: String = String(upgrade_data.get("name", "Unknown Upgrade"))
+	var description: String = String(upgrade_data.get("description", ""))
+	var cost: int = int(upgrade_data.get("cost", 0))
+	can_afford_upgrade = bool(upgrade_data.get("can_afford", false))
+	var affordability_suffix: String = "" if can_afford_upgrade else " (Not enough gems)"
+	name_label.text = tier_name
+	description_label.text = "%s\nCost: %d Gems%s" % [description, cost, affordability_suffix]
+	select_button.disabled = not can_afford_upgrade
+	modulate = AFFORDABLE_COLOR if can_afford_upgrade else UNAFFORDABLE_COLOR
+
+
+func set_selection_enabled(enabled: bool) -> void:
+	select_button.disabled = not enabled
+
+
+func _on_select_button_pressed() -> void:
+	if not can_afford_upgrade:
+		return
+	emit_signal("upgrade_selected", upgradeable_type)

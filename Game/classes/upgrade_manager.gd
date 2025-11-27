@@ -50,7 +50,7 @@ const UPGRADE_INFO: Dictionary[Upgradeable, Array] = {
 	]
 }
 
-const TIER_COSTS = [10, 20, 40, 80]
+const TIER_COSTS = [0, 10, 20, 40, 80]
 
 # Holds the current upgrade tier that the player has for each upgradeable type
 var upgrade_tiers: Dictionary[Upgradeable, int] = {
@@ -65,8 +65,30 @@ var gems: int = 0
 
 @onready var world: FlecsWorld = get_node("../../World")
 
+
 func get_upgrade_value(upgradeable: Upgradeable) -> Variant:
 	return UPGRADE_INFO[upgradeable][1][upgrade_tiers[upgradeable]][1]
+
+
+func get_available_upgrades() -> Dictionary[Upgradeable, Dictionary]:
+	var available_upgrades: Dictionary[Upgradeable, Dictionary] = {}
+	for upgradeable in upgrade_tiers.keys():
+		var tiers: Array = UPGRADE_INFO[upgradeable][1]
+		var next_tier_index: int = upgrade_tiers[upgradeable] + 1
+		if next_tier_index >= tiers.size():
+			continue
+
+		var tier_data: Array = tiers[next_tier_index]
+		var cost: int = TIER_COSTS[next_tier_index]
+		available_upgrades[upgradeable] = {
+			"name": tier_data[0],
+			"description": UPGRADE_INFO[upgradeable][0],
+			"cost": cost,
+			"can_afford": gems >= cost
+		}
+
+	return available_upgrades
+
 
 func upgrade(upgradeable: Upgradeable) -> void:
 	if not UPGRADE_INFO.has(upgradeable):

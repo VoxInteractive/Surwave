@@ -1,5 +1,9 @@
 class_name Altar extends AnimatedObject
 
+@export var upgrade_screen_scene: PackedScene
+
+var upgrade_screen
+
 enum AltarState {
 	AVAILABLE, # 0
 	SPENT # 1
@@ -28,7 +32,28 @@ func _ready() -> void:
 
 
 func _on_area_2d_body_entered(body: Node2D) -> void:
-	if body.is_in_group("Players") and state == AltarState.AVAILABLE:
-		# TODO: Implement upgrade logic
-		print("Player upgraded!")
-		set_state(AltarState.SPENT)
+	if not body.is_in_group("Players"): return
+	if state != AltarState.AVAILABLE: return
+
+	var screen = _ensure_upgrade_screen()
+	if screen == null: return
+	screen.show_with_available_upgrades(self, body)
+
+
+func _ensure_upgrade_screen():
+	if is_instance_valid(upgrade_screen): return upgrade_screen
+	if upgrade_screen_scene == null:
+		push_warning("Altar: upgrade_screen_scene is not assigned.")
+		return null
+	upgrade_screen = upgrade_screen_scene.instantiate()
+	if upgrade_screen == null: return null
+
+	get_tree().root.add_child(upgrade_screen)
+	if not upgrade_screen.upgrade_finalized.is_connected(_on_upgrade_screen_finalized):
+		upgrade_screen.upgrade_finalized.connect(_on_upgrade_screen_finalized)
+	return upgrade_screen
+
+
+func _on_upgrade_screen_finalized(requester: Node, _upgradeable: UpgradeManager.Upgradeable) -> void:
+	if requester != self: return
+	set_state(AltarState.SPENT)
