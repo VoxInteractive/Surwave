@@ -148,7 +148,7 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
         .member<godot::real_t>("damage_cooldown")
         .member<godot::real_t>("player_hit_radius")
         .add(flecs::Singleton)
-        .set<PlayerTakeDamageSettings>({ godot::real_t(0.3), godot::real_t(10.0) });
+        .set<PlayerTakeDamageSettings>({ godot::real_t(0.3), godot::real_t(9.0) });
 
     world.component<EnemyCount>("EnemyCount")
         .member<size_t>("value")
