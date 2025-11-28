@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://cou2i7rmir1yd"]
+[gd_scene load_steps=4 format=3 uid="uid://cou2i7rmir1yd"]
 
 [ext_resource type="Shader" uid="uid://dd8jm7x8qubxf" path="res://shaders/minimap.gdshader" id="1_ub6rh"]
+[ext_resource type="Texture2D" uid="uid://ca4ojb4ufv384" path="res://scenes/ui/gem_icon.png" id="2_qrj4e"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_fc0e3"]
 shader = ExtResource("1_ub6rh")
@@ -28,12 +29,11 @@ shader_parameter/camera_color = Color(0.6, 0.6, 0.6, 1)
 [node name="StatusOverlay" type="CanvasLayer"]
 
 [node name="OverlayMargin" type="MarginContainer" parent="."]
-anchors_preset = 1
-anchor_left = 1.0
+anchors_preset = 15
 anchor_right = 1.0
-offset_left = -80.0
-offset_bottom = 80.0
-grow_horizontal = 0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_constants/margin_left = 24
 theme_override_constants/margin_top = 24
 theme_override_constants/margin_right = 24
@@ -45,3 +45,24 @@ custom_minimum_size = Vector2(80, 80)
 layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 0
+
+[node name="GemCount" type="PanelContainer" parent="OverlayMargin"]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="OverlayMargin/GemCount"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="OverlayMargin/GemCount/VBoxContainer"]
+layout_mode = 2
+text = "00"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AspectRatioContainer" type="AspectRatioContainer" parent="OverlayMargin/GemCount/VBoxContainer"]
+layout_mode = 2
+
+[node name="GemIcon" type="TextureRect" parent="OverlayMargin/GemCount/VBoxContainer/AspectRatioContainer"]
+layout_mode = 2
+texture = ExtResource("2_qrj4e")

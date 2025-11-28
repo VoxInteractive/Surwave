@@ -62,8 +62,10 @@ var upgrade_tiers: Dictionary[Upgradeable, int] = {
 	Upgradeable.SPEED: 0
 }
 
+const MAXIMUM_GEMS: int = 99
+
 # Holds the gem balance of the player
-var gems: int = 1000 # TODO: Change back to 0
+var gems: int = MAXIMUM_GEMS # TODO: Change back to 0
 
 @onready var world: FlecsWorld = get_node("../../World")
 
@@ -101,6 +103,7 @@ func upgrade(upgradeable: Upgradeable) -> void:
 
 	current_tier += 1
 	upgrade_tiers[upgradeable] = current_tier
+	gems -= TIER_COSTS[current_tier]
 
 	match upgradeable:
 		Upgradeable.PROJECTILE_DAMAGE:

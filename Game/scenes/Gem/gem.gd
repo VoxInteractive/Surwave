@@ -33,5 +33,5 @@ func _on_area_entered(body: Node2D) -> void:
 	if player_root == null: return
 	var upgrade_manager: UpgradeManager = player_root.get_node_or_null("UpgradeManager")
 	if upgrade_manager == null: return
-	upgrade_manager.gems += 1
+	upgrade_manager.gems = min(upgrade_manager.gems + 1, upgrade_manager.MAXIMUM_GEMS)
 	queue_free()
