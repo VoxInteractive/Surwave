@@ -123,6 +123,8 @@ radius = 48.0
 script = ExtResource("1_eml3u")
 end_screen_scene = ExtResource("2_vufsv")
 
+[node name="StatusOverlay" parent="." instance=ExtResource("20_vufsv")]
+
 [node name="World" type="FlecsWorld" parent="."]
 script = ExtResource("2_u0n13")
 
@@ -258,5 +260,3 @@ shape = SubResource("CircleShape2D_gms3k")
 [node name="AltarSE" type="CollisionShape2D" parent="Borders"]
 position = Vector2(-1037, 1037)
 shape = SubResource("CircleShape2D_gms3k")
-
-[node name="StatusOverlay" parent="." instance=ExtResource("20_vufsv")]

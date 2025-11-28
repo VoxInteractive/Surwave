@@ -35,14 +35,16 @@ var half_outer_boundary: float
 var landmark_occupied_areas: Array[Rect2]
 var spawn_iteration_counter: int = 0
 var upgrade_manager: UpgradeManager
-var _is_zooming_out: bool = false
+var _frame_counter: int = 0
 var gem_balance: int = 99 # TODO: Change back to 0
+var _is_zooming_out: bool = false
+var _timer: Timer
 
+@onready var status_overlay: StatusOverlay = $StatusOverlay
+@onready var world: FlecsWorld = $World
 @onready var terrain: MeshInstance2D = $Terrain
 @onready var terrain_object_multimesh_parents: Array[Node2D] = [$Terrain/Foliage]
 @onready var landmarks: Node = $Landmarks
-
-@onready var world: FlecsWorld = $World
 
 func _ready() -> void:
 	add_to_group("stage")
@@ -267,15 +269,19 @@ func get_altar_states() -> Array[int]:
 
 
 func _set_stage_timer(wait_time: float = 360.0) -> void:
-	var timer = Timer.new()
-	timer.wait_time = wait_time
-	timer.autostart = true
-	timer.one_shot = true
-	timer.timeout.connect(_on_timer_timeout)
-	add_child(timer)
+	_timer = Timer.new()
+	_timer.wait_time = wait_time
+	_timer.autostart = true
+	_timer.one_shot = true
+	_timer.timeout.connect(_on_timer_timeout)
+	add_child(_timer)
 
 
 func _process(_delta: float) -> void:
+	_frame_counter += 1
+	if _frame_counter % 5 == 0:
+		status_overlay.set_time_remaining(_timer.time_left)
+	
 	if _is_zooming_out:
 		var camera = get_node("Camera") as Camera2D
 		if camera:

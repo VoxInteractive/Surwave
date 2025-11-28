@@ -2,6 +2,8 @@ class_name UpgradeManager extends Node
 
 signal upgrade_purchased(cost: int)
 
+@onready var world: FlecsWorld = get_node("../../World")
+
 enum Upgradeable {
 	PROJECTILE_DAMAGE,
 	PROJECTILE_COUNT,
@@ -61,9 +63,6 @@ var upgrade_tiers: Dictionary[Upgradeable, int] = {
 	Upgradeable.SHOCKWAVE: 0,
 	Upgradeable.SPEED: 0
 }
-
-
-@onready var world: FlecsWorld = get_node("../../World")
 
 
 func get_upgrade_value(upgradeable: Upgradeable) -> Variant:
