@@ -31,10 +31,10 @@ const UPGRADE_INFO: Dictionary[Upgradeable, Array] = {
 	Upgradeable.SHOCKWAVE: [
 		"Increase the area of effect of your shockwave",
 		[
-			["Base", 0.3],
-			["Shockwave I", 0.564],
-			["Shockwave II", 0.738],
-			["Shockwave III", 0.879],
+			["Base", 0.40],
+			["Shockwave I", 0.55],
+			["Shockwave II", 0.70],
+			["Shockwave III", 0.85],
 			["Shockwave IV", 1.0]
 		]
 	],
