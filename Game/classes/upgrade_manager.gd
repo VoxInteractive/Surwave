@@ -1,5 +1,7 @@
 class_name UpgradeManager extends Node
 
+signal upgrade_purchased(count: int)
+
 enum Upgradeable {
 	PROJECTILE_DAMAGE,
 	PROJECTILE_COUNT,
@@ -102,11 +104,18 @@ func upgrade(upgradeable: Upgradeable) -> void:
 
 	match upgradeable:
 		Upgradeable.PROJECTILE_DAMAGE:
-			_update_enemy_projectile_damage(float(tiers[current_tier][1]))
+			_update_enemy_take_damage_settings(float(tiers[current_tier][1]))
 		_:
 			pass
 
-func _update_enemy_projectile_damage(new_damage: float) -> void:
+	var total_upgrades = 0
+	for tier in upgrade_tiers.values():
+		total_upgrades += tier
+
+	upgrade_purchased.emit(total_upgrades)
+
+
+func _update_enemy_take_damage_settings(new_damage: float) -> void:
 	if world == null:
 		push_warning("UpgradeManager: Cannot set EnemyTakeDamageSettings without a FlecsWorld reference.")
 		return

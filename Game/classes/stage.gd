@@ -21,11 +21,17 @@ class_name Stage extends Node
 @export_category("Scene Tree")
 @export var end_screen_scene: PackedScene
 
+@export_category("Camera zoom out after upgrades")
+@export var num_upgrades_before_camera_zooms_out: int = 2
+@export var camera_zoom_out_speed: float = 1.0
+
 var altar_nodes: Array[Node]
 var portal_nodes: Array[Node]
 var half_outer_boundary: float
 var landmark_occupied_areas: Array[Rect2]
 var spawn_iteration_counter: int = 0
+var upgrade_manager: UpgradeManager
+var _is_zooming_out: bool = false
 
 @onready var terrain: MeshInstance2D = $Terrain
 @onready var terrain_object_multimesh_parents: Array[Node2D] = [$Terrain/Foliage]
@@ -107,6 +113,12 @@ func _instantiate_player() -> void:
 	add_child(player_instance)
 	player_instance.position = Vector2(0, 0)
 	player_instance.connect("died", _on_player_died)
+
+	upgrade_manager = player_instance.get_node_or_null("UpgradeManager")
+	if upgrade_manager:
+		upgrade_manager.upgrade_purchased.connect(_on_upgrade_purchased)
+	else:
+		push_warning("Stage: Could not find UpgradeManager node in player scene.")
 
 
 func _instantiate_camera() -> void:
@@ -257,7 +269,20 @@ func _set_stage_timer(wait_time: float = 360.0) -> void:
 
 
 func _process(_delta: float) -> void:
-	pass
+	if _is_zooming_out:
+		var camera = get_node("Camera") as Camera2D
+		if camera:
+			camera.zoom = camera.zoom.lerp(Vector2.ONE, 1.0 - exp(-camera_zoom_out_speed * _delta))
+			if camera.zoom.is_equal_approx(Vector2.ONE):
+				camera.zoom = Vector2.ONE
+				_is_zooming_out = false
+
+
+func _on_upgrade_purchased(count: int) -> void:
+	if count >= num_upgrades_before_camera_zooms_out:
+		_is_zooming_out = true
+		if upgrade_manager:
+			upgrade_manager.upgrade_purchased.disconnect(_on_upgrade_purchased)
 
 
 func _on_timer_timeout() -> void:
