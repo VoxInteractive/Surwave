@@ -250,9 +250,9 @@ func get_altar_states() -> Array[int]:
 func _set_stage_timer(wait_time: float = 360.0) -> void:
 	var timer = Timer.new()
 	timer.wait_time = wait_time
+	timer.autostart = true
 	timer.one_shot = true
 	timer.timeout.connect(_on_timer_timeout)
-	timer.start()
 	add_child(timer)
 
 
