@@ -24,7 +24,7 @@ func set_upgrade_info(upgradeable: UpgradeManager.Upgradeable, upgrade_data: Dic
 	can_afford_upgrade = bool(upgrade_data.get("can_afford", false))
 	var affordability_suffix: String = "" if can_afford_upgrade else " (Not enough gems)"
 	name_label.text = tier_name
-	description_label.text = "%s\nCost: %d Gems%s" % [description, cost, affordability_suffix]
+	description_label.text = "%s\n\nCost: %d Gems%s" % [description, cost, affordability_suffix]
 	select_button.disabled = not can_afford_upgrade
 	modulate = AFFORDABLE_COLOR if can_afford_upgrade else UNAFFORDABLE_COLOR
 
