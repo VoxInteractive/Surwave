@@ -59,8 +59,8 @@ func _process(delta: float) -> void:
 		vfx.visible = true
 
 	shader_material.set_shader_parameter("radius", shader_radius)
-	shader_material.set_shader_parameter("inner_ring", lerpf(inner_ring_range.x, inner_ring_range.y, progress))
-	shader_material.set_shader_parameter("outer_ring", lerpf(outer_ring_range.x, outer_ring_range.y, progress))
+	shader_material.set_shader_parameter("inner_ring", lerpf(inner_ring_range.x, inner_ring_range.y * upgrade_radius_multiplier, progress))
+	shader_material.set_shader_parameter("outer_ring", lerpf(outer_ring_range.x, outer_ring_range.y * upgrade_radius_multiplier, progress))
 
 	world.set_singleton_component(singleton_component_name, {
 		"radius": effective_radius * hit_radius_adjustment

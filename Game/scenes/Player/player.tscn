@@ -7,19 +7,20 @@
 [ext_resource type="Script" uid="uid://dmf3livfpo8fu" path="res://classes/projectile_manager.gd" id="4_uiqp4"]
 [ext_resource type="Script" uid="uid://coxlji6xeb5sy" path="res://classes/shockwave_manager.gd" id="5_hvfru"]
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_cyojo"]
-radius = 6.0
-
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_c4h5g"]
 shader = ExtResource("3_gqjuk")
 shader_parameter/radius = 0.0
 shader_parameter/inner_ring = 0.5
 shader_parameter/outer_ring = 0.05
+shader_parameter/shockwave_colour = Color(0.8, 1, 1, 0.49803922)
 
 [sub_resource type="QuadMesh" id="QuadMesh_gqjuk"]
 size = Vector2(300, 300)
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_c4h5g"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_cyojo"]
+radius = 6.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_a06cl"]
 bg_color = Color(0.23137255, 0.023529412, 0.22745098, 1)
@@ -46,12 +47,20 @@ script = ExtResource("4_uiqp4")
 script = ExtResource("5_hvfru")
 
 [node name="Timer" type="Timer" parent="ShockwaveManager"]
-wait_time = 1.2
+wait_time = 4.2
 autostart = true
 
 [node name="CharacterBody2D" type="CharacterBody2D" parent="." groups=["Players"]]
 collision_layer = 4
 collision_mask = 27
+
+[node name="ActionVFX" type="Node2D" parent="CharacterBody2D"]
+
+[node name="ShockwaveVFX" type="MeshInstance2D" parent="CharacterBody2D/ActionVFX"]
+unique_name_in_owner = true
+material = SubResource("ShaderMaterial_c4h5g")
+mesh = SubResource("QuadMesh_gqjuk")
+texture = SubResource("PlaceholderTexture2D_c4h5g")
 
 [node name="Sprite2D" type="Sprite2D" parent="CharacterBody2D"]
 position = Vector2(0, 14)
@@ -62,14 +71,6 @@ vframes = 7
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D"]
 shape = SubResource("CircleShape2D_cyojo")
-
-[node name="ActionVFX" type="Node2D" parent="CharacterBody2D"]
-
-[node name="ShockwaveVFX" type="MeshInstance2D" parent="CharacterBody2D/ActionVFX"]
-unique_name_in_owner = true
-material = SubResource("ShaderMaterial_c4h5g")
-mesh = SubResource("QuadMesh_gqjuk")
-texture = SubResource("PlaceholderTexture2D_c4h5g")
 
 [node name="HealthBar" type="ProgressBar" parent="CharacterBody2D"]
 modulate = Color(1, 1, 1, 0.24705882)
