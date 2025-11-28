@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://gir2auuuqpg7" path="res://scenes/Gem/gem.png" id="2_twb02"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_1o8y3"]
-radius = 4.0
+radius = 24.0
 
 [node name="Gem" type="Node2D" node_paths=PackedStringArray("timer")]
 script = ExtResource("1_twb02")
