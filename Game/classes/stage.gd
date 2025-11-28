@@ -36,7 +36,7 @@ var landmark_occupied_areas: Array[Rect2]
 var spawn_iteration_counter: int = 0
 var upgrade_manager: UpgradeManager
 var _is_zooming_out: bool = false
-var gem_balance: int = 0
+var gem_balance: int = 99 # TODO: Change back to 0
 
 @onready var terrain: MeshInstance2D = $Terrain
 @onready var terrain_object_multimesh_parents: Array[Node2D] = [$Terrain/Foliage]

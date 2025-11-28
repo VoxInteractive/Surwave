@@ -63,7 +63,6 @@ var upgrade_tiers: Dictionary[Upgradeable, int] = {
 }
 
 
-
 @onready var world: FlecsWorld = get_node("../../World")
 
 
@@ -74,7 +73,7 @@ func get_upgrade_value(upgradeable: Upgradeable) -> Variant:
 func get_available_upgrades() -> Dictionary[Upgradeable, Dictionary]:
 	var available_upgrades: Dictionary[Upgradeable, Dictionary] = {}
 	var stage = get_tree().get_first_node_in_group("stage")
-	var current_gems = stage.gem_balance if stage and stage.has_meta("gem_balance") else 0
+	var current_gems = stage.gem_balance
 
 	for upgradeable in upgrade_tiers.keys():
 		var tiers: Array = UPGRADE_INFO[upgradeable][1]
