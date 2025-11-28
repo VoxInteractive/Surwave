@@ -18,7 +18,7 @@ var minimap_ready: bool = false
 var cached_altar_points: PackedVector2Array = PackedVector2Array()
 var cached_altar_states: PackedFloat32Array = PackedFloat32Array()
 
-@onready var minimap_rect: ColorRect = $"../../StatusOverlay/MinimapMargin/Minimap"
+@onready var minimap_rect: ColorRect = $"../../StatusOverlay/OverlayMargin/Minimap"
 
 
 # Called when the node enters the scene tree for the first time.

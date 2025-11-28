@@ -27,7 +27,7 @@ shader_parameter/camera_color = Color(0.6, 0.6, 0.6, 1)
 
 [node name="StatusOverlay" type="CanvasLayer"]
 
-[node name="MinimapMargin" type="MarginContainer" parent="."]
+[node name="OverlayMargin" type="MarginContainer" parent="."]
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
@@ -39,7 +39,7 @@ theme_override_constants/margin_top = 24
 theme_override_constants/margin_right = 24
 theme_override_constants/margin_bottom = 24
 
-[node name="Minimap" type="ColorRect" parent="MinimapMargin"]
+[node name="Minimap" type="ColorRect" parent="OverlayMargin"]
 material = SubResource("ShaderMaterial_fc0e3")
 custom_minimum_size = Vector2(80, 80)
 layout_mode = 2

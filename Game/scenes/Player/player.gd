@@ -1,6 +1,6 @@
 class_name Player extends AnimatedObject
 
-const MAX_HEALTH: float = 1000.0 # TODO: Change back to 10.0
+const MAX_HEALTH: float = 10.0
 var health: float = MAX_HEALTH
 var health_bar_original_modulation: Color
 
@@ -14,6 +14,8 @@ var adjusted_movement_speed: float
 @export_category("Combat")
 @export_range(0.0, 45.0, 0.5)
 var projectile_spread_degrees: float = 6.0
+
+@export var end_screen_scene: PackedScene
 
 var input_movement_vector: Vector2
 var is_colliding: bool = false
@@ -83,6 +85,7 @@ func _get_animation_frames(p_state: PlayerState) -> Array:
 func _get_animation_mode(p_state: PlayerState):
 	return PlayerAnimationModes[p_state]
 
+signal died
 
 @onready var world: FlecsWorld = get_node("../World")
 @onready var upgrade_manager: UpgradeManager = $UpgradeManager
@@ -248,7 +251,7 @@ func _handle_death() -> void:
 	var dying_duration: float = float(dying_animation_frames) * animation_interval
 
 	await get_tree().create_timer(dying_duration).timeout
-	# TODO: Show the defeat screen
+	emit_signal("died")
 
 
 func _on_damage_cooldown_timeout() -> void:

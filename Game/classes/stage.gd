@@ -18,6 +18,9 @@ class_name Stage extends Node
 ## Controls the radial distribution of spawns. > 1.0 pushes spawns outward, < 1.0 pulls them inward.
 @export var spawn_radial_exponent: float = 1.2
 
+@export_category("Scene Tree")
+@export var end_screen_scene: PackedScene
+
 var altar_nodes: Array[Node]
 var portal_nodes: Array[Node]
 var half_outer_boundary: float
@@ -42,6 +45,7 @@ func _ready() -> void:
 	_instantiate_camera()
 	_set_camera_limits()
 	_spawn_initial_enemy_population()
+	_set_stage_timer()
 
 
 func _validate_terrain() -> void:
@@ -102,6 +106,7 @@ func _instantiate_player() -> void:
 	var player_instance: Node2D = player_scene.instantiate() as Node2D
 	add_child(player_instance)
 	player_instance.position = Vector2(0, 0)
+	player_instance.connect("died", _on_player_died)
 
 
 func _instantiate_camera() -> void:
@@ -242,5 +247,25 @@ func get_altar_states() -> Array[int]:
 	return states
 
 
+func _set_stage_timer(wait_time: float = 360.0) -> void:
+	var timer = Timer.new()
+	timer.wait_time = wait_time
+	timer.one_shot = true
+	timer.timeout.connect(_on_timer_timeout)
+	timer.start()
+	add_child(timer)
+
+
 func _process(_delta: float) -> void:
 	pass
+
+
+func _on_timer_timeout() -> void:
+	var end_screen_instance = end_screen_scene.instantiate()
+	add_child(end_screen_instance)
+
+
+func _on_player_died() -> void:
+	var end_screen_instance = end_screen_scene.instantiate()
+	add_child(end_screen_instance)
+	end_screen_instance.set_defeat()

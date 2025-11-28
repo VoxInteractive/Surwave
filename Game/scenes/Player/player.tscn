@@ -1,7 +1,8 @@
-[gd_scene load_steps=13 format=3 uid="uid://b6bjohq7ewbe0"]
+[gd_scene load_steps=14 format=3 uid="uid://b6bjohq7ewbe0"]
 
 [ext_resource type="Script" uid="uid://bqur363lsbm3k" path="res://scenes/Player/player.gd" id="1_1kbk7"]
 [ext_resource type="Texture2D" uid="uid://5cwvcedtanps" path="res://scenes/Player/sprites.png" id="1_cyojo"]
+[ext_resource type="PackedScene" uid="uid://c3ddp3cyxtm0q" path="res://scenes/ui/end_screen.tscn" id="2_a06cl"]
 [ext_resource type="Script" uid="uid://cstjmlchpx8l6" path="res://classes/upgrade_manager.gd" id="2_hvfru"]
 [ext_resource type="Shader" uid="uid://dnrcjfhn7xfqk" path="res://shaders/shockwave.gdshader" id="3_gqjuk"]
 [ext_resource type="Script" uid="uid://dmf3livfpo8fu" path="res://classes/projectile_manager.gd" id="4_uiqp4"]
@@ -35,6 +36,7 @@ border_color = Color(0.23137255, 0.023529412, 0.22745098, 1)
 
 [node name="Player" type="Node2D" node_paths=PackedStringArray("sprite")]
 script = ExtResource("1_1kbk7")
+end_screen_scene = ExtResource("2_a06cl")
 sprite = NodePath("CharacterBody2D/Sprite2D")
 
 [node name="UpgradeManager" type="Node" parent="."]

@@ -1,8 +1,9 @@
-[gd_scene load_steps=43 format=3 uid="uid://1f0s78v8ooax"]
+[gd_scene load_steps=44 format=3 uid="uid://1f0s78v8ooax"]
 
 [ext_resource type="Script" uid="uid://b0ekcl6i0i8y0" path="res://scenes/Stage 01/stage_01.gd" id="1_eml3u"]
 [ext_resource type="Texture2D" uid="uid://u0ein3bhqfwq" path="res://scenes/Stage 01/foliage/grass1.png" id="2_3tqr6"]
 [ext_resource type="Script" uid="uid://b33fufhty65cb" path="res://scenes/Stage 01/world.gd" id="2_u0n13"]
+[ext_resource type="PackedScene" uid="uid://c3ddp3cyxtm0q" path="res://scenes/ui/end_screen.tscn" id="2_vufsv"]
 [ext_resource type="PackedScene" uid="uid://bq3luf1jvhoyx" path="res://scenes/Altar/altar.tscn" id="3_2lrbc"]
 [ext_resource type="Shader" uid="uid://c6w6e2p6d7103" path="res://shaders/flipbook_animation.gdshader" id="3_c1wav"]
 [ext_resource type="Script" uid="uid://wwu5hgfrs7ax" path="res://classes/minimap_manager.gd" id="3_jfh1v"]
@@ -120,6 +121,7 @@ radius = 48.0
 
 [node name="Stage01" type="Node"]
 script = ExtResource("1_eml3u")
+end_screen_scene = ExtResource("2_vufsv")
 
 [node name="World" type="FlecsWorld" parent="."]
 script = ExtResource("2_u0n13")
