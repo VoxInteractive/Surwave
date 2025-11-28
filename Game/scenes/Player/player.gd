@@ -1,8 +1,10 @@
 class_name Player extends AnimatedObject
 
-const MAX_HEALTH: float = 1000.0 # TODO: Change back to 10.0
+const MAX_HEALTH: float = 10.0 # TODO: Change back to 10.0
 var health: float = MAX_HEALTH
 var health_bar_original_modulation: Color
+var health_bar_full_colour: Color = Color.LIME_GREEN
+var health_bar_empty_colour: Color = Color(0.8392157, 0.101960786, 0.53333336, 1)
 
 var movement_speed: float
 var adjusted_movement_speed: float
@@ -223,9 +225,17 @@ func _get_projectile_count() -> int:
 	return 1
 
 
+func _on_damage_cooldown_timeout() -> void:
+	health_bar.modulate = health_bar_original_modulation
+
+
+func _on_health_bar_value_changed(value: float) -> void:
+	var fill_style: StyleBoxFlat = health_bar.get_theme_stylebox("fill")
+	fill_style.bg_color = health_bar_empty_colour.lerp(health_bar_full_colour, health_bar.value / health_bar.max_value)
+
+
 func _on_flecs_signal(signal_name: StringName, data: Dictionary) -> void:
-	if is_dead:
-		return
+	if is_dead: return
 	if signal_name == "player_took_damage":
 		if (damage_cooldown_timer.time_left > 0): return
 		
@@ -253,7 +263,3 @@ func _handle_death() -> void:
 
 	await get_tree().create_timer(dying_duration).timeout
 	emit_signal("died")
-
-
-func _on_damage_cooldown_timeout() -> void:
-	health_bar.modulate = health_bar_original_modulation

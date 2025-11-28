@@ -27,7 +27,6 @@ radius = 6.0
 bg_color = Color(0.23137255, 0.023529412, 0.22745098, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hvfru"]
-bg_color = Color(0.8392157, 0.101960786, 0.53333336, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
@@ -95,4 +94,5 @@ autostart = true
 ignore_time_scale = true
 
 [connection signal="timeout" from="ShockwaveManager/Timer" to="ShockwaveManager" method="_fire"]
+[connection signal="value_changed" from="CharacterBody2D/HealthBar" to="." method="_on_health_bar_value_changed"]
 [connection signal="timeout" from="DamageCooldownTimer" to="." method="_on_damage_cooldown_timeout"]
