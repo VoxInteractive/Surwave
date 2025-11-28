@@ -4,11 +4,12 @@ class_name ShockwaveManager extends Node
 @export var radiation_speed: float = 1.0
 @export var inner_ring_range: Vector2 = Vector2(0.5, -0.2)
 @export var outer_ring_range: Vector2 = Vector2(0.05, 0.4)
+@export var hit_radius_adjustment: float = 0.8
 
 var is_firing: bool = false
 var max_radius: float = 0.5
 var active_radius: float = 0.0
-var mesh_radius: float = 0.0
+var mesh_size: float = 0.0
 
 @onready var world: FlecsWorld = get_node("../../World")
 @onready var player: Player = $".."
@@ -40,7 +41,7 @@ func _ready() -> void:
 		set_process(false)
 		return
 
-	mesh_radius = quad_mesh.size.x * 0.5
+	mesh_size = quad_mesh.size.x * 0.5
 
 func _process(delta: float) -> void:
 	if not is_firing:
@@ -48,26 +49,21 @@ func _process(delta: float) -> void:
 
 	active_radius += radiation_speed * delta
 	var clamped_radius: float = clampf(active_radius, 0.0, max_radius)
-	var progress: float = 0.0
-	if max_radius > 0.0:
-		progress = clamped_radius / max_radius
-	var game_radius: float = progress * mesh_radius
-	var radius_multiplier: float = upgrade_manager.get_upgrade_value(UpgradeManager.Upgradeable.SHOCKWAVE)
-	var effective_radius: float = game_radius * radius_multiplier
-	var effective_progress: float = 0.0
-	if mesh_radius > 0.0:
-		effective_progress = clampf(effective_radius / mesh_radius, 0.0, 1.0)
+	var progress: float = clamped_radius / max_radius # 0.0 to 1.0
+	var upgrade_radius_multiplier: float = upgrade_manager.get_upgrade_value(UpgradeManager.Upgradeable.SHOCKWAVE)
+	var effective_progress: float = clampf(progress * upgrade_radius_multiplier, 0.0, 1.0)
+	var effective_radius: float = effective_progress * mesh_size
 	var shader_radius: float = effective_progress * max_radius
 
 	if not vfx.visible:
 		vfx.visible = true
 
 	shader_material.set_shader_parameter("radius", shader_radius)
-	shader_material.set_shader_parameter("inner_ring", lerpf(inner_ring_range.x, inner_ring_range.y, effective_progress))
-	shader_material.set_shader_parameter("outer_ring", lerpf(outer_ring_range.x, outer_ring_range.y, effective_progress))
+	shader_material.set_shader_parameter("inner_ring", lerpf(inner_ring_range.x, inner_ring_range.y, progress))
+	shader_material.set_shader_parameter("outer_ring", lerpf(outer_ring_range.x, outer_ring_range.y, progress))
 
 	world.set_singleton_component(singleton_component_name, {
-		"radius": effective_radius
+		"radius": effective_radius * hit_radius_adjustment
 	})
 
 	if active_radius >= max_radius:
