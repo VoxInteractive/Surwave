@@ -27,6 +27,10 @@ window/stretch/mode="viewport"
 Players="root nodes of Player scenes belong to this group"
 Projectiles="root nodes of Projectile scenes belong to this group"
 
+[gui]
+
+theme/custom="uid://dqjww1l3b8tt4"
+
 [input]
 
 move_up={
