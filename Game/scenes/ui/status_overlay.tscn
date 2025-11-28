@@ -59,6 +59,8 @@ layout_mode = 2
 
 [node name="GemCount" type="Label" parent="OverlayMargin/GemCount/VBoxContainer"]
 layout_mode = 2
+theme_override_colors/font_outline_color = Color(0.23137255, 0.023529412, 0.22745098, 1)
+theme_override_constants/outline_size = 6
 text = "0"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -76,4 +78,6 @@ size_flags_vertical = 0
 [node name="TimeRemaining" type="Label" parent="OverlayMargin/StageCountdown"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_outline_color = Color(0.23137255, 0.023529412, 0.22745098, 1)
+theme_override_constants/outline_size = 6
 text = "0:00"
