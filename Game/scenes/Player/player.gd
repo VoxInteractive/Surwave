@@ -86,6 +86,7 @@ func _get_animation_mode(p_state: PlayerState):
 	return PlayerAnimationModes[p_state]
 
 signal died
+signal gem_collected(value: int)
 
 @onready var world: FlecsWorld = get_node("../World")
 @onready var upgrade_manager: UpgradeManager = $UpgradeManager

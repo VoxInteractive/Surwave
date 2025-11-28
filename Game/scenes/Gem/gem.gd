@@ -1,4 +1,4 @@
-extends Node2D
+class_name Gem extends Node2D
 
 @export var timer: Timer
 @export var blink_duration: float = 5.0
@@ -31,7 +31,5 @@ func _on_area_entered(body: Node2D) -> void:
 	if not body.is_in_group("Players"): return
 	var player_root: Node = body.get_parent()
 	if player_root == null: return
-	var upgrade_manager: UpgradeManager = player_root.get_node_or_null("UpgradeManager")
-	if upgrade_manager == null: return
-	upgrade_manager.gems = min(upgrade_manager.gems + 1, upgrade_manager.MAXIMUM_GEMS)
+	player_root.gem_collected.emit(1)
 	queue_free()
