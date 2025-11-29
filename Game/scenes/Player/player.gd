@@ -17,7 +17,7 @@ var adjusted_movement_speed: float
 
 @export_category("Combat")
 @export_range(0.0, 45.0, 0.5)
-var projectile_spread_degrees: float = 6.0
+var projectile_spread_degrees: float = 7.5
 
 @export var end_screen_scene: PackedScene
 
