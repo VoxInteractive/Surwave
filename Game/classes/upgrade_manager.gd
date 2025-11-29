@@ -39,7 +39,7 @@ const UPGRADE_INFO: Dictionary[Upgradeable, Array] = {
 	Upgradeable.SPEED: [
 		"Increase your movement speed",
 		[
-			["Base", 280], # TODO: Set back to 80
+			["Base", 80],
 			["Speed I", 120],
 			["Speed II", 160],
 		]

@@ -2,7 +2,7 @@ class_name Player extends AnimatedObject
 
 signal player_took_damage
 
-const MAX_HEALTH: float = 1000.0 # TODO: Change back to 10.0
+const MAX_HEALTH: float = 10.0
 var health: float = MAX_HEALTH
 var health_bar_original_modulation: Color
 var health_bar_full_colour: Color = Color.LIME_GREEN
