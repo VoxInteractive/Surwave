@@ -205,10 +205,7 @@ inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
             const godot::Vector2 current_velocity = *boids[entity_index].velocity;
             const godot::real_t max_speed = boids[entity_index].max_speed;
 
-            godot::Vector2 alignment_sum = godot::Vector2(0.0f, 0.0f);
-            godot::Vector2 cohesion_sum = godot::Vector2(0.0f, 0.0f);
             godot::Vector2 separation_sum = godot::Vector2(0.0f, 0.0f);
-            std::int32_t neighbor_count = 0;
             std::int32_t separation_count = 0;
 
             struct NeighborAccumulator {
@@ -216,10 +213,7 @@ inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
                 const godot::Vector2& origin;
                 std::size_t self_index;
                 godot::real_t separation_radius_squared;
-                godot::Vector2& alignment_sum_ref;
-                godot::Vector2& cohesion_sum_ref;
                 godot::Vector2& separation_sum_ref;
-                std::int32_t& neighbor_count_ref;
                 std::int32_t& separation_count_ref;
 
                 void operator()(std::int32_t other_index, const godot::Vector2& other_position, godot::real_t distance_squared) const {
@@ -227,10 +221,6 @@ inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
                     if (other_offset == self_index || distance_squared == 0.0f) {
                         return;
                     }
-
-                    neighbor_count_ref += 1;
-                    alignment_sum_ref += *(*boid_array)[other_offset].velocity;
-                    cohesion_sum_ref += other_position;
 
                     if (distance_squared < separation_radius_squared) {
                         const godot::Vector2 offset = other_position - origin;
@@ -245,25 +235,11 @@ inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
                 position_value,
                 entity_index,
                 separation_radius_sq,
-                alignment_sum,
-                cohesion_sum,
                 separation_sum,
-                neighbor_count,
                 separation_count
             };
 
-            kd_cache.tree.radius_query(position_value, neighbor_radius_sq, accumulator, neighbor_sample_limit);
-
-            godot::Vector2 alignment_force = godot::Vector2(0.0f, 0.0f);
-            godot::Vector2 cohesion_force = godot::Vector2(0.0f, 0.0f);
-            if (neighbor_count > 0) {
-                const godot::Vector2 average_velocity = alignment_sum / static_cast<godot::real_t>(neighbor_count);
-                alignment_force = enemy_movement::steer_towards(average_velocity, current_velocity, max_speed);
-
-                const godot::Vector2 average_position = cohesion_sum / static_cast<godot::real_t>(neighbor_count);
-                const godot::Vector2 direction_to_center = average_position - position_value;
-                cohesion_force = enemy_movement::steer_towards(direction_to_center, current_velocity, max_speed);
-            }
+            kd_cache.tree.radius_query(position_value, separation_radius_sq, accumulator, neighbor_sample_limit);
 
             godot::Vector2 separation_force = godot::Vector2(0.0f, 0.0f);
             if (separation_count > 0) {
@@ -289,8 +265,7 @@ inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
                 player_force *= slowdown_factor;
             }
 
-            godot::Vector2 acceleration = alignment_force * force_weights->alignment_weight;
-            acceleration += cohesion_force * force_weights->cohesion_weight;
+            godot::Vector2 acceleration = godot::Vector2(0.0f, 0.0f);
             acceleration += separation_force * force_weights->separation_weight;
             acceleration += player_force * movement_settings->player_attraction_weight;
 
