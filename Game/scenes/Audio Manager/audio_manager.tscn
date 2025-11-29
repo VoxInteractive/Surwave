@@ -1,12 +1,13 @@
 [gd_scene load_steps=26 format=3 uid="uid://c0h5bevr7m6at"]
 
 [ext_resource type="Script" uid="uid://du3idm3ms8uls" path="res://scenes/Audio Manager/audio_manager.gd" id="1_th668"]
-[ext_resource type="AudioStream" uid="uid://cu2hcs73oivmy" path="res://audio/sfx/BugSmallDie.wav" id="2_di7gk"]
-[ext_resource type="AudioStream" uid="uid://6a1lk7qduij0" path="res://audio/sfx/BugHumanoidDie.wav" id="3_u1kl0"]
-[ext_resource type="AudioStream" uid="uid://ct0ws3v2b8gc6" path="res://audio/sfx/BugLargeDie.wav" id="4_53vou"]
-[ext_resource type="AudioStream" uid="uid://s0ipw21vbwyt" path="res://audio/sfx/EnemyHurt_A.wav" id="5_53vou"]
-[ext_resource type="AudioStream" uid="uid://ynrbvbpcslyv" path="res://audio/sfx/EnemyHurt_B.wav" id="6_t2fqo"]
+[ext_resource type="AudioStream" uid="uid://dhjyu0fcago5e" path="res://audio/sfx/BugHumanoidDie.ogg" id="2_sxpqy"]
+[ext_resource type="AudioStream" uid="uid://t3si4cfnx830" path="res://audio/sfx/BugHumanoidHurt.ogg" id="3_u4mrk"]
+[ext_resource type="AudioStream" uid="uid://d3pmagc8lr44u" path="res://audio/sfx/BugLargeDie.ogg" id="4_i37gu"]
+[ext_resource type="AudioStream" uid="uid://bkpql1ewrhjwg" path="res://audio/sfx/BugLargeHurt.ogg" id="5_gufja"]
+[ext_resource type="AudioStream" uid="uid://crqcjobwpafl6" path="res://audio/sfx/BugSmallDie.ogg" id="6_o7vmc"]
 [ext_resource type="AudioStream" uid="uid://c26rgo7njbarq" path="res://audio/music/Defeat.wav" id="7_5a0sd"]
+[ext_resource type="AudioStream" uid="uid://c6022the5qrem" path="res://audio/sfx/BugSmallHurt.ogg" id="7_bsslw"]
 [ext_resource type="AudioStream" uid="uid://dnuc1kab57s8k" path="res://audio/sfx/GemCollect.wav" id="7_ne6yq"]
 [ext_resource type="AudioStream" uid="uid://db8mv32c6i2ql" path="res://audio/music/Victory.wav" id="8_2m2tg"]
 [ext_resource type="AudioStream" uid="uid://sgfnmam2ak1n" path="res://audio/sfx/GemDrop.wav" id="8_sxpqy"]
@@ -22,11 +23,6 @@
 [ext_resource type="AudioStream" uid="uid://dq3iasmxnqbvu" path="res://audio/sfx/Projectile_D.wav" id="17_lljys"]
 [ext_resource type="AudioStream" uid="uid://x68fpgd1y884" path="res://audio/sfx/Shockwave.wav" id="18_vokip"]
 [ext_resource type="AudioStream" uid="uid://bj5dcbmn15xq4" path="res://audio/sfx/UpgradeAcquired.wav" id="19_uu38c"]
-
-[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_ocl70"]
-streams_count = 2
-stream_0/stream = ExtResource("5_53vou")
-stream_1/stream = ExtResource("6_t2fqo")
 
 [sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_1n5lx"]
 streams_count = 5
@@ -48,20 +44,31 @@ script = ExtResource("1_th668")
 
 [node name="SFXPlayers" type="Node" parent="."]
 
-[node name="BugSmallDie" type="AudioStreamPlayer" parent="SFXPlayers"]
-stream = ExtResource("2_di7gk")
+[node name="BugHumanoidDie" type="AudioStreamPlayer" parent="SFXPlayers"]
+stream = ExtResource("2_sxpqy")
 max_polyphony = 8
 
-[node name="BugHumanoidDie" type="AudioStreamPlayer" parent="SFXPlayers"]
-stream = ExtResource("3_u1kl0")
-max_polyphony = 8
+[node name="BugHumanoidHurt" type="AudioStreamPlayer" parent="SFXPlayers"]
+stream = ExtResource("3_u4mrk")
+volume_db = -9.0
+max_polyphony = 32
 
 [node name="BugLargeDie" type="AudioStreamPlayer" parent="SFXPlayers"]
-stream = ExtResource("4_53vou")
+stream = ExtResource("4_i37gu")
 max_polyphony = 8
 
-[node name="EnemyHurt" type="AudioStreamPlayer" parent="SFXPlayers"]
-stream = SubResource("AudioStreamRandomizer_ocl70")
+[node name="BugLargeHurt" type="AudioStreamPlayer" parent="SFXPlayers"]
+stream = ExtResource("5_gufja")
+volume_db = -9.0
+max_polyphony = 32
+
+[node name="BugSmallDie" type="AudioStreamPlayer" parent="SFXPlayers"]
+stream = ExtResource("6_o7vmc")
+max_polyphony = 8
+
+[node name="BugSmallHurt" type="AudioStreamPlayer" parent="SFXPlayers"]
+stream = ExtResource("7_bsslw")
+volume_db = -9.0
 max_polyphony = 32
 
 [node name="GemCollect" type="AudioStreamPlayer" parent="SFXPlayers"]
@@ -77,6 +84,7 @@ stream = SubResource("AudioStreamRandomizer_1n5lx")
 
 [node name="Projectile" type="AudioStreamPlayer" parent="SFXPlayers"]
 stream = SubResource("AudioStreamRandomizer_jhqse")
+volume_db = -4.0
 max_polyphony = 16
 
 [node name="Shockwave" type="AudioStreamPlayer" parent="SFXPlayers"]

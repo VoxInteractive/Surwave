@@ -3,10 +3,12 @@ extends Node
 var world: FlecsWorld
 
 # SFX
-@onready var bug_small_die: AudioStreamPlayer = $SFXPlayers/BugSmallDie
 @onready var bug_humanoid_die: AudioStreamPlayer = $SFXPlayers/BugHumanoidDie
+@onready var bug_humanoid_hurt: AudioStreamPlayer = $SFXPlayers/BugHumanoidHurt
 @onready var bug_large_die: AudioStreamPlayer = $SFXPlayers/BugLargeDie
-@onready var enemy_hurt: AudioStreamPlayer = $SFXPlayers/EnemyHurt
+@onready var bug_large_hurt: AudioStreamPlayer = $SFXPlayers/BugLargeHurt
+@onready var bug_small_die: AudioStreamPlayer = $SFXPlayers/BugSmallDie
+@onready var bug_small_hurt: AudioStreamPlayer = $SFXPlayers/BugSmallHurt
 @onready var gem_collect: AudioStreamPlayer = $SFXPlayers/GemCollect
 @onready var gem_drop: AudioStreamPlayer = $SFXPlayers/GemDrop
 @onready var player_hurt: AudioStreamPlayer = $SFXPlayers/PlayerHurt
@@ -34,7 +36,10 @@ func _on_flecs_signal(signal_name: StringName, data: Dictionary) -> void:
 				"BugHumanoid": await _delay(); bug_humanoid_die.play()
 				"BugLarge": await _delay(); bug_large_die.play()
 		"enemy_took_damage":
-			enemy_hurt.play()
+			match data.enemy_type:
+				"BugSmall": bug_small_hurt.play()
+				"BugHumanoid": bug_humanoid_hurt.play()
+				"BugLarge": bug_large_hurt.play()
 
 
 func _delay(delay: float = 0.5):
