@@ -104,6 +104,7 @@ func upgrade(upgradeable: Upgradeable) -> void:
 
 	upgrade_tiers[upgradeable] = next_tier_index
 	upgrade_purchased.emit(cost)
+	AudioManager.upgrade_acquired.play()
 
 	match upgradeable:
 		Upgradeable.PROJECTILE_DAMAGE:

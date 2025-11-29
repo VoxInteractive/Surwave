@@ -145,6 +145,7 @@ func _fire_projectile() -> void:
 
 	can_shoot_weapon = false
 	shoot_weapon_timer = 0.0
+	AudioManager.projectile.play()
 
 
 func _tick_cooldowns(delta: float) -> void:
@@ -242,6 +243,7 @@ func _on_flecs_signal(signal_name: StringName, data: Dictionary) -> void:
 		if (damage_cooldown_timer.time_left > 0): return
 		
 		player_took_damage.emit()
+		AudioManager.player_hurt.play()
 		
 		health -= data.damage_amount
 		health_bar.value = max(health / MAX_HEALTH, 0)

@@ -1,6 +1,7 @@
 class_name Stage extends Node
 
 signal gem_balance_changed(new_balance: int)
+signal player_instantiated(player: Player)
 
 @export_category("Procedural Object Placement")
 ## The terrain margin in terms of tile count of the Borders tile map layer.
@@ -48,6 +49,9 @@ var _timer: Timer
 
 func _ready() -> void:
 	add_to_group("stage")
+	
+	_connect_audio_manager_to_world()
+	
 	_validate_terrain()
 	half_outer_boundary = terrain.mesh.size.x / 2.0
 
@@ -117,7 +121,7 @@ func _initialise_portals() -> void:
 
 func _instantiate_player() -> void:
 	var player_scene: PackedScene = preload("res://scenes/Player/player.tscn")
-	var player_instance: Node2D = player_scene.instantiate() as Node2D
+	var player_instance: Player = player_scene.instantiate() as Player
 	add_child(player_instance)
 	player_instance.position = Vector2(0, 0)
 	player_instance.connect("died", _on_player_died)
@@ -128,6 +132,8 @@ func _instantiate_player() -> void:
 		upgrade_manager.upgrade_purchased.connect(_on_upgrade_purchased)
 	else:
 		push_warning("Stage: Could not find UpgradeManager node in player scene.")
+	
+	player_instantiated.emit(player_instance)
 
 
 func _instantiate_camera() -> void:
@@ -143,6 +149,11 @@ func _set_camera_limits() -> void:
 		camera.set_limits(terrain.mesh.size)
 	else:
 		push_warning("Stage: Camera node not found, couldn't set limits.")
+
+
+func _connect_audio_manager_to_world() -> void:
+	AudioManager.world = world
+	AudioManager.connect_to_flecs_signal()
 
 
 func _spawn_initial_enemy_population() -> void:
@@ -307,8 +318,6 @@ func _on_upgrade_purchased(cost: int) -> void:
 
 	if total_upgrades >= num_upgrades_before_camera_zooms_out:
 		_is_zooming_out = true
-		if upgrade_manager:
-			upgrade_manager.upgrade_purchased.disconnect(_on_upgrade_purchased)
 
 
 func _on_timer_timeout() -> void:

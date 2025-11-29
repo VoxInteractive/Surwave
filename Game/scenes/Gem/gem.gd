@@ -9,6 +9,8 @@ var blink_timer: float = 0.0
 
 @onready var sprite: Sprite2D = $Sprite2D
 
+func _ready() -> void:
+	AudioManager.gem_drop.play()
 
 func _process(delta: float) -> void:
 	if not is_about_to_expire: return
@@ -33,9 +35,10 @@ func _on_area_entered(body: Node2D) -> void:
 	var tween := create_tween()
 	tween.set_parallel() # Two tweens in parallel
 	tween.tween_method(gather_animation.bind(global_position), 0.0, 1.0, 1.0).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_QUINT)
-	tween.tween_property(sprite, "scale", Vector2.ZERO, 0.5).set_delay(0.5) # 0.5 + 0.5 add up to the duration of the other tween
+	tween.tween_property(sprite, "scale", Vector2(0.3, 0.3), 0.5).set_delay(0.5) # 0.5 + 0.5 add up to the duration of the other tween
 	tween.chain() # But wait for both to complete before calling the callback
 	tween.tween_callback(func():
+		AudioManager.gem_collect.play()
 		player_root.gem_collected.emit(1)
 		queue_free()
 	)

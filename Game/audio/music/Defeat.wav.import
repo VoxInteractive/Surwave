@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://c26rgo7njbarq"
-path="res://.godot/imported/Defeat.wav-d977c6c25af40c3eb0fd9579fcc725c3.sample"
+path="res://.godot/imported/Defeat.wav-9c2a58929e5b0f295e07965d8dabf706.sample"
 
 [deps]
 
-source_file="res://audio/sfx/Defeat.wav"
-dest_files=["res://.godot/imported/Defeat.wav-d977c6c25af40c3eb0fd9579fcc725c3.sample"]
+source_file="res://audio/music/Defeat.wav"
+dest_files=["res://.godot/imported/Defeat.wav-9c2a58929e5b0f295e07965d8dabf706.sample"]
 
 [params]
 
