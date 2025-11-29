@@ -13,6 +13,7 @@ struct EnemyBoidMovementSettings {
     godot::real_t separation_radius;
     godot::real_t max_speed_multiplier;
     godot::real_t max_force;
+    godot::real_t grid_cell_size;
     godot::real_t separation_weight;
     godot::real_t kd_tree_rebuild_distance;
     godot::real_t kd_tree_max_stale_frames;
@@ -71,6 +72,7 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
         .member<godot::real_t>("separation_radius")
         .member<godot::real_t>("max_speed_multiplier")
         .member<godot::real_t>("max_force")
+        .member<godot::real_t>("grid_cell_size")
         .member<godot::real_t>("separation_weight")
         .member<godot::real_t>("kd_tree_rebuild_distance")
         .member<godot::real_t>("kd_tree_max_stale_frames")
@@ -84,11 +86,12 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
             godot::real_t(40.0),  // separation_radius
             godot::real_t(1.1),   // max_speed_multiplier
             godot::real_t(220.0), // max_force
+            godot::real_t(96.0),  // grid_cell_size
             godot::real_t(1.1),   // separation_weight
             godot::real_t(35.0),  // kd_tree_rebuild_distance
             godot::real_t(8.0),   // kd_tree_max_stale_frames
             godot::real_t(48.0),  // max_neighbor_sample_count
-            godot::real_t(0.05)    // separation_noise_intensity
+            godot::real_t(0.05)   // separation_noise_intensity
             });
 
     world.component<EnemyAnimationSettings>("EnemyAnimationSettings")
