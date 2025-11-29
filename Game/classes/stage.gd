@@ -323,9 +323,11 @@ func _on_upgrade_purchased(cost: int) -> void:
 func _on_timer_timeout() -> void:
 	var end_screen_instance = end_screen_scene.instantiate()
 	add_child(end_screen_instance)
+	AudioManager.victory.play()
 
 
 func _on_player_died() -> void:
 	var end_screen_instance = end_screen_scene.instantiate()
 	add_child(end_screen_instance)
 	end_screen_instance.set_defeat()
+	AudioManager.defeat.play()
