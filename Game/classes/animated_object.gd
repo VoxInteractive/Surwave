@@ -1,5 +1,10 @@
 @abstract class_name AnimatedObject extends Node2D
 
+enum AnimationMode {
+	LOOP,
+	ONCE
+}
+
 var state: int = -1
 var animation_interval: float = 0.25
 var _animation_frames: Array
@@ -32,7 +37,7 @@ func set_state(new_state) -> void:
 
 func _animate(delta: float) -> void:
 	_animation_timer += delta
-	if ((_animation_mode == Game.AnimationMode.ONCE and _animation_current_frame >= _animation_frames.size() - 1)
+	if ((_animation_mode == AnimationMode.ONCE and _animation_current_frame >= _animation_frames.size() - 1)
 		or _animation_timer < animation_interval):
 			return
 	

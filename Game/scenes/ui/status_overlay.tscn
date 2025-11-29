@@ -1,0 +1,85 @@
+[gd_scene load_steps=5 format=3 uid="uid://cou2i7rmir1yd"]
+
+[ext_resource type="Shader" uid="uid://dd8jm7x8qubxf" path="res://shaders/minimap.gdshader" id="1_ub6rh"]
+[ext_resource type="Texture2D" uid="uid://ca4ojb4ufv384" path="res://scenes/ui/gem_icon.png" id="2_qrj4e"]
+[ext_resource type="Script" uid="uid://bah00d831oowu" path="res://scenes/ui/status_overlay.gd" id="3_v8pcf"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_fc0e3"]
+shader = ExtResource("1_ub6rh")
+shader_parameter/background_color = Color(0, 0, 0, 1)
+shader_parameter/minimap_size = Vector2(80, 80)
+shader_parameter/opacity = 0.67
+shader_parameter/altar_points = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/altar_radius = 3.0
+shader_parameter/altar_states = PackedFloat32Array(0, 0, 0, 0)
+shader_parameter/altar_available_color = Color(0.5, 0.95, 1, 1)
+shader_parameter/altar_spent_color = Color(0.2, 0.4, 1, 1)
+shader_parameter/enemy_points = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/enemy_count = 0
+shader_parameter/enemy_radius = 1.0
+shader_parameter/enemy_color = Color(0.87, 0.15, 0.15, 1)
+shader_parameter/player_point = Vector2(0.5, 0.5)
+shader_parameter/player_radius = 2.0
+shader_parameter/player_visible = 0.0
+shader_parameter/player_color = Color(1, 1, 1, 1)
+shader_parameter/camera_rect = Vector4(0, 0, 1, 1)
+shader_parameter/camera_visible = 0.0
+shader_parameter/camera_line_width = 1.2
+shader_parameter/camera_color = Color(0.6, 0.6, 0.6, 1)
+
+[node name="StatusOverlay" type="CanvasLayer"]
+script = ExtResource("3_v8pcf")
+
+[node name="OverlayMargin" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="Minimap" type="ColorRect" parent="OverlayMargin"]
+material = SubResource("ShaderMaterial_fc0e3")
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 0
+
+[node name="GemCount" type="PanelContainer" parent="OverlayMargin"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="OverlayMargin/GemCount"]
+layout_mode = 2
+
+[node name="GemCount" type="Label" parent="OverlayMargin/GemCount/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0.23137255, 0.023529412, 0.22745098, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 32
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="GemIcon" type="TextureRect" parent="OverlayMargin/GemCount/VBoxContainer"]
+layout_mode = 2
+texture = ExtResource("2_qrj4e")
+expand_mode = 5
+
+[node name="StageCountdown" type="MarginContainer" parent="OverlayMargin"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
+
+[node name="TimeRemaining" type="Label" parent="OverlayMargin/StageCountdown"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0.23137255, 0.023529412, 0.22745098, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 32
+text = "0:00"

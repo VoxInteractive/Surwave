@@ -13,9 +13,9 @@ const AltarAnimationFrames: Dictionary[AltarState, Array] = {
 	AltarState.AVAILABLE: [0, 1, 2, 3, 4, 5],
 	AltarState.SPENT: [9, 8, 7, 6]
 }
-const AltarAnimationModes: Dictionary[AltarState, Game.AnimationMode] = {
-	AltarState.AVAILABLE: Game.AnimationMode.LOOP,
-	AltarState.SPENT: Game.AnimationMode.ONCE
+const AltarAnimationModes: Dictionary[AltarState, AnimationMode] = {
+	AltarState.AVAILABLE: AnimationMode.LOOP,
+	AltarState.SPENT: AnimationMode.ONCE
 }
 
 

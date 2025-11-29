@@ -1,8 +1,12 @@
 class_name Player extends AnimatedObject
 
-const MAX_HEALTH: float = 10.0
+signal player_took_damage
+
+const MAX_HEALTH: float = 1000.0 # TODO: Change back to 10.0
 var health: float = MAX_HEALTH
 var health_bar_original_modulation: Color
+var health_bar_full_colour: Color = Color.LIME_GREEN
+var health_bar_empty_colour: Color = Color(0.8392157, 0.101960786, 0.53333336, 1)
 
 var movement_speed: float
 var adjusted_movement_speed: float
@@ -14,6 +18,8 @@ var adjusted_movement_speed: float
 @export_category("Combat")
 @export_range(0.0, 45.0, 0.5)
 var projectile_spread_degrees: float = 6.0
+
+@export var end_screen_scene: PackedScene
 
 var input_movement_vector: Vector2
 var is_colliding: bool = false
@@ -53,18 +59,18 @@ const PlayerAnimationFrames: Dictionary[PlayerState, Array] = {
 	PlayerState.RUNNING_AND_SHOOTING_DOWN: [52, 53],
 	PlayerState.DYING: [40, 41, 42, 43, 44, 45, 46]
 }
-const PlayerAnimationModes: Dictionary[PlayerState, Game.AnimationMode] = {
-	PlayerState.IDLE: Game.AnimationMode.LOOP,
-	PlayerState.TALKING: Game.AnimationMode.ONCE,
-	PlayerState.RELOADING: Game.AnimationMode.ONCE,
-	PlayerState.RUNNING: Game.AnimationMode.LOOP,
-	PlayerState.SHOOTING_RIGHT: Game.AnimationMode.LOOP,
-	PlayerState.SHOOTING_UP: Game.AnimationMode.LOOP,
-	PlayerState.SHOOTING_DOWN: Game.AnimationMode.LOOP,
-	PlayerState.RUNNING_AND_SHOOTING_RIGHT: Game.AnimationMode.LOOP,
-	PlayerState.RUNNING_AND_SHOOTING_UP: Game.AnimationMode.LOOP,
-	PlayerState.RUNNING_AND_SHOOTING_DOWN: Game.AnimationMode.LOOP,
-	PlayerState.DYING: Game.AnimationMode.ONCE
+const PlayerAnimationModes: Dictionary[PlayerState, AnimationMode] = {
+	PlayerState.IDLE: AnimationMode.LOOP,
+	PlayerState.TALKING: AnimationMode.ONCE,
+	PlayerState.RELOADING: AnimationMode.ONCE,
+	PlayerState.RUNNING: AnimationMode.LOOP,
+	PlayerState.SHOOTING_RIGHT: AnimationMode.LOOP,
+	PlayerState.SHOOTING_UP: AnimationMode.LOOP,
+	PlayerState.SHOOTING_DOWN: AnimationMode.LOOP,
+	PlayerState.RUNNING_AND_SHOOTING_RIGHT: AnimationMode.LOOP,
+	PlayerState.RUNNING_AND_SHOOTING_UP: AnimationMode.LOOP,
+	PlayerState.RUNNING_AND_SHOOTING_DOWN: AnimationMode.LOOP,
+	PlayerState.DYING: AnimationMode.ONCE
 }
 const first_shooting_animation_frames: Array[int] = [
 	PlayerAnimationFrames[PlayerState.SHOOTING_RIGHT][0],
@@ -83,6 +89,8 @@ func _get_animation_frames(p_state: PlayerState) -> Array:
 func _get_animation_mode(p_state: PlayerState):
 	return PlayerAnimationModes[p_state]
 
+signal died
+signal gem_collected(value: int)
 
 @onready var world: FlecsWorld = get_node("../World")
 @onready var upgrade_manager: UpgradeManager = $UpgradeManager
@@ -219,11 +227,21 @@ func _get_projectile_count() -> int:
 	return 1
 
 
+func _on_damage_cooldown_timeout() -> void:
+	health_bar.modulate = health_bar_original_modulation
+
+
+func _on_health_bar_value_changed(value: float) -> void:
+	var fill_style: StyleBoxFlat = health_bar.get_theme_stylebox("fill")
+	fill_style.bg_color = health_bar_empty_colour.lerp(health_bar_full_colour, health_bar.value / health_bar.max_value)
+
+
 func _on_flecs_signal(signal_name: StringName, data: Dictionary) -> void:
-	if is_dead:
-		return
-	if signal_name == "player_took_damage":
+	if is_dead: return
+	if signal_name == "enemy_hit_player":
 		if (damage_cooldown_timer.time_left > 0): return
+		
+		player_took_damage.emit()
 		
 		health -= data.damage_amount
 		health_bar.value = max(health / MAX_HEALTH, 0)
@@ -248,8 +266,4 @@ func _handle_death() -> void:
 	var dying_duration: float = float(dying_animation_frames) * animation_interval
 
 	await get_tree().create_timer(dying_duration).timeout
-	# TODO: Show the defeat screen
-
-
-func _on_damage_cooldown_timeout() -> void:
-	health_bar.modulate = health_bar_original_modulation
+	emit_signal("died")

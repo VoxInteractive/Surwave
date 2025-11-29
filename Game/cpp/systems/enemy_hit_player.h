@@ -16,7 +16,7 @@
 #include "components/singletons.h"
 
 inline FlecsRegistry register_player_take_damage_system([](flecs::world& world) {
-    world.system<const Position2D, const MeleeDamage>("Player Take Damage")
+    world.system<const Position2D, const MeleeDamage>("Enemy Hit Player")
         .with(flecs::IsA, world.lookup("Enemy"))
         .run([](flecs::iter& it) {
         const PlayerPosition* player_position = it.world().try_get<PlayerPosition>();
@@ -57,7 +57,7 @@ inline FlecsRegistry register_player_take_damage_system([](flecs::world& world) 
                 flecs::entity damaging_enemy = it.entity(static_cast<std::int32_t>(entity_index));
                 godot::Dictionary signal_data;
                 signal_data["damage_amount"] = damage_amount;
-                emit_godot_signal(it.world(), damaging_enemy, "player_took_damage", signal_data);
+                emit_godot_signal(it.world(), damaging_enemy, "enemy_hit_player", signal_data);
 
                 player_damage_cooldown->value = godot::real_t(0.0);
                 return;

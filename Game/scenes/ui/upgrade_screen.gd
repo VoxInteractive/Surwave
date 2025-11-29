@@ -3,7 +3,7 @@ class_name UpgradeScreen extends CanvasLayer
 signal upgrade_finalized(requester: Node, upgradeable: UpgradeManager.Upgradeable)
 
 @export var upgrade_card_scene: PackedScene
-@export var resume_delay_seconds: float = 1.5
+@export var resume_delay_seconds: float = .5
 
 var upgrade_manager: UpgradeManager
 var was_game_paused: bool = false
@@ -13,9 +13,8 @@ var requesting_node: Node
 @onready var card_container: HBoxContainer = %CardContainer
 
 func _ready() -> void:
-	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
-	set_process_unhandled_input(true)
+	#set_process_unhandled_input(true)
 
 
 func show_with_available_upgrades(requester: Node = null, player_body: Node = null) -> void:
@@ -29,18 +28,21 @@ func show_with_available_upgrades(requester: Node = null, player_body: Node = nu
 	was_game_paused = get_tree().paused
 	_set_game_paused(true)
 	visible = true
+	$AnimationPlayer.play("in")
+	await $AnimationPlayer.animation_finished
 
 
 func hide_screen() -> void:
-	visible = false
+	$AnimationPlayer.play("out")
+	await $AnimationPlayer.animation_finished
 	_set_game_paused(was_game_paused)
 	requesting_node = null
 	purchase_in_progress = false
 
 
 func set_ability_upgrades(upgrades: Dictionary[UpgradeManager.Upgradeable, Dictionary]):
-	for child in card_container.get_children():
-		child.queue_free()
+	for child in card_container.get_children(): child.queue_free()
+	var animate_in_delay: float = 0
 	for upgradeable in UpgradeManager.Upgradeable.values():
 		if not upgrades.has(upgradeable):
 			continue
@@ -48,6 +50,8 @@ func set_ability_upgrades(upgrades: Dictionary[UpgradeManager.Upgradeable, Dicti
 		card_container.add_child(card_instance)
 		card_instance.upgrade_selected.connect(_on_upgrade_selected)
 		card_instance.set_upgrade_info(upgradeable, upgrades[upgradeable])
+		card_instance.animate_in(animate_in_delay)
+		animate_in_delay += 0.2
 
 
 func _on_upgrade_selected(upgradeable: UpgradeManager.Upgradeable) -> void:
@@ -56,7 +60,6 @@ func _on_upgrade_selected(upgradeable: UpgradeManager.Upgradeable) -> void:
 	purchase_in_progress = true
 	upgrade_manager.upgrade(upgradeable)
 	_disable_all_cards()
-	await _wait_resume_delay()
 	_finalize_upgrade(upgradeable)
 
 
@@ -75,8 +78,9 @@ func _wait_resume_delay() -> void:
 
 
 func _finalize_upgrade(upgradeable: UpgradeManager.Upgradeable) -> void:
+	await _wait_resume_delay()
 	var requester := requesting_node
-	hide_screen()
+	await hide_screen()
 	emit_signal("upgrade_finalized", requester, upgradeable)
 	purchase_in_progress = false
 

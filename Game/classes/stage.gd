@@ -1,5 +1,7 @@
 class_name Stage extends Node
 
+signal gem_balance_changed(new_balance: int)
+
 @export_category("Procedural Object Placement")
 ## The terrain margin in terms of tile count of the Borders tile map layer.
 @export var terrain_margin: int = 3
@@ -18,19 +20,34 @@ class_name Stage extends Node
 ## Controls the radial distribution of spawns. > 1.0 pushes spawns outward, < 1.0 pulls them inward.
 @export var spawn_radial_exponent: float = 1.2
 
+@export_category("Scene Tree")
+@export var end_screen_scene: PackedScene
+
+@export_category("Camera zoom out after upgrades")
+@export var num_upgrades_before_camera_zooms_out: int = 2
+@export var camera_zoom_out_speed: float = 1.0
+
+const MAXIMUM_GEMS: int = 99
+
 var altar_nodes: Array[Node]
 var portal_nodes: Array[Node]
 var half_outer_boundary: float
 var landmark_occupied_areas: Array[Rect2]
 var spawn_iteration_counter: int = 0
+var upgrade_manager: UpgradeManager
+var _frame_counter: int = 0
+var gem_balance: int = 99 # TODO: Change back to 0
+var _is_zooming_out: bool = false
+var _timer: Timer
 
+@onready var status_overlay: StatusOverlay = $StatusOverlay
+@onready var world: FlecsWorld = $World
 @onready var terrain: MeshInstance2D = $Terrain
 @onready var terrain_object_multimesh_parents: Array[Node2D] = [$Terrain/Foliage]
 @onready var landmarks: Node = $Landmarks
 
-@onready var world: FlecsWorld = $World
-
 func _ready() -> void:
+	add_to_group("stage")
 	_validate_terrain()
 	half_outer_boundary = terrain.mesh.size.x / 2.0
 
@@ -42,6 +59,7 @@ func _ready() -> void:
 	_instantiate_camera()
 	_set_camera_limits()
 	_spawn_initial_enemy_population()
+	_set_stage_timer()
 
 
 func _validate_terrain() -> void:
@@ -102,6 +120,14 @@ func _instantiate_player() -> void:
 	var player_instance: Node2D = player_scene.instantiate() as Node2D
 	add_child(player_instance)
 	player_instance.position = Vector2(0, 0)
+	player_instance.connect("died", _on_player_died)
+	player_instance.connect("gem_collected", _on_gem_collected)
+
+	upgrade_manager = player_instance.get_node_or_null("UpgradeManager")
+	if upgrade_manager:
+		upgrade_manager.upgrade_purchased.connect(_on_upgrade_purchased)
+	else:
+		push_warning("Stage: Could not find UpgradeManager node in player scene.")
 
 
 func _instantiate_camera() -> void:
@@ -242,5 +268,55 @@ func get_altar_states() -> Array[int]:
 	return states
 
 
+func _set_stage_timer(wait_time: float = 360.0) -> void:
+	_timer = Timer.new()
+	_timer.wait_time = wait_time
+	_timer.autostart = true
+	_timer.one_shot = true
+	_timer.timeout.connect(_on_timer_timeout)
+	add_child(_timer)
+
+
 func _process(_delta: float) -> void:
-	pass
+	_frame_counter += 1
+	if _frame_counter % 5 == 0:
+		status_overlay.set_time_remaining(_timer.time_left)
+	
+	if _is_zooming_out:
+		var camera = get_node("Camera") as Camera2D
+		if camera:
+			camera.zoom = camera.zoom.lerp(Vector2.ONE, 1.0 - exp(-camera_zoom_out_speed * _delta))
+			if camera.zoom.is_equal_approx(Vector2.ONE):
+				camera.zoom = Vector2.ONE
+				_is_zooming_out = false
+
+
+func _on_gem_collected(value: int) -> void:
+	gem_balance = min(gem_balance + value, MAXIMUM_GEMS)
+	gem_balance_changed.emit(gem_balance)
+
+
+func _on_upgrade_purchased(cost: int) -> void:
+	gem_balance -= cost
+	gem_balance_changed.emit(gem_balance)
+
+	var all_upgrades = upgrade_manager.upgrade_tiers.values()
+	var total_upgrades = 0
+	for tier in all_upgrades:
+		total_upgrades += tier
+
+	if total_upgrades >= num_upgrades_before_camera_zooms_out:
+		_is_zooming_out = true
+		if upgrade_manager:
+			upgrade_manager.upgrade_purchased.disconnect(_on_upgrade_purchased)
+
+
+func _on_timer_timeout() -> void:
+	var end_screen_instance = end_screen_scene.instantiate()
+	add_child(end_screen_instance)
+
+
+func _on_player_died() -> void:
+	var end_screen_instance = end_screen_scene.instantiate()
+	add_child(end_screen_instance)
+	end_screen_instance.set_defeat()
