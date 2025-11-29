@@ -2,13 +2,13 @@
 
 importer="wav"
 type="AudioStreamWAV"
-uid="uid://cu2hcs73oivmy"
-path="res://.godot/imported/BugSmallDie.wav-afa22c8e7b2a5ddce8b88b3178c8af29.sample"
+uid="uid://b1v2a4nc6gxm4"
+path="res://.godot/imported/Click.wav-b35d713364ef51c234102d5a91fb8335.sample"
 
 [deps]
 
-source_file="res://audio/sfx/BugSmallDie.wav"
-dest_files=["res://.godot/imported/BugSmallDie.wav-afa22c8e7b2a5ddce8b88b3178c8af29.sample"]
+source_file="res://audio/sfx/Click.wav"
+dest_files=["res://.godot/imported/Click.wav-b35d713364ef51c234102d5a91fb8335.sample"]
 
 [params]
 

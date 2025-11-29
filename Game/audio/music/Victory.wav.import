@@ -2,13 +2,13 @@
 
 importer="wav"
 type="AudioStreamWAV"
-uid="uid://x68fpgd1y884"
-path="res://.godot/imported/Shockwave.wav-69fa8d948479c1a4a45f70caee8ee06a.sample"
+uid="uid://db8mv32c6i2ql"
+path="res://.godot/imported/Victory.wav-2084b112bc7d3697f1d5c5c07f940850.sample"
 
 [deps]
 
-source_file="res://audio/sfx/Shockwave.wav"
-dest_files=["res://.godot/imported/Shockwave.wav-69fa8d948479c1a4a45f70caee8ee06a.sample"]
+source_file="res://audio/music/Victory.wav"
+dest_files=["res://.godot/imported/Victory.wav-2084b112bc7d3697f1d5c5c07f940850.sample"]
 
 [params]
 

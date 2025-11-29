@@ -18,8 +18,6 @@ const UPGRADE_INFO: Dictionary[Upgradeable, Array] = {
 			["Base", 1.0],
 			["Damage I", 2.0],
 			["Damage II", 3.0],
-			["Damage III", 4.0],
-			["Damage IV", 5.0]
 		]
 	],
 	Upgradeable.PROJECTILE_COUNT: [
@@ -28,33 +26,27 @@ const UPGRADE_INFO: Dictionary[Upgradeable, Array] = {
 			["Base", 1],
 			["Multi-shot I", 2],
 			["Multi-shot II", 3],
-			["Multi-shot III", 4],
-			["Multi-shot IV", 5]
 		]
 	],
 	Upgradeable.SHOCKWAVE: [
 		"Increase the area of effect of your shockwave",
 		[
 			["Base", 0.40],
-			["Shockwave I", 0.55],
-			["Shockwave II", 0.70],
-			["Shockwave III", 0.85],
-			["Shockwave IV", 1.0]
+			["Shockwave I", 0.70],
+			["Shockwave II", 1.0]
 		]
 	],
 	Upgradeable.SPEED: [
 		"Increase your movement speed",
 		[
-			["Base", 265], # TODO: Set back to 65
-			["Speed I", 80],
-			["Speed II", 100],
-			["Speed III", 125],
-			["Speed IV", 155]
+			["Base", 280], # TODO: Set back to 80
+			["Speed I", 120],
+			["Speed II", 160],
 		]
 	]
 }
 
-const TIER_COSTS = [0, 10, 20, 40, 80]
+const TIER_COSTS = [0, 25, 50]
 
 # Holds the current upgrade tier that the player has for each upgradeable type
 var upgrade_tiers: Dictionary[Upgradeable, int] = {
@@ -104,10 +96,18 @@ func upgrade(upgradeable: Upgradeable) -> void:
 
 	upgrade_tiers[upgradeable] = next_tier_index
 	upgrade_purchased.emit(cost)
+	AudioManager.upgrade_acquired.play()
 
 	match upgradeable:
 		Upgradeable.PROJECTILE_DAMAGE:
 			_update_enemy_take_damage_settings(float(tiers[next_tier_index][1]))
+			AudioManager.projectile.volume_db += 2.0
+			AudioManager.projectile.pitch_scale /= 1.2
+
+		Upgradeable.SHOCKWAVE:
+			AudioManager.shockwave.volume_db += 3.0
+			AudioManager.shockwave.pitch_scale /= 1.2
+
 		_:
 			pass
 

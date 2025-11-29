@@ -2,13 +2,13 @@
 
 importer="wav"
 type="AudioStreamWAV"
-uid="uid://ynrbvbpcslyv"
-path="res://.godot/imported/EnemyHurt_B.wav-57413c7ba5b24244411295adcf361205.sample"
+uid="uid://c26rgo7njbarq"
+path="res://.godot/imported/Defeat.wav-9c2a58929e5b0f295e07965d8dabf706.sample"
 
 [deps]
 
-source_file="res://audio/sfx/EnemyHurt_B.wav"
-dest_files=["res://.godot/imported/EnemyHurt_B.wav-57413c7ba5b24244411295adcf361205.sample"]
+source_file="res://audio/music/Defeat.wav"
+dest_files=["res://.godot/imported/Defeat.wav-9c2a58929e5b0f295e07965d8dabf706.sample"]
 
 [params]
 

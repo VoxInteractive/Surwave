@@ -7,6 +7,7 @@ class_name ShockwaveManager extends Node
 @export var hit_radius_adjustment: float = 0.8
 
 var is_firing: bool = false
+var has_played_sound: bool = false
 var max_radius: float = 0.5
 var active_radius: float = 0.0
 var mesh_size: float = 0.0
@@ -76,6 +77,9 @@ func _fire() -> void:
 	shader_material.set_shader_parameter("radius", 0.0)
 	shader_material.set_shader_parameter("inner_ring", inner_ring_range.x)
 	shader_material.set_shader_parameter("outer_ring", outer_ring_range.x)
+	
+	if not has_played_sound: AudioManager.shockwave.play()
+	has_played_sound = true
 
 
 func _reset_shockwave() -> void:
@@ -85,3 +89,4 @@ func _reset_shockwave() -> void:
 	world.set_singleton_component(singleton_component_name, {
 		"radius": 0.0
 	})
+	has_played_sound = false
