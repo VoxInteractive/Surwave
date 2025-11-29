@@ -73,14 +73,17 @@ max_polyphony = 32
 
 [node name="GemCollect" type="AudioStreamPlayer" parent="SFXPlayers"]
 stream = ExtResource("7_ne6yq")
+volume_db = -15.0
 max_polyphony = 8
 
 [node name="GemDrop" type="AudioStreamPlayer" parent="SFXPlayers"]
 stream = ExtResource("8_sxpqy")
+volume_db = 4.262
 max_polyphony = 8
 
 [node name="PlayerHurt" type="AudioStreamPlayer" parent="SFXPlayers"]
 stream = SubResource("AudioStreamRandomizer_1n5lx")
+volume_db = -5.0
 
 [node name="Projectile" type="AudioStreamPlayer" parent="SFXPlayers"]
 stream = SubResource("AudioStreamRandomizer_jhqse")
