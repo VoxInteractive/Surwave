@@ -109,6 +109,11 @@ func upgrade(upgradeable: Upgradeable) -> void:
 	match upgradeable:
 		Upgradeable.PROJECTILE_DAMAGE:
 			_update_enemy_take_damage_settings(float(tiers[next_tier_index][1]))
+
+		Upgradeable.SHOCKWAVE:
+			AudioManager.shockwave.volume_db += 3.0
+			AudioManager.shockwave.pitch_scale /= 1.2
+
 		_:
 			pass
 

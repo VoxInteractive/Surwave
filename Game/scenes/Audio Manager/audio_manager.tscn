@@ -21,7 +21,7 @@
 [ext_resource type="AudioStream" uid="uid://1lu2bntpblbi" path="res://audio/sfx/Projectile_B.wav" id="15_5xvwe"]
 [ext_resource type="AudioStream" uid="uid://chw26ufg7nfuh" path="res://audio/sfx/Projectile_C.wav" id="16_ua6oc"]
 [ext_resource type="AudioStream" uid="uid://dq3iasmxnqbvu" path="res://audio/sfx/Projectile_D.wav" id="17_lljys"]
-[ext_resource type="AudioStream" uid="uid://x68fpgd1y884" path="res://audio/sfx/Shockwave.wav" id="18_vokip"]
+[ext_resource type="AudioStream" uid="uid://v8hgiqdpyvcy" path="res://audio/sfx/Shockwave.ogg" id="19_sxpqy"]
 [ext_resource type="AudioStream" uid="uid://bj5dcbmn15xq4" path="res://audio/sfx/UpgradeAcquired.wav" id="19_uu38c"]
 
 [sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_1n5lx"]
@@ -101,7 +101,9 @@ max_polyphony = 16
 bus = &"SFX"
 
 [node name="Shockwave" type="AudioStreamPlayer" parent="SFXPlayers"]
-stream = ExtResource("18_vokip")
+stream = ExtResource("19_sxpqy")
+volume_db = -6.0
+pitch_scale = 1.2
 bus = &"SFX"
 
 [node name="UpgradeAcquired" type="AudioStreamPlayer" parent="SFXPlayers"]
