@@ -64,6 +64,7 @@ func _ready() -> void:
 	_set_camera_limits()
 	_spawn_initial_enemy_population()
 	_set_stage_timer()
+	await _play_the_sound_track()
 
 
 func _validate_terrain() -> void:
@@ -288,6 +289,11 @@ func _set_stage_timer(wait_time: float = 360.0) -> void:
 	add_child(_timer)
 
 
+func _play_the_sound_track(delay: float = 3.0) -> void:
+	await get_tree().create_timer(delay).timeout
+	AudioManager.sound_track.play()
+
+
 func _process(_delta: float) -> void:
 	_frame_counter += 1
 	if _frame_counter % 5 == 0:
@@ -330,4 +336,6 @@ func _on_player_died() -> void:
 	var end_screen_instance = end_screen_scene.instantiate()
 	add_child(end_screen_instance)
 	end_screen_instance.set_defeat()
+	AudioManager.sound_track.stop()
+	await get_tree().create_timer(1.5).timeout
 	AudioManager.defeat.play()
