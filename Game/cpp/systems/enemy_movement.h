@@ -75,10 +75,9 @@ inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
         .run([](flecs::iter& it) {
         flecs::world stage_world = it.world();
         const PlayerPosition* player_position = stage_world.try_get<PlayerPosition>();
-        const EnemyBoidForceWeights* force_weights = stage_world.try_get<EnemyBoidForceWeights>();
         const EnemyBoidMovementSettings* movement_settings = stage_world.try_get<EnemyBoidMovementSettings>();
 
-        if (player_position == nullptr || force_weights == nullptr || movement_settings == nullptr) {
+        if (player_position == nullptr || movement_settings == nullptr) {
             return;
         }
 
@@ -266,7 +265,7 @@ inline FlecsRegistry register_enemy_movement_system([](flecs::world& world) {
             }
 
             godot::Vector2 acceleration = godot::Vector2(0.0f, 0.0f);
-            acceleration += separation_force * force_weights->separation_weight;
+            acceleration += separation_force * movement_settings->separation_weight;
             acceleration += player_force * movement_settings->player_attraction_weight;
 
             acceleration = enemy_movement::limit_vector_squared(acceleration, max_force * max_force);
