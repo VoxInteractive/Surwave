@@ -1,4 +1,4 @@
-[gd_scene load_steps=44 format=3 uid="uid://1f0s78v8ooax"]
+[gd_scene load_steps=45 format=3 uid="uid://1f0s78v8ooax"]
 
 [ext_resource type="Script" uid="uid://b0ekcl6i0i8y0" path="res://scenes/Stage 01/stage_01.gd" id="1_eml3u"]
 [ext_resource type="Texture2D" uid="uid://u0ein3bhqfwq" path="res://scenes/Stage 01/foliage/grass1.png" id="2_3tqr6"]
@@ -20,6 +20,7 @@
 [ext_resource type="Texture2D" uid="uid://jf5nqssf1a5c" path="res://scenes/Altar/debris/3.png" id="16_y354e"]
 [ext_resource type="Texture2D" uid="uid://bqiyvivyet87n" path="res://scenes/Altar/debris/4.png" id="17_avk1y"]
 [ext_resource type="PackedScene" uid="uid://cou2i7rmir1yd" path="res://scenes/ui/status_overlay.tscn" id="20_vufsv"]
+[ext_resource type="PackedScene" uid="uid://belyoqxn5x3nf" path="res://scenes/ui/vignette.tscn" id="21_8wwtj"]
 
 [sub_resource type="Curve" id="Curve_1m5sl"]
 _data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 0.3820225), 0.0, 0.0, 0, 0]
@@ -122,6 +123,8 @@ radius = 48.0
 [node name="Stage01" type="Node"]
 script = ExtResource("1_eml3u")
 end_screen_scene = ExtResource("2_vufsv")
+
+[node name="Vignette" parent="." instance=ExtResource("21_8wwtj")]
 
 [node name="StatusOverlay" parent="." instance=ExtResource("20_vufsv")]
 

@@ -1,5 +1,7 @@
 class_name Player extends AnimatedObject
 
+signal player_took_damage
+
 const MAX_HEALTH: float = 1000.0 # TODO: Change back to 10.0
 var health: float = MAX_HEALTH
 var health_bar_original_modulation: Color
@@ -236,8 +238,10 @@ func _on_health_bar_value_changed(value: float) -> void:
 
 func _on_flecs_signal(signal_name: StringName, data: Dictionary) -> void:
 	if is_dead: return
-	if signal_name == "player_took_damage":
+	if signal_name == "enemy_hit_player":
 		if (damage_cooldown_timer.time_left > 0): return
+		
+		player_took_damage.emit()
 		
 		health -= data.damage_amount
 		health_bar.value = max(health / MAX_HEALTH, 0)
