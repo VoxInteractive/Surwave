@@ -9,6 +9,7 @@ var world: FlecsWorld
 @onready var bug_large_hurt: AudioStreamPlayer = $SFXPlayers/BugLargeHurt
 @onready var bug_small_die: AudioStreamPlayer = $SFXPlayers/BugSmallDie
 @onready var bug_small_hurt: AudioStreamPlayer = $SFXPlayers/BugSmallHurt
+@onready var click: AudioStreamPlayer = $SFXPlayers/Click
 @onready var gem_collect: AudioStreamPlayer = $SFXPlayers/GemCollect
 @onready var gem_drop: AudioStreamPlayer = $SFXPlayers/GemDrop
 @onready var player_hurt: AudioStreamPlayer = $SFXPlayers/PlayerHurt
