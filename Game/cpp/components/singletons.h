@@ -80,14 +80,14 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
         .member<godot::real_t>("separation_noise_intensity")
         .add(flecs::Singleton)
         .set<EnemyBoidMovementSettings>({
-            godot::real_t(0.5),   // player_attraction_weight
+            godot::real_t(1.0),   // player_attraction_weight
             godot::real_t(28.0),  // player_engage_distance
             godot::real_t(110.0), // neighbor_radius
-            godot::real_t(40.0),  // separation_radius
+            godot::real_t(30.0),  // separation_radius
             godot::real_t(1.1),   // max_speed_multiplier
             godot::real_t(220.0), // max_force
             godot::real_t(96.0),  // grid_cell_size
-            godot::real_t(1.1),   // separation_weight
+            godot::real_t(1.0),   // separation_weight
             godot::real_t(35.0),  // kd_tree_rebuild_distance
             godot::real_t(8.0),   // kd_tree_max_stale_frames
             godot::real_t(48.0),  // max_neighbor_sample_count
