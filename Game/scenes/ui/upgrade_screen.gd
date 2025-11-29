@@ -3,7 +3,7 @@ class_name UpgradeScreen extends CanvasLayer
 signal upgrade_finalized(requester: Node, upgradeable: UpgradeManager.Upgradeable)
 
 @export var upgrade_card_scene: PackedScene
-@export var resume_delay_seconds: float = 1.5
+@export var resume_delay_seconds: float = 1.0
 
 var upgrade_manager: UpgradeManager
 var was_game_paused: bool = false
@@ -13,9 +13,8 @@ var requesting_node: Node
 @onready var card_container: HBoxContainer = %CardContainer
 
 func _ready() -> void:
-	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
-	set_process_unhandled_input(true)
+	#set_process_unhandled_input(true)
 
 
 func show_with_available_upgrades(requester: Node = null, player_body: Node = null) -> void:
@@ -28,10 +27,14 @@ func show_with_available_upgrades(requester: Node = null, player_body: Node = nu
 	set_ability_upgrades(upgrades)
 	was_game_paused = get_tree().paused
 	_set_game_paused(true)
+	$AnimationPlayer.play("in")
+	await $AnimationPlayer.animation_finished
 	visible = true
 
 
 func hide_screen() -> void:
+	$AnimationPlayer.play("out")
+	await $AnimationPlayer.animation_finished
 	visible = false
 	_set_game_paused(was_game_paused)
 	requesting_node = null
