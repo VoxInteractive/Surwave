@@ -44,8 +44,8 @@ func set_ability_upgrades(upgrades: Dictionary[UpgradeManager.Upgradeable, Dicti
 	for child in card_container.get_children(): child.queue_free()
 	var animate_in_delay: float = 0
 	for upgradeable in UpgradeManager.Upgradeable.values():
-		if not upgrades.has(upgradeable):
-			continue
+		if not upgrades.has(upgradeable): continue
+		
 		var card_instance := upgrade_card_scene.instantiate() as UpgradeCard
 		card_container.add_child(card_instance)
 		card_instance.upgrade_selected.connect(_on_upgrade_selected)
@@ -97,6 +97,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("menu"):
 		_cancel_selection()
 		get_viewport().set_input_as_handled()
+
+	if event.is_action_pressed("directional_controller_input"):
+		if get_viewport().gui_get_focus_owner() == null:
+			if card_container.get_child_count() > 0:
+				(card_container.get_child(0) as UpgradeCard).select_button.grab_focus()
+			get_viewport().set_input_as_handled()
 
 
 func _cancel_selection() -> void:

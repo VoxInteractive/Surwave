@@ -99,7 +99,7 @@ bus = &"SFX"
 
 [node name="Projectile" type="AudioStreamPlayer" parent="SFXPlayers"]
 stream = SubResource("AudioStreamRandomizer_jhqse")
-volume_db = -6.0
+volume_db = -8.0
 pitch_scale = 1.2
 max_polyphony = 16
 bus = &"SFX"

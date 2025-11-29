@@ -37,7 +37,7 @@ var landmark_occupied_areas: Array[Rect2]
 var spawn_iteration_counter: int = 0
 var upgrade_manager: UpgradeManager
 var _frame_counter: int = 0
-var gem_balance: int = 99 # TODO: Change back to 0
+var gem_balance: int = 90 # TODO: Change back to 0
 var _is_zooming_out: bool = false
 var _timer: Timer
 

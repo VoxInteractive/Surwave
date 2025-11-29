@@ -26,6 +26,7 @@ var is_colliding: bool = false
 var position_at_frame_start: Vector2
 var movement_in_frame: Vector2
 var has_moved_this_frame: bool = false
+var aim_direction = Vector2.UP
 
 var shoot_weapon_timer: float
 var can_shoot_weapon: bool = false
@@ -132,7 +133,6 @@ func _on_animation_frame_changed(frame: int) -> void:
 
 func _fire_projectile() -> void:
 	var projectile_count: int = _get_projectile_count()
-	var direction_to_cursor: Vector2 = (get_global_mouse_position() - character_body.global_position).normalized()
 	var spread_radians: float = deg_to_rad(projectile_spread_degrees)
 	var middle_index: float = (projectile_count - 1) * 0.5
 
@@ -140,7 +140,7 @@ func _fire_projectile() -> void:
 		var projectile: Node2D = PROJECTILE.instantiate()
 		var rotation_offset: float = spread_radians * (projectile_index - middle_index)
 		projectile.global_position = character_body.global_position
-		projectile.direction = direction_to_cursor.rotated(rotation_offset)
+		projectile.direction = aim_direction.rotated(rotation_offset)
 		add_child(projectile)
 
 	can_shoot_weapon = false
@@ -154,6 +154,14 @@ func _tick_cooldowns(delta: float) -> void:
 		can_shoot_weapon = true
 
 
+func _poll_aim_direction() -> void:
+	var controller_aim_direction: Vector2 = Input.get_vector("aim_west", "aim_east", "aim_north", "aim_south")
+	if controller_aim_direction.length() > 0.125: # Aiming with the controller
+		aim_direction = controller_aim_direction.normalized()
+	else:
+		aim_direction = (get_global_mouse_position() - character_body.global_position).normalized() # Aiming with the mouse
+
+
 func _handle_input(delta: float) -> void:
 	position_at_frame_start = character_body.global_position
 
@@ -163,7 +171,9 @@ func _handle_input(delta: float) -> void:
 
 	var base_movement_speed: float = _get_base_movement_speed()
 	adjusted_movement_speed = base_movement_speed * (1 - movement_speed_penalty_when_shooting) if is_shooting else base_movement_speed
-	var aim_direction := (get_global_mouse_position() - character_body.global_position).normalized()
+
+	
+	_poll_aim_direction()
 	var is_aiming_up: bool = abs(aim_direction.y) > abs(aim_direction.x) and aim_direction.y < 0
 	var is_aiming_down: bool = abs(aim_direction.y) > abs(aim_direction.x) and aim_direction.y > 0
 

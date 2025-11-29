@@ -17,6 +17,9 @@ func _ready() -> void:
 	select_button.pressed.connect(_on_select_button_pressed)
 	mouse_entered.connect(_on_mouse_entered)
 
+	# To have the hover animation play also when focus enters, e.g. when using a controller
+	select_button.focus_entered.connect(_on_mouse_entered)
+
 
 func animate_in(delay: float = 0.0) -> void:
 	modulate = Color.TRANSPARENT

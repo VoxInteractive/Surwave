@@ -1,5 +1,6 @@
 class_name StatusOverlay extends CanvasLayer
 
+@onready var animation_player: AnimationPlayer = $AnimationPlayer
 @onready var gem_count_label: Label = $OverlayMargin/GemCount/VBoxContainer/GemCount
 @onready var time_remaining_label: Label = %TimeRemaining
 
@@ -11,6 +12,7 @@ func _ready() -> void:
 		update_gem_count(stage.gem_balance)
 
 func update_gem_count(new_balance: int) -> void:
+	animation_player.play("gem_count_grow")
 	gem_count_label.text = str(new_balance)
 
 
