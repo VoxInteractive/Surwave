@@ -4,6 +4,7 @@ signal upgrade_selected(upgradeable: UpgradeManager.Upgradeable)
 
 @onready var name_label: Label = %NameLabel
 @onready var description_label: Label = %DescriptionLabel
+@onready var cost_label: Label = %CostLabel
 @onready var select_button: Button = %SelectButton
 
 var upgradeable_type: UpgradeManager.Upgradeable = UpgradeManager.Upgradeable.PROJECTILE_DAMAGE
@@ -33,9 +34,10 @@ func set_upgrade_info(upgradeable: UpgradeManager.Upgradeable, upgrade_data: Dic
 	var description: String = String(upgrade_data.get("description", ""))
 	var cost: int = int(upgrade_data.get("cost", 0))
 	can_afford_upgrade = bool(upgrade_data.get("can_afford", false))
-	var affordability_suffix: String = "" if can_afford_upgrade else " (Not enough gems)"
 	name_label.text = tier_name
-	description_label.text = "%s\n\nCost: %d Gems%s" % [description, cost, affordability_suffix]
+	description_label.text = description
+	cost_label.text = str(cost)
+	cost_label.modulate = Color.WHITE if can_afford_upgrade else Color.DARK_GRAY
 	select_button.disabled = not can_afford_upgrade
 	modulate = AFFORDABLE_COLOR if can_afford_upgrade else UNAFFORDABLE_COLOR
 
