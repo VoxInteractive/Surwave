@@ -14,6 +14,17 @@ const UNAFFORDABLE_COLOR: Color = Color(0.5, 0.5, 0.5, 1)
 
 func _ready() -> void:
 	select_button.pressed.connect(_on_select_button_pressed)
+	mouse_entered.connect(_on_mouse_entered)
+
+
+func animate_in(delay: float = 0.0) -> void:
+	modulate = Color.TRANSPARENT
+	await get_tree().create_timer(delay).timeout
+	$AnimationPlayer.play("in")
+
+
+func animate_discarded(delay: float = 0.0) -> void:
+	$AnimationPlayer.play("discarded")
 
 
 func set_upgrade_info(upgradeable: UpgradeManager.Upgradeable, upgrade_data: Dictionary):
@@ -34,6 +45,16 @@ func set_selection_enabled(enabled: bool) -> void:
 
 
 func _on_select_button_pressed() -> void:
-	if not can_afford_upgrade:
-		return
+	if not can_afford_upgrade: return
+	
+	$AnimationPlayer.play("selected")
+	
+	for other_card in get_tree().get_nodes_in_group("UpgradeCards"):
+		if other_card == self: continue
+		other_card.animate_discarded()
+	
+	await $AnimationPlayer.animation_finished
 	emit_signal("upgrade_selected", upgradeable_type)
+
+func _on_mouse_entered() -> void:
+	$HoverAnimationPlayer.play("hover")

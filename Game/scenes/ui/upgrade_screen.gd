@@ -39,8 +39,8 @@ func hide_screen() -> void:
 
 
 func set_ability_upgrades(upgrades: Dictionary[UpgradeManager.Upgradeable, Dictionary]):
-	for child in card_container.get_children():
-		child.queue_free()
+	for child in card_container.get_children(): child.queue_free()
+	var animate_in_delay: float = 0
 	for upgradeable in UpgradeManager.Upgradeable.values():
 		if not upgrades.has(upgradeable):
 			continue
@@ -48,6 +48,8 @@ func set_ability_upgrades(upgrades: Dictionary[UpgradeManager.Upgradeable, Dicti
 		card_container.add_child(card_instance)
 		card_instance.upgrade_selected.connect(_on_upgrade_selected)
 		card_instance.set_upgrade_info(upgradeable, upgrades[upgradeable])
+		card_instance.animate_in(animate_in_delay)
+		animate_in_delay += 0.2
 
 
 func _on_upgrade_selected(upgradeable: UpgradeManager.Upgradeable) -> void:
