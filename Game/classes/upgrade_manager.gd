@@ -39,14 +39,14 @@ const UPGRADE_INFO: Dictionary[Upgradeable, Array] = {
 	Upgradeable.SPEED: [
 		"Increase your movement speed",
 		[
-			["Base", 80],
-			["Speed I", 120],
-			["Speed II", 160],
+			["Base", 100],
+			["Speed I", 150],
+			["Speed II", 200],
 		]
 	]
 }
 
-const TIER_COSTS = [0, 25, 50]
+const TIER_COSTS = [0, 20, 40]
 
 # Holds the current upgrade tier that the player has for each upgradeable type
 var upgrade_tiers: Dictionary[Upgradeable, int] = {

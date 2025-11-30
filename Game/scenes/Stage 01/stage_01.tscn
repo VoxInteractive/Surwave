@@ -23,7 +23,7 @@
 [ext_resource type="PackedScene" uid="uid://belyoqxn5x3nf" path="res://scenes/ui/vignette.tscn" id="21_8wwtj"]
 
 [sub_resource type="Curve" id="Curve_1m5sl"]
-_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 0.3820225), 0.0, 0.0, 0, 0]
+_data = [Vector2(0, 0.30337083), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
 point_count = 2
 
 [sub_resource type="Curve" id="Curve_sv3iu"]
@@ -138,16 +138,15 @@ script = ExtResource("3_jfh1v")
 script = ExtResource("6_qgwcv")
 gem_scene = ExtResource("7_1m5sl")
 drop_probabilities = Dictionary[String, float]({
-"BugHumanoid": 0.025,
-"BugLarge": 0.05,
-"BugSmall": 0.015
+"BugHumanoid": 0.15,
+"BugLarge": 0.3,
+"BugSmall": 0.1
 })
 
 [node name="EnemySpawnManager" type="Node" parent="World"]
 script = ExtResource("5_1m5sl")
 probability_curve = SubResource("Curve_1m5sl")
 enemy_type_curve = SubResource("Curve_sv3iu")
-time_multiplier = 0.0821
 
 [node name="Enemies" type="MultiMeshInstance2D" parent="World"]
 material = SubResource("ShaderMaterial_1m5sl")
