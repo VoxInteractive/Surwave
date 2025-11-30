@@ -15,7 +15,7 @@ config/description="Made for the Game Off 2025 jam. Demo project for Godot-Flecs
 © 2025 Vox Interactive
 "
 config/version="1.0"
-run/main_scene="uid://cwaod45hj5gi"
+run/main_scene="uid://c6bnrj1oxaltb"
 config/features=PackedStringArray("4.5", "GL Compatibility")
 config/icon="uid://cce5kgbebt2yv"
 

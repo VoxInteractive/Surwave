@@ -1,0 +1,57 @@
+[gd_scene load_steps=3 format=3 uid="uid://c6bnrj1oxaltb"]
+
+[ext_resource type="Script" uid="uid://d565svnkxiwf" path="res://scenes/ui/main_menu.gd" id="1_1g8jr"]
+[ext_resource type="Script" uid="uid://4rwaoyqxdfsd" path="res://scenes/ui/audible_button.gd" id="2_fe2o3"]
+
+[node name="MainMenu" type="CanvasLayer"]
+script = ExtResource("1_1g8jr")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/PanelContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/separation = 8
+
+[node name="Label" type="Label" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 64
+text = "Surwave"
+
+[node name="PlayButton" type="Button" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Play"
+script = ExtResource("2_fe2o3")
+metadata/_custom_type_script = "uid://4rwaoyqxdfsd"
+
+[node name="OptionsButton" type="Button" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Options"
+script = ExtResource("2_fe2o3")
+metadata/_custom_type_script = "uid://4rwaoyqxdfsd"
+
+[node name="QuitButton" type="Button" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Quit"
+script = ExtResource("2_fe2o3")
+metadata/_custom_type_script = "uid://4rwaoyqxdfsd"
