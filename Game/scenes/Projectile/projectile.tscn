@@ -63,6 +63,6 @@ process_material = SubResource("ParticleProcessMaterial_5vio8")
 
 [node name="Light" type="PointLight2D" parent="."]
 color = Color(0, 1, 1, 1)
-energy = 3.0
+energy = 2.0
 shadow_color = Color(0, 0, 0, 1)
 texture = SubResource("GradientTexture2D_tbm3g")
