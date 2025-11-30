@@ -12,6 +12,7 @@ var world: FlecsWorld
 @onready var click: AudioStreamPlayer = $SFXPlayers/Click
 @onready var gem_collect: AudioStreamPlayer = $SFXPlayers/GemCollect
 @onready var gem_drop: AudioStreamPlayer = $SFXPlayers/GemDrop
+@onready var player_death: AudioStreamPlayer = $SFXPlayers/PlayerDeath
 @onready var player_hurt: AudioStreamPlayer = $SFXPlayers/PlayerHurt
 @onready var projectile: AudioStreamPlayer = $SFXPlayers/Projectile
 @onready var shockwave: AudioStreamPlayer = $SFXPlayers/Shockwave

@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3 uid="uid://c0h5bevr7m6at"]
+[gd_scene load_steps=28 format=3 uid="uid://c0h5bevr7m6at"]
 
 [ext_resource type="Script" uid="uid://du3idm3ms8uls" path="res://scenes/Audio Manager/audio_manager.gd" id="1_th668"]
 [ext_resource type="AudioStream" uid="uid://dhjyu0fcago5e" path="res://audio/sfx/BugHumanoidDie.ogg" id="2_sxpqy"]
@@ -20,6 +20,7 @@
 [ext_resource type="AudioStream" uid="uid://c5vos5rj8ygjw" path="res://audio/sfx/PlayerHurt_E.wav" id="13_bsslw"]
 [ext_resource type="AudioStream" uid="uid://xx2vmmowphpp" path="res://audio/sfx/Projectile_A.wav" id="14_d6sch"]
 [ext_resource type="AudioStream" uid="uid://1lu2bntpblbi" path="res://audio/sfx/Projectile_B.wav" id="15_5xvwe"]
+[ext_resource type="AudioStream" uid="uid://brv4ojswipq23" path="res://audio/sfx/PlayerDeath.wav" id="16_i37gu"]
 [ext_resource type="AudioStream" uid="uid://chw26ufg7nfuh" path="res://audio/sfx/Projectile_C.wav" id="16_ua6oc"]
 [ext_resource type="AudioStream" uid="uid://dq3iasmxnqbvu" path="res://audio/sfx/Projectile_D.wav" id="17_lljys"]
 [ext_resource type="AudioStream" uid="uid://v8hgiqdpyvcy" path="res://audio/sfx/Shockwave.ogg" id="19_sxpqy"]
@@ -95,6 +96,10 @@ bus = &"SFX"
 [node name="PlayerHurt" type="AudioStreamPlayer" parent="SFXPlayers"]
 stream = SubResource("AudioStreamRandomizer_1n5lx")
 volume_db = -5.0
+bus = &"SFX"
+
+[node name="PlayerDeath" type="AudioStreamPlayer" parent="SFXPlayers"]
+stream = ExtResource("16_i37gu")
 bus = &"SFX"
 
 [node name="Projectile" type="AudioStreamPlayer" parent="SFXPlayers"]
