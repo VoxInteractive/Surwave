@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://bq3luf1jvhoyx"]
+[gd_scene load_steps=8 format=3 uid="uid://bq3luf1jvhoyx"]
 
 [ext_resource type="Texture2D" uid="uid://bpagas30bun5u" path="res://scenes/Altar/Altar.png" id="1_0khly"]
 [ext_resource type="Script" uid="uid://bx35bdxacsgdk" path="res://scenes/Altar/altar.gd" id="1_muwh6"]
@@ -9,6 +9,17 @@ radius = 9.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_0khly"]
 radius = 20.0
+
+[sub_resource type="Gradient" id="Gradient_8t5dx"]
+colors = PackedColorArray(0, 0, 0, 0, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_uvbkc"]
+gradient = SubResource("Gradient_8t5dx")
+width = 16
+height = 16
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.8, 0.8)
 
 [node name="Altar" type="Node2D" node_paths=PackedStringArray("sprite") groups=["Altars"]]
 script = ExtResource("1_muwh6")
@@ -34,5 +45,11 @@ collision_mask = 4
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D/Area2D"]
 shape = SubResource("CircleShape2D_0khly")
+
+[node name="PointLight2D" type="PointLight2D" parent="."]
+color = Color(0, 1, 1, 1)
+range_z_min = -256
+range_z_max = 256
+texture = SubResource("GradientTexture2D_uvbkc")
 
 [connection signal="body_entered" from="StaticBody2D/Area2D" to="." method="_on_area_2d_body_entered"]
