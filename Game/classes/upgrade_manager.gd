@@ -40,8 +40,8 @@ const UPGRADE_INFO: Dictionary[Upgradeable, Array] = {
 		"Increase your movement speed",
 		[
 			["Base", 100],
-			["Speed I", 150],
-			["Speed II", 200],
+			["Speed I", 200],
+			["Speed II", 300],
 		]
 	]
 }
