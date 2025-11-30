@@ -16,7 +16,7 @@ shader_parameter/outer_ring = 0.05
 shader_parameter/shockwave_colour = Color(0.8, 1, 1, 0.49803922)
 
 [sub_resource type="QuadMesh" id="QuadMesh_gqjuk"]
-size = Vector2(300, 300)
+size = Vector2(360, 360)
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_c4h5g"]
 

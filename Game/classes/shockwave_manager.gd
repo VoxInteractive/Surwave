@@ -4,7 +4,7 @@ class_name ShockwaveManager extends Node
 @export var radiation_speed: float = 1.0
 @export var inner_ring_range: Vector2 = Vector2(0.5, -0.2)
 @export var outer_ring_range: Vector2 = Vector2(0.05, 0.4)
-@export var hit_radius_adjustment: float = 0.8
+@export var hit_radius_adjustment: float = 0.75
 
 var is_firing: bool = false
 var has_played_sound: bool = false
