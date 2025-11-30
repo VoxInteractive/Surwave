@@ -1,8 +1,8 @@
 [gd_resource type="Theme" load_steps=10 format=3 uid="uid://dqjww1l3b8tt4"]
 
-[ext_resource type="Texture2D" uid="uid://bgh5rsijk5sdh" path="res://scenes/ui/pamphlets.png" id="1_8n3oo"]
+[ext_resource type="Texture2D" uid="uid://bgh5rsijk5sdh" path="res://scenes/ui/images/pamphlets.png" id="1_8n3oo"]
 [ext_resource type="FontFile" uid="uid://bts0yganv5ipq" path="res://resources/theme/KarenFat.ttf" id="1_8tjqa"]
-[ext_resource type="Texture2D" uid="uid://btj20852fefi7" path="res://scenes/ui/button_set.png" id="1_orw62"]
+[ext_resource type="Texture2D" uid="uid://btj20852fefi7" path="res://scenes/ui/images/button_set.png" id="1_orw62"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_orw62"]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bgh5rsijk5sdh"
-path="res://.godot/imported/pamphlets.png-16240132a8a4c85d858ab548b87124e8.ctex"
+uid="uid://boks3yb5o73wb"
+path="res://.godot/imported/title-small-2color.png-ff106bc3c691ba72e68e29ba387cdba8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://scenes/ui/pamphlets.png"
-dest_files=["res://.godot/imported/pamphlets.png-16240132a8a4c85d858ab548b87124e8.ctex"]
+source_file="res://scenes/ui/images/title-small-2color.png"
+dest_files=["res://.godot/imported/title-small-2color.png-ff106bc3c691ba72e68e29ba387cdba8.ctex"]
 
 [params]
 
