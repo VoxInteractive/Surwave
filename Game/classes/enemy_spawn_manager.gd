@@ -4,9 +4,9 @@ class_name EnemySpawnManager extends Node
 @export var probability_curve: Curve
 ## Controls the type of enemy spawned. The larger the value, the stronger the enemy.
 @export var enemy_type_curve: Curve
-## Controls how slowly the time advances for curve sampling. 300 means the prob. will max out at 5 minute mark.
+## Controls how slowly the time advances for curve sampling. With,  0.0027778 X=1.0 will be reached in 6 minutes
 @export_range(0.0001, 0.1, 0.001)
-var time_multiplier: float = 0.003333333 # maxes out at 5 minute mark
+var time_multiplier: float = 0.0027778
 ## Length to exclude from corners when spawning enemies
 @export var corner_exclusion_length: int = 64
 ## Margin from sides when spawning enemies
@@ -49,9 +49,9 @@ func _process(delta: float) -> void:
 
 func _pick_enemy_type(scaled_time: float) -> String:
 	var enemy_type_sample: float = enemy_type_curve.sample_baked(scaled_time) - randf()
-	if enemy_type_sample < 0.1:
+	if enemy_type_sample < 0.33:
 		return "BugSmall"
-	if enemy_type_sample < 0.5:
+	if enemy_type_sample < 0.67:
 		return "BugHumanoid"
 	return "BugLarge"
 

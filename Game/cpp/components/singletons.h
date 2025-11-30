@@ -112,7 +112,7 @@ inline FlecsRegistry register_game_singleton_components([](flecs::world& world) 
             godot::real_t(6.0),  // up_direction_frame_offset
             godot::real_t(0.5),  // horizontal_flip_cooldown
             godot::real_t(0.5),  // vertical_flip_cooldown
-            godot::real_t(8.0),  // nominal_movement_speed
+            godot::real_t(9.0),  // nominal_movement_speed
             godot::real_t(0.3),  // animation_offset_fraction_range
             godot::real_t(0.1) // hit_reaction_duration
             });

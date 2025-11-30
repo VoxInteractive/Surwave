@@ -14,8 +14,8 @@ func _ready() -> void:
 
 
 func set_defeat() -> void:
-	$%TitleLabel.text = "Defeat"
-	$%DescriptionLabel.text = "You lost!"
+	$%TitleLabel.text = "Dead!"
+	$%DescriptionLabel.text = "You didn't last ..."
 
 
 func on_restart_button_pressed() -> void:

@@ -57,3 +57,4 @@ func _ensure_upgrade_screen():
 func _on_upgrade_screen_finalized(requester: Node, _upgradeable: UpgradeManager.Upgradeable) -> void:
 	if requester != self: return
 	set_state(AltarState.SPENT)
+	$AnimationPlayer.play("go_off")

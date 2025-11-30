@@ -3,5 +3,5 @@ prefab BugLarge : Enemy {
 	HitRadius: {value: 16}
 	HitPoints: {value: 8}
 	MeleeDamage: {value: 5}
-	MovementSpeed: {value: 6}
+	MovementSpeed: {value: 11}
 }

@@ -23,6 +23,7 @@
 - [Drop 47 by roboroo - Attribution 4.0](https://freesound.org/people/roboroo/sounds/492932/)
 - [Fail Jingle Party Horn by qubodup](https://freesound.org/people/qubodup/sounds/825292/)
 - [Orchestral Victory Fanfare by Sheyvan - Attribution 4.0](https://freesound.org/people/Sheyvan/sounds/470083/)
+- [Fire impact by ViRiX Dreamcore (David Mckee) - CC-BY 3.0](https://opengameart.org/content/magic-sfx-sample)
 - [Impact Sounds by Kenney - CC0](https://kenney.nl/assets/impact-sounds)
 - [Sci-fi Sounds by Kenney - CC0](https://kenney.nl/assets/sci-fi-sounds)
 - [UI Audio by Kenney - CC0](https://kenney.nl/assets/ui-audio)

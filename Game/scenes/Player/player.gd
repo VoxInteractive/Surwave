@@ -2,7 +2,7 @@ class_name Player extends AnimatedObject
 
 signal player_took_damage
 
-const MAX_HEALTH: float = 1000.0 # TODO: Change back to 10.0
+const MAX_HEALTH: float = 10.0
 var health: float = MAX_HEALTH
 var health_bar_original_modulation: Color
 var health_bar_full_colour: Color = Color.LIME_GREEN
@@ -274,8 +274,8 @@ func _handle_death() -> void:
 	input_movement_vector = Vector2.ZERO
 	$ShockwaveManager/Timer.stop()
 	set_state(PlayerState.DYING)
+	AudioManager.player_death.play()
 	var dying_animation_frames: int = PlayerAnimationFrames[PlayerState.DYING].size()
 	var dying_duration: float = float(dying_animation_frames) * animation_interval
-
 	await get_tree().create_timer(dying_duration).timeout
 	emit_signal("died")
