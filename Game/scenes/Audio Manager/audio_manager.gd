@@ -21,6 +21,7 @@ var world: FlecsWorld
 @onready var defeat: AudioStreamPlayer = $MusicPlayers/Defeat
 @onready var victory: AudioStreamPlayer = $MusicPlayers/Victory
 @onready var sound_track: AudioStreamPlayer = $MusicPlayers/SoundTrack
+@onready var upgrade_screen_loop: AudioStreamPlayer = $MusicPlayers/UpgradeScreenLoop
 
 
 func connect_to_flecs_signal():
