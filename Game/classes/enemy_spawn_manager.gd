@@ -4,9 +4,9 @@ class_name EnemySpawnManager extends Node
 @export var probability_curve: Curve
 ## Controls the type of enemy spawned. The larger the value, the stronger the enemy.
 @export var enemy_type_curve: Curve
-## Controls how slowly the time advances for curve sampling. 300 means the prob. will max out at 5 minute mark.
+## Controls how slowly the time advances for curve sampling. With,  0.0027778 X=1.0 will be reached in 6 minutes
 @export_range(0.0001, 0.1, 0.001)
-var time_multiplier: float = 0.004
+var time_multiplier: float = 0.0027778
 ## Length to exclude from corners when spawning enemies
 @export var corner_exclusion_length: int = 64
 ## Margin from sides when spawning enemies

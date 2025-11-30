@@ -23,7 +23,7 @@
 [ext_resource type="PackedScene" uid="uid://belyoqxn5x3nf" path="res://scenes/ui/vignette.tscn" id="21_8wwtj"]
 
 [sub_resource type="Curve" id="Curve_1m5sl"]
-_data = [Vector2(0, 0.30337083), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.4952381, 1), 0.0, 0.0, 0, 0]
 point_count = 2
 
 [sub_resource type="Curve" id="Curve_sv3iu"]
