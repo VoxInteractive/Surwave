@@ -22,6 +22,7 @@ config/icon="uid://cce5kgbebt2yv"
 [autoload]
 
 AudioManager="*res://scenes/Audio Manager/audio_manager.tscn"
+DifficultySetting="*res://classes/difficulty_setting_autoload.gd"
 
 [display]
 
