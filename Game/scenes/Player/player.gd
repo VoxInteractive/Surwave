@@ -274,8 +274,8 @@ func _handle_death() -> void:
 	input_movement_vector = Vector2.ZERO
 	$ShockwaveManager/Timer.stop()
 	set_state(PlayerState.DYING)
+	AudioManager.player_death.play()
 	var dying_animation_frames: int = PlayerAnimationFrames[PlayerState.DYING].size()
 	var dying_duration: float = float(dying_animation_frames) * animation_interval
-
 	await get_tree().create_timer(dying_duration).timeout
 	emit_signal("died")
