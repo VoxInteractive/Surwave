@@ -89,7 +89,6 @@ bus = &"SFX"
 
 [node name="GemDrop" type="AudioStreamPlayer" parent="SFXPlayers"]
 stream = ExtResource("8_sxpqy")
-volume_db = 4.262
 max_polyphony = 8
 bus = &"SFX"
 
