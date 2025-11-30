@@ -25,7 +25,6 @@ signal player_instantiated(player: Player)
 @export var end_screen_scene: PackedScene
 
 @export_category("Camera zoom out after upgrades")
-@export var num_upgrades_before_camera_zooms_out: int = 2
 @export var camera_zoom_out_speed: float = 1.0
 
 const MAXIMUM_GEMS: int = 99
@@ -39,6 +38,7 @@ var upgrade_manager: UpgradeManager
 var _frame_counter: int = 0
 var gem_balance: int = 0
 var _is_zooming_out: bool = false
+var _camera_zoom_triggered: bool = false
 var _timer: Timer
 
 @onready var status_overlay: StatusOverlay = $StatusOverlay
@@ -299,6 +299,10 @@ func _process(_delta: float) -> void:
 	if _frame_counter % 5 == 0:
 		status_overlay.set_time_remaining(_timer.time_left)
 	
+	if not _camera_zoom_triggered and _timer.time_left < _timer.wait_time / 2.0:
+		_is_zooming_out = true
+		_camera_zoom_triggered = true
+
 	if _is_zooming_out:
 		var camera = get_node("Camera") as Camera2D
 		if camera:
@@ -316,14 +320,6 @@ func _on_gem_collected(value: int) -> void:
 func _on_upgrade_purchased(cost: int) -> void:
 	gem_balance -= cost
 	gem_balance_changed.emit(gem_balance)
-
-	var all_upgrades = upgrade_manager.upgrade_tiers.values()
-	var total_upgrades = 0
-	for tier in all_upgrades:
-		total_upgrades += tier
-
-	if total_upgrades >= num_upgrades_before_camera_zooms_out:
-		_is_zooming_out = true
 
 
 func _on_timer_timeout() -> void:
