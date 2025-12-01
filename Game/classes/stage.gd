@@ -156,7 +156,6 @@ func _set_camera_limits() -> void:
 		push_warning("Stage: Camera node not found, couldn't set limits.")
 
 
-
 func _apply_difficulty_setting() -> void:
 	match DifficultySetting.value:
 		0:
@@ -311,6 +310,7 @@ func _play_the_sound_track(delay: float = 5.0) -> void:
 	var tween = create_tween()
 	tween.tween_property(AudioManager.intro, "volume_db", -80, delay).set_ease(Tween.EASE_OUT)
 	await tween.finished
+	AudioManager.intro.stop()
 	AudioManager.sound_track.play()
 
 
