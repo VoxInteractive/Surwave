@@ -46,12 +46,16 @@ func _on_resume_button_pressed() -> void:
 
 
 func _on_options_button_pressed() -> void:
+	ScreenTransition.transition()
+	await ScreenTransition.transitioned_halfway
 	var options_menu_instance = OPTIONS_MENU_SCENE.instantiate()
 	add_child(options_menu_instance)
 	options_menu_instance.back_button_pressed.connect(_on_options_back_button_pressed.bind(options_menu_instance))
 
 
 func _on_quit_to_menu_button_pressed() -> void:
+	ScreenTransition.transition()
+	await ScreenTransition.transitioned_halfway
 	get_tree().paused = false
 	get_tree().change_scene_to_file("res://scenes/ui/main_menu.tscn")
 

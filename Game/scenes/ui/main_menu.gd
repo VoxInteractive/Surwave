@@ -11,10 +11,14 @@ func _ready() -> void:
 
 
 func _on_play_pressed() -> void:
+	ScreenTransition.transition()
+	await ScreenTransition.transitioned_halfway
 	get_tree().change_scene_to_file("res://game.tscn")
 
 
 func _on_options_pressed() -> void:
+	ScreenTransition.transition()
+	await ScreenTransition.transitioned_halfway
 	var options_menu_instance = options_menu_scene.instantiate()
 	add_child(options_menu_instance)
 	options_menu_instance.back_button_pressed.connect(_on_options_menu_closed.bind(options_menu_instance))

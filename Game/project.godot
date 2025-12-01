@@ -23,6 +23,7 @@ config/icon="uid://cce5kgbebt2yv"
 
 AudioManager="*res://scenes/Audio Manager/audio_manager.tscn"
 DifficultySetting="*res://classes/difficulty_setting_autoload.gd"
+ScreenTransition="*res://scenes/ui/screen_transition.tscn"
 
 [display]
 
