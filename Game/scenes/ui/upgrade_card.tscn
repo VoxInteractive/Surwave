@@ -207,7 +207,7 @@ custom_minimum_size = Vector2(210, 100)
 layout_mode = 2
 theme_override_colors/font_outline_color = Color(0.57254905, 0.56078434, 0.72156864, 1)
 theme_override_constants/outline_size = 4
-text = "Description etcccccccccccccccccccc"
+text = "Description"
 autowrap_mode = 3
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
