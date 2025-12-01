@@ -126,7 +126,7 @@ func _instantiate_player() -> void:
 	var player_scene: PackedScene = preload("res://scenes/Player/player.tscn")
 	var player_instance: Player = player_scene.instantiate() as Player
 	player_instance.position = Vector2(0, 0)
-	if DifficultySetting.value == 0: player_instance.max_health *= 2.0
+	if DifficultySetting.value == 0: player_instance.max_health *= 2.5
 	elif DifficultySetting.value == 2: player_instance.max_health = 0.1
 	player_instance.connect("died", _on_player_died)
 	player_instance.connect("gem_collected", _on_gem_collected)

@@ -21,11 +21,12 @@ func _ready() -> void:
 
 
 func _update_options() -> void:
+	difficulty_slider.value = DifficultySetting.value
+	sfx_slider.value = _get_bus_volume_percent("SFX")
+	music_slider.value = _get_bus_volume_percent("Music")
 	window_mode_button.text = "Windowed"
 	if DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN:
 		window_mode_button.text = "Fullscreen"
-	sfx_slider.value = _get_bus_volume_percent("SFX")
-	music_slider.value = _get_bus_volume_percent("Music")
 
 
 func _get_bus_volume_percent(bus_name: String) -> float:
