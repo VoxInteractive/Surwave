@@ -14,13 +14,15 @@ var requesting_node: Node
 
 func _ready() -> void:
 	visible = false
-	#set_process_unhandled_input(true)
 
 
 func show_with_available_upgrades(requester: Node = null, player_body: Node = null) -> void:
 	if not _ensure_upgrade_manager(player_body):
 		push_warning("UpgradeScreen: No UpgradeManager found on any Player.")
 		return
+	
+	AudioManager.upgrade_screen_loop.play()
+	
 	requesting_node = requester
 	purchase_in_progress = false
 	var upgrades := upgrade_manager.get_available_upgrades()
@@ -35,6 +37,7 @@ func show_with_available_upgrades(requester: Node = null, player_body: Node = nu
 func hide_screen() -> void:
 	$AnimationPlayer.play("out")
 	await $AnimationPlayer.animation_finished
+	AudioManager.upgrade_screen_loop.stop()
 	_set_game_paused(was_game_paused)
 	requesting_node = null
 	purchase_in_progress = false

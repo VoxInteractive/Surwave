@@ -28,6 +28,7 @@ signal player_instantiated(player: Player)
 @export var camera_zoom_out_speed: float = 1.0
 
 const MAXIMUM_GEMS: int = 99
+const PAUSE_MENU = preload("uid://bxvjrn4aui4lk")
 
 var altar_nodes: Array[Node]
 var portal_nodes: Array[Node]
@@ -62,6 +63,7 @@ func _ready() -> void:
 	_instantiate_player()
 	_instantiate_camera()
 	_set_camera_limits()
+	_apply_difficulty_setting()
 	_spawn_initial_enemy_population()
 	_set_stage_timer()
 	await _play_the_sound_track()
@@ -123,10 +125,12 @@ func _initialise_portals() -> void:
 func _instantiate_player() -> void:
 	var player_scene: PackedScene = preload("res://scenes/Player/player.tscn")
 	var player_instance: Player = player_scene.instantiate() as Player
-	add_child(player_instance)
 	player_instance.position = Vector2(0, 0)
+	if DifficultySetting.value == 0: player_instance.max_health *= 2.0
+	elif DifficultySetting.value == 2: player_instance.max_health = 0.1
 	player_instance.connect("died", _on_player_died)
 	player_instance.connect("gem_collected", _on_gem_collected)
+	add_child(player_instance)
 
 	upgrade_manager = player_instance.get_node_or_null("UpgradeManager")
 	if upgrade_manager:
@@ -150,6 +154,20 @@ func _set_camera_limits() -> void:
 		camera.set_limits(terrain.mesh.size)
 	else:
 		push_warning("Stage: Camera node not found, couldn't set limits.")
+
+
+
+func _apply_difficulty_setting() -> void:
+	match DifficultySetting.value:
+		0:
+			gem_balance += 10
+			# health doubling applied in _instantiate_player()
+		1:
+			pass
+			# no adjustments
+		2:
+			pass
+			# health reduction applied in _instantiate_player()
 
 
 func _connect_audio_manager_to_world() -> void:
@@ -289,8 +307,10 @@ func _set_stage_timer(wait_time: float = 360.0) -> void:
 	add_child(_timer)
 
 
-func _play_the_sound_track(delay: float = 3.0) -> void:
-	await get_tree().create_timer(delay).timeout
+func _play_the_sound_track(delay: float = 5.0) -> void:
+	var tween = create_tween()
+	tween.tween_property(AudioManager.intro, "volume_db", -80, delay).set_ease(Tween.EASE_OUT)
+	await tween.finished
 	AudioManager.sound_track.play()
 
 
@@ -335,3 +355,9 @@ func _on_player_died() -> void:
 	AudioManager.sound_track.stop()
 	await get_tree().create_timer(1.5).timeout
 	AudioManager.defeat.play()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"):
+		add_child(PAUSE_MENU.instantiate())
+	get_tree().root.set_input_as_handled()

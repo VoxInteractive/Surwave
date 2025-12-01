@@ -1,8 +1,9 @@
-[gd_resource type="Theme" load_steps=10 format=3 uid="uid://dqjww1l3b8tt4"]
+[gd_resource type="Theme" load_steps=14 format=3 uid="uid://dqjww1l3b8tt4"]
 
-[ext_resource type="Texture2D" uid="uid://bgh5rsijk5sdh" path="res://scenes/ui/pamphlets.png" id="1_8n3oo"]
+[ext_resource type="Texture2D" uid="uid://bgh5rsijk5sdh" path="res://scenes/ui/images/pamphlets.png" id="1_8n3oo"]
 [ext_resource type="FontFile" uid="uid://bts0yganv5ipq" path="res://resources/theme/KarenFat.ttf" id="1_8tjqa"]
-[ext_resource type="Texture2D" uid="uid://btj20852fefi7" path="res://scenes/ui/button_set.png" id="1_orw62"]
+[ext_resource type="Texture2D" uid="uid://btj20852fefi7" path="res://scenes/ui/images/button_set.png" id="1_orw62"]
+[ext_resource type="Texture2D" uid="uid://twor16be32bn" path="res://scenes/ui/images/bulletpoint.png" id="2_56c54"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_orw62"]
 
@@ -29,6 +30,24 @@ texture_margin_top = 6.0
 texture_margin_right = 4.0
 texture_margin_bottom = 4.0
 region_rect = Rect2(278, 406, 84, 84)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_orw62"]
+bg_color = Color(0.9607843, 0.6313726, 0.3647059, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_56c54"]
+bg_color = Color(0.9607843, 0.6313726, 0.3647059, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.8, 0.8, 0.8, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_65ii4"]
+content_margin_left = 2.0
+content_margin_top = 5.0
+content_margin_right = 2.0
+content_margin_bottom = 5.0
+bg_color = Color(0.83137256, 0.39215687, 0.3254902, 1)
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_orw62"]
 texture = ExtResource("1_8n3oo")
@@ -59,6 +78,11 @@ Button/styles/focus = SubResource("StyleBoxEmpty_orw62")
 Button/styles/hover = SubResource("StyleBoxTexture_65ii4")
 Button/styles/normal = SubResource("StyleBoxTexture_56c54")
 Button/styles/pressed = SubResource("StyleBoxTexture_j4h2o")
+HSlider/icons/grabber = ExtResource("2_56c54")
+HSlider/icons/grabber_highlight = ExtResource("2_56c54")
+HSlider/styles/grabber_area = SubResource("StyleBoxFlat_orw62")
+HSlider/styles/grabber_area_highlight = SubResource("StyleBoxFlat_56c54")
+HSlider/styles/slider = SubResource("StyleBoxFlat_65ii4")
 Label/constants/line_spacing = 2
 PanelContainer/styles/panel = SubResource("StyleBoxTexture_orw62")
 PanelContainerAlternative/base_type = &"PanelContainer"

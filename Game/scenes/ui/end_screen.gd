@@ -19,6 +19,8 @@ func set_defeat() -> void:
 
 
 func on_restart_button_pressed() -> void:
+	ScreenTransition.transition()
+	await ScreenTransition.transitioned_halfway
 	get_tree().paused = false
 	get_tree().change_scene_to_file("res://scenes/Stage 01/stage_01.tscn")
 

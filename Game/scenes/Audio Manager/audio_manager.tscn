@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3 uid="uid://c0h5bevr7m6at"]
+[gd_scene load_steps=30 format=3 uid="uid://c0h5bevr7m6at"]
 
 [ext_resource type="Script" uid="uid://du3idm3ms8uls" path="res://scenes/Audio Manager/audio_manager.gd" id="1_th668"]
 [ext_resource type="AudioStream" uid="uid://dhjyu0fcago5e" path="res://audio/sfx/BugHumanoidDie.ogg" id="2_sxpqy"]
@@ -25,6 +25,8 @@
 [ext_resource type="AudioStream" uid="uid://dq3iasmxnqbvu" path="res://audio/sfx/Projectile_D.wav" id="17_lljys"]
 [ext_resource type="AudioStream" uid="uid://v8hgiqdpyvcy" path="res://audio/sfx/Shockwave.ogg" id="19_sxpqy"]
 [ext_resource type="AudioStream" uid="uid://bj5dcbmn15xq4" path="res://audio/sfx/UpgradeAcquired.wav" id="19_uu38c"]
+[ext_resource type="AudioStream" uid="uid://bulch4mqcagif" path="res://audio/music/UpgradeScreenLoop.wav" id="26_gufja"]
+[ext_resource type="AudioStream" uid="uid://bsibr4gw0n4iq" path="res://audio/music/Intro.ogg" id="27_o7vmc"]
 
 [sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_1n5lx"]
 streams_count = 5
@@ -124,11 +126,22 @@ bus = &"SFX"
 stream = ExtResource("7_5a0sd")
 bus = &"Music"
 
+[node name="Intro" type="AudioStreamPlayer" parent="MusicPlayers"]
+stream = ExtResource("27_o7vmc")
+volume_db = -10.0
+bus = &"Music"
+
 [node name="Victory" type="AudioStreamPlayer" parent="MusicPlayers"]
 stream = ExtResource("8_2m2tg")
 bus = &"Music"
 
 [node name="SoundTrack" type="AudioStreamPlayer" parent="MusicPlayers"]
 stream = ExtResource("9_tw5x4")
+volume_db = -10.0
+bus = &"Music"
+
+[node name="UpgradeScreenLoop" type="AudioStreamPlayer" parent="MusicPlayers"]
+process_mode = 3
+stream = ExtResource("26_gufja")
 volume_db = -10.0
 bus = &"Music"

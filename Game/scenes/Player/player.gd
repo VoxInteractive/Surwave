@@ -2,8 +2,8 @@ class_name Player extends AnimatedObject
 
 signal player_took_damage
 
-const MAX_HEALTH: float = 10.0
-var health: float = MAX_HEALTH
+var max_health: float = 10.0
+var health: float
 var health_bar_original_modulation: Color
 var health_bar_full_colour: Color = Color.LIME_GREEN
 var health_bar_empty_colour: Color = Color(0.8392157, 0.101960786, 0.53333336, 1)
@@ -106,6 +106,7 @@ func _ready() -> void:
 	shoot_weapon_timer = animation_interval
 	can_shoot_weapon = true
 	
+	health = max_health
 	health_bar.value = health_bar.max_value
 	health_bar_original_modulation = health_bar.modulate
 	
@@ -256,7 +257,7 @@ func _on_flecs_signal(signal_name: StringName, data: Dictionary) -> void:
 		AudioManager.player_hurt.play()
 		
 		health -= data.damage_amount
-		health_bar.value = max(health / MAX_HEALTH, 0)
+		health_bar.value = max(health / max_health, 0)
 		health_bar.modulate = Color.WHITE
 		
 		if health > 0:

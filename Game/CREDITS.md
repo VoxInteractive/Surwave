@@ -10,8 +10,10 @@
 ### Graphics
 
 - [Free Roguelike Shoot ’em up Pixel Art Game Kit by Craftpix](https://craftpix.net/freebies/free-roguelike-shoot-em-up-pixel-art-game-kit)
+- [Free Desert Oasis Pixel Art Background Pack by Craftpix](https://craftpix.net/freebies/free-desert-oasis-pixel-art-background-pack/)
 - [Tech Dungeon: Roguelite - Asset Pack (Demo version) by Pupkin Assets](https://trevor-pupkin.itch.io/tech-dungeon-roguelite)
-- [KarenFat font by PaulSpades](https://nimblebeastscollective.itch.io/nb-pixel-font-bundle)
+- [Audiowide font by Astigmatic - SIL Open Font License 1.1](https://fonts.google.com/specimen/Audiowide)
+- [KarenFat font by PaulSpades - CC0](https://nimblebeastscollective.itch.io/nb-pixel-font-bundle)
 
 ### Audio
 
