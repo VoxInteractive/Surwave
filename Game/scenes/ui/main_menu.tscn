@@ -1,10 +1,16 @@
-[gd_scene load_steps=6 format=3 uid="uid://c6bnrj1oxaltb"]
+[gd_scene load_steps=10 format=3 uid="uid://c6bnrj1oxaltb"]
 
 [ext_resource type="Script" uid="uid://d565svnkxiwf" path="res://scenes/ui/main_menu.gd" id="1_1g8jr"]
 [ext_resource type="Texture2D" uid="uid://bxoiwf2ynx1if" path="res://scenes/ui/images/background.png" id="2_1g8jr"]
 [ext_resource type="Script" uid="uid://4rwaoyqxdfsd" path="res://scenes/ui/audible_button.gd" id="2_fe2o3"]
+[ext_resource type="Shader" uid="uid://ddi5lxoqml2dc" path="res://shaders/scroll.gdshader" id="3_btxxm"]
 [ext_resource type="Texture2D" uid="uid://boks3yb5o73wb" path="res://scenes/ui/images/title-small-2color.png" id="3_m1kxf"]
 [ext_resource type="Texture2D" uid="uid://cllvftedv8og0" path="res://scenes/ui/images/watermark.png" id="3_x2yvf"]
+[ext_resource type="Texture2D" uid="uid://ce2eqle7a83xv" path="res://scenes/ui/images/cloud1.png" id="4_wb0q5"]
+[ext_resource type="Texture2D" uid="uid://iw81fgsox65v" path="res://scenes/ui/images/cloud2.png" id="5_q85j6"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_q85j6"]
+shader = ExtResource("3_btxxm")
 
 [node name="MainMenu" type="CanvasLayer"]
 script = ExtResource("1_1g8jr")
@@ -14,8 +20,94 @@ offset_right = 40.0
 offset_bottom = 40.0
 texture = ExtResource("2_1g8jr")
 
+[node name="BackgroundClouds" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Cloud1" type="TextureRect" parent="BackgroundClouds"]
+material = SubResource("ShaderMaterial_q85j6")
+instance_shader_parameters/speed = 0.0010999959520500008
+layout_mode = 0
+offset_right = 1280.0
+offset_bottom = 320.0
+texture = ExtResource("4_wb0q5")
+
+[node name="Cloud2" type="TextureRect" parent="BackgroundClouds"]
+material = SubResource("ShaderMaterial_q85j6")
+instance_shader_parameters/speed = 0.001699995936869994
+layout_mode = 0
+offset_right = 1280.0
+offset_bottom = 320.0
+texture = ExtResource("5_q85j6")
+
+[node name="Menu" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="Menu"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="MarginContainer" type="MarginContainer" parent="Menu/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Menu/PanelContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/separation = 12
+
+[node name="MarginContainer" type="MarginContainer" parent="Menu/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 20
+
+[node name="Title" type="TextureRect" parent="Menu/PanelContainer/MarginContainer/VBoxContainer/MarginContainer"]
+layout_mode = 2
+texture = ExtResource("3_m1kxf")
+
+[node name="PlayButton" type="Button" parent="Menu/PanelContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Play"
+script = ExtResource("2_fe2o3")
+metadata/_custom_type_script = "uid://4rwaoyqxdfsd"
+
+[node name="OptionsButton" type="Button" parent="Menu/PanelContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Options"
+script = ExtResource("2_fe2o3")
+metadata/_custom_type_script = "uid://4rwaoyqxdfsd"
+
+[node name="CreditsButton" type="Button" parent="Menu/PanelContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Credits"
+script = ExtResource("2_fe2o3")
+metadata/_custom_type_script = "uid://4rwaoyqxdfsd"
+
+[node name="QuitButton" type="Button" parent="Menu/PanelContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Quit"
+script = ExtResource("2_fe2o3")
+metadata/_custom_type_script = "uid://4rwaoyqxdfsd"
+
 [node name="CopyrightWatermark" type="TextureRect" parent="."]
 modulate = Color(0.23137255, 0.023529412, 0.22745098, 1)
+texture_filter = 2
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
@@ -29,59 +121,3 @@ grow_horizontal = 0
 grow_vertical = 0
 scale = Vector2(0.167, 0.167)
 texture = ExtResource("3_x2yvf")
-
-[node name="MarginContainer" type="MarginContainer" parent="."]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="PanelContainer" type="PanelContainer" parent="MarginContainer"]
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-
-[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/PanelContainer"]
-layout_mode = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
-
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/PanelContainer/MarginContainer"]
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-theme_override_constants/separation = 12
-
-[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 20
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 20
-
-[node name="Title" type="TextureRect" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/MarginContainer"]
-layout_mode = 2
-texture = ExtResource("3_m1kxf")
-
-[node name="PlayButton" type="Button" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Play"
-script = ExtResource("2_fe2o3")
-metadata/_custom_type_script = "uid://4rwaoyqxdfsd"
-
-[node name="OptionsButton" type="Button" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Options"
-script = ExtResource("2_fe2o3")
-metadata/_custom_type_script = "uid://4rwaoyqxdfsd"
-
-[node name="QuitButton" type="Button" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Quit"
-script = ExtResource("2_fe2o3")
-metadata/_custom_type_script = "uid://4rwaoyqxdfsd"

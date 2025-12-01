@@ -17,6 +17,10 @@ config/description="Made for the Game Off 2025 jam. Demo project for Godot-Flecs
 config/version="1.0"
 run/main_scene="uid://c6bnrj1oxaltb"
 config/features=PackedStringArray("4.5", "GL Compatibility")
+boot_splash/bg_color=Color(0.23137255, 0.023529412, 0.22745098, 1)
+boot_splash/fullsize=false
+boot_splash/use_filter=false
+boot_splash/image="uid://d0bs3fs7eqtc5"
 config/icon="uid://cce5kgbebt2yv"
 
 [autoload]

@@ -126,7 +126,7 @@ func _instantiate_player() -> void:
 	var player_scene: PackedScene = preload("res://scenes/Player/player.tscn")
 	var player_instance: Player = player_scene.instantiate() as Player
 	player_instance.position = Vector2(0, 0)
-	if DifficultySetting.value == 0: player_instance.max_health *= 2.0
+	if DifficultySetting.value == 0: player_instance.max_health *= 2.5
 	elif DifficultySetting.value == 2: player_instance.max_health = 0.1
 	player_instance.connect("died", _on_player_died)
 	player_instance.connect("gem_collected", _on_gem_collected)
@@ -154,7 +154,6 @@ func _set_camera_limits() -> void:
 		camera.set_limits(terrain.mesh.size)
 	else:
 		push_warning("Stage: Camera node not found, couldn't set limits.")
-
 
 
 func _apply_difficulty_setting() -> void:
@@ -311,6 +310,7 @@ func _play_the_sound_track(delay: float = 5.0) -> void:
 	var tween = create_tween()
 	tween.tween_property(AudioManager.intro, "volume_db", -80, delay).set_ease(Tween.EASE_OUT)
 	await tween.finished
+	AudioManager.intro.stop()
 	AudioManager.sound_track.play()
 
 

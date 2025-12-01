@@ -64,7 +64,10 @@ FlecsWorld::FlecsWorld()
 
     // Set the number of threads Flecs should use based on CPU thread count
     unsigned int num_threads = ::utilities::Platform::get_thread_count();
-    world.set_threads(static_cast<int>(num_threads));
+
+    // I'm suspecting that the thread exhaustion in the Web builds are caused by this
+    // In this project the systems are single-threaded anyway.
+    // world.set_threads(static_cast<int>(num_threads));
 
     register_components_and_systems_with_world(world);
 

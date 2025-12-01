@@ -54,9 +54,12 @@ func _on_options_button_pressed() -> void:
 
 
 func _on_quit_to_menu_button_pressed() -> void:
+	AudioManager.sound_track.stop()
 	ScreenTransition.transition()
 	await ScreenTransition.transitioned_halfway
 	get_tree().paused = false
+	AudioManager.intro.volume_db = -10.0
+	AudioManager.intro.play()
 	get_tree().change_scene_to_file("res://scenes/ui/main_menu.tscn")
 
 
