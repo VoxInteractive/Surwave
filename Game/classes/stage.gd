@@ -28,6 +28,7 @@ signal player_instantiated(player: Player)
 @export var camera_zoom_out_speed: float = 1.0
 
 const MAXIMUM_GEMS: int = 99
+const PAUSE_MENU = preload("uid://bxvjrn4aui4lk")
 
 var altar_nodes: Array[Node]
 var portal_nodes: Array[Node]
@@ -354,3 +355,9 @@ func _on_player_died() -> void:
 	AudioManager.sound_track.stop()
 	await get_tree().create_timer(1.5).timeout
 	AudioManager.defeat.play()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"):
+		add_child(PAUSE_MENU.instantiate())
+	get_tree().root.set_input_as_handled()

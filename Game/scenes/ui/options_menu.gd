@@ -1,6 +1,6 @@
 extends CanvasLayer
 
-signal back_pressed
+signal back_button_pressed
 
 @onready var difficulty_slider: HSlider = %DifficultySlider
 @onready var difficulty_name: Label = %DifficultyName
@@ -71,4 +71,4 @@ func _on_audio_slider_changed(value: float, bus_name: String) -> void:
 
 
 func _on_back_button_pressed():
-	back_pressed.emit()
+	back_button_pressed.emit()

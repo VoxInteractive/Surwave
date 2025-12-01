@@ -14,7 +14,6 @@ var requesting_node: Node
 
 func _ready() -> void:
 	visible = false
-	#set_process_unhandled_input(true)
 
 
 func show_with_available_upgrades(requester: Node = null, player_body: Node = null) -> void:
