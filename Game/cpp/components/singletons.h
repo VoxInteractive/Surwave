@@ -59,7 +59,7 @@ struct EnemyCount
 
     // Allows implicit conversion of this struct to a godot::Variant.
     operator godot::Variant() const {
-        return value;
+        return static_cast<int64_t>(value);
     }
 };
 
