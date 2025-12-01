@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://bxoiwf2ynx1if" path="res://scenes/ui/images/background.png" id="2_1g8jr"]
 [ext_resource type="Script" uid="uid://4rwaoyqxdfsd" path="res://scenes/ui/audible_button.gd" id="2_fe2o3"]
 [ext_resource type="Texture2D" uid="uid://boks3yb5o73wb" path="res://scenes/ui/images/title-small-2color.png" id="3_m1kxf"]
-[ext_resource type="Texture2D" uid="uid://cllvftedv8og0" path="res://scenes/ui/images/copyright-watermark.png" id="3_x2yvf"]
+[ext_resource type="Texture2D" uid="uid://cllvftedv8og0" path="res://scenes/ui/images/watermark.png" id="3_x2yvf"]
 
 [node name="MainMenu" type="CanvasLayer"]
 script = ExtResource("1_1g8jr")
@@ -22,9 +22,9 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -214.0
-offset_top = -21.999939
+offset_top = -43.0
 offset_right = 1066.0
-offset_bottom = 106.00006
+offset_bottom = 213.0
 grow_horizontal = 0
 grow_vertical = 0
 scale = Vector2(0.167, 0.167)
