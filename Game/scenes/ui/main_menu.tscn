@@ -1,10 +1,16 @@
-[gd_scene load_steps=6 format=3 uid="uid://c6bnrj1oxaltb"]
+[gd_scene load_steps=9 format=3 uid="uid://c6bnrj1oxaltb"]
 
 [ext_resource type="Script" uid="uid://d565svnkxiwf" path="res://scenes/ui/main_menu.gd" id="1_1g8jr"]
 [ext_resource type="Texture2D" uid="uid://bxoiwf2ynx1if" path="res://scenes/ui/images/background.png" id="2_1g8jr"]
 [ext_resource type="Script" uid="uid://4rwaoyqxdfsd" path="res://scenes/ui/audible_button.gd" id="2_fe2o3"]
+[ext_resource type="Shader" uid="uid://ddi5lxoqml2dc" path="res://shaders/scroll.gdshader" id="3_btxxm"]
 [ext_resource type="Texture2D" uid="uid://boks3yb5o73wb" path="res://scenes/ui/images/title-small-2color.png" id="3_m1kxf"]
 [ext_resource type="Texture2D" uid="uid://cllvftedv8og0" path="res://scenes/ui/images/watermark.png" id="3_x2yvf"]
+[ext_resource type="Texture2D" uid="uid://dxy55b0crrw5h" path="res://scenes/ui/images/clouds.png" id="4_wb0q5"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_q85j6"]
+shader = ExtResource("3_btxxm")
+shader_parameter/speed = -0.00099999678762
 
 [node name="MainMenu" type="CanvasLayer"]
 script = ExtResource("1_1g8jr")
@@ -13,6 +19,12 @@ script = ExtResource("1_1g8jr")
 offset_right = 40.0
 offset_bottom = 40.0
 texture = ExtResource("2_1g8jr")
+
+[node name="BackgroundClouds" type="TextureRect" parent="."]
+material = SubResource("ShaderMaterial_q85j6")
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("4_wb0q5")
 
 [node name="CopyrightWatermark" type="TextureRect" parent="."]
 modulate = Color(0.23137255, 0.023529412, 0.22745098, 1)
